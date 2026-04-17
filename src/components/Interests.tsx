@@ -47,9 +47,49 @@ function StarRating({ rating }: { rating?: number }) {
   );
 }
 
-function MediaCard({ item }: { item: MediaItem }) {
+
+function MediaColumn({
+  title,
+  icon,
+  items,
+}: {
+  title: string;
+  icon: React.ReactNode;
+  items: MediaItem[];
+}) {
+  const firstRow  = items.slice(0, 3);
+  const secondRow = items.slice(3, 5);
+
   return (
-    <div className="flex-shrink-0 w-32 group cursor-pointer">
+    <div className="flex-1 bg-[#1c1528] border border-[#2a1f3d] rounded-2xl p-6">
+      {/* Column header */}
+      <div className="flex items-center gap-2 mb-6">
+        {icon}
+        <h3 className="text-white font-bold text-lg">{title}</h3>
+      </div>
+
+      {/* Row 1 — 3 posters */}
+      <div className="grid grid-cols-3 gap-3 mb-3">
+        {firstRow.map((item) => (
+          <PosterCard key={item.title} item={item} />
+        ))}
+      </div>
+
+      {/* Row 2 — 2 posters, centred */}
+      <div className="flex justify-center gap-3">
+        {secondRow.map((item) => (
+          <div key={item.title} className="w-[calc(33.333%-6px)]">
+            <PosterCard item={item} />
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function PosterCard({ item }: { item: MediaItem }) {
+  return (
+    <div className="group cursor-pointer">
       <div className="relative rounded-xl overflow-hidden mb-2 aspect-[2/3] bg-[#2a1f3d]">
         <img
           src={item.posterUrl}
@@ -61,49 +101,8 @@ function MediaCard({ item }: { item: MediaItem }) {
           <StarRating rating={item.rating} />
         </div>
       </div>
-      <p className="text-white text-xs font-medium line-clamp-2 leading-tight">{item.title}</p>
+      <p className="text-white text-xs font-semibold line-clamp-2 leading-tight">{item.title}</p>
       {item.year && <p className="text-gray-500 text-xs mt-0.5">{item.year}</p>}
-    </div>
-  );
-}
-
-function MediaColumn({
-  title,
-  icon,
-  items,
-}: {
-  title: string;
-  icon: React.ReactNode;
-  items: MediaItem[];
-}) {
-  return (
-    <div className="flex-1 bg-[#1c1528] border border-[#2a1f3d] rounded-2xl p-6">
-      {/* Column header */}
-      <div className="flex items-center gap-2 mb-6">
-        {icon}
-        <h3 className="text-white font-bold text-lg">{title}</h3>
-      </div>
-
-      {/* List */}
-      <div className="flex flex-col gap-4">
-        {items.map((item, idx) => (
-          <div key={item.title} className="flex items-center gap-3">
-            <span className="text-gray-600 font-bold text-sm w-5 text-right flex-shrink-0">{idx + 1}</span>
-            <img
-              src={item.posterUrl}
-              alt={item.title}
-              className="w-10 h-14 object-cover rounded-lg flex-shrink-0 bg-[#2a1f3d]"
-            />
-            <div className="min-w-0">
-              <p className="text-white text-sm font-semibold leading-tight line-clamp-2">{item.title}</p>
-              <div className="flex items-center gap-2 mt-1">
-                {item.year && <span className="text-gray-500 text-xs">{item.year}</span>}
-                <StarRating rating={item.rating} />
-              </div>
-            </div>
-          </div>
-        ))}
-      </div>
     </div>
   );
 }
