@@ -7,7 +7,7 @@ export interface CricketMatch {
   name: string;
   team1: string;
   team2: string;
-  date: string;        // ISO string
+  date: string;        // ISO UTC string with time (dateTimeGMT)
   venue: string;
   matchType: string;   // "IPL" | "T20I" | "ODI" | "TEST"
   series: string;
@@ -39,14 +39,15 @@ async function fetchIPLMatches(apiKey: string): Promise<CricketMatch[]> {
 
     // Sort by date ascending so we find the NEXT upcoming match first
     const sorted = [...matchList].sort((a, b) => {
-      const da = new Date((a.date ?? a.dateTimeGMT ?? "") as string).getTime();
-      const db = new Date((b.date ?? b.dateTimeGMT ?? "") as string).getTime();
+      const da = new Date((a.dateTimeGMT ?? a.date ?? "") as string).getTime();
+      const db = new Date((b.dateTimeGMT ?? b.date ?? "") as string).getTime();
       return da - db;
     });
 
     for (const m of sorted) {
       const teams: string[] = (m.teams as string[]) ?? [];
-      const dateStr = ((m.date ?? m.dateTimeGMT ?? "") as string);
+      // Prefer dateTimeGMT (includes time) over date (date only)
+      const dateStr = ((m.dateTimeGMT ?? m.date ?? "") as string);
       const matchDate = new Date(dateStr);
       if (isNaN(matchDate.getTime()) || matchDate <= now) continue;
 
@@ -95,14 +96,14 @@ async function fetchIndiaInternational(apiKey: string): Promise<CricketMatch | n
 
     // Look for upcoming India matches that are NOT IPL
     const sorted = [...allMatches].sort((a, b) => {
-      const da = new Date((a.date ?? a.dateTimeGMT ?? "") as string).getTime();
-      const db = new Date((b.date ?? b.dateTimeGMT ?? "") as string).getTime();
+      const da = new Date((a.dateTimeGMT ?? a.date ?? "") as string).getTime();
+      const db = new Date((b.dateTimeGMT ?? b.date ?? "") as string).getTime();
       return da - db;
     });
 
     for (const m of sorted) {
       const teams: string[] = (m.teams as string[]) ?? [];
-      const dateStr = ((m.date ?? m.dateTimeGMT ?? "") as string);
+      const dateStr = ((m.dateTimeGMT ?? m.date ?? "") as string);
       const matchDate = new Date(dateStr);
       if (isNaN(matchDate.getTime()) || matchDate <= now) continue;
 

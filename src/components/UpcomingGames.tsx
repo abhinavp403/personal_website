@@ -73,11 +73,14 @@ function buildFallbackGames(): GameEvent[] {
   ];
 }
 
-function formatDate(iso: string) {
-  return new Date(iso).toLocaleDateString("en-US", { weekday: "short", month: "short", day: "numeric" });
+function formatDate(iso: string, sport?: string) {
+  const tz = sport === "cricket" ? "Asia/Kolkata" : undefined;
+  return new Date(iso).toLocaleDateString("en-US", { weekday: "short", month: "short", day: "numeric", timeZone: tz });
 }
-function formatTime(iso: string) {
-  return new Date(iso).toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit" });
+function formatTime(iso: string, sport?: string) {
+  const tz = sport === "cricket" ? "Asia/Kolkata" : undefined;
+  const time = new Date(iso).toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit", timeZone: tz });
+  return sport === "cricket" ? `${time} IST` : time;
 }
 function daysUntil(iso: string) {
   const days = Math.floor((new Date(iso).getTime() - Date.now()) / 86400000);
@@ -215,7 +218,7 @@ export default function UpcomingGames() {
                 <div className="border-t border-[#2a1f3d] pt-3 space-y-1.5">
                   <div className="flex items-center gap-2 text-gray-400 text-xs">
                     <Calendar className="w-3.5 h-3.5 flex-shrink-0" />
-                    {formatDate(game.date)} · {formatTime(game.date)}
+                    {formatDate(game.date, game.sport)} · {formatTime(game.date, game.sport)}
                   </div>
                   {game.venue && (
                     <div className="flex items-center gap-2 text-gray-500 text-xs">
