@@ -3,7 +3,6 @@ import AIProjects from "@/components/AIProjects";
 import Interests from "@/components/Interests";
 import LinkWebsites from "@/components/LinkWebsites";
 import UpcomingGames from "@/components/UpcomingGames";
-import FactOfWeek from "@/components/FactOfWeek";
 import GeoGame from "@/components/GeoGame";
 
 export default function Home() {
@@ -13,7 +12,6 @@ export default function Home() {
       <AIProjects />
       <Interests />
       <UpcomingGames />
-      <FactOfWeek />
       <GeoGame />
       <LinkWebsites />
 
