@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Film, Tv, Music, Star } from "lucide-react";
 import { db } from "@/lib/firebase";
 import { collection, getDocs } from "firebase/firestore";
@@ -67,9 +67,49 @@ function MediaCard({ item }: { item: MediaItem }) {
   );
 }
 
+function MediaColumn({
+  title,
+  icon,
+  items,
+}: {
+  title: string;
+  icon: React.ReactNode;
+  items: MediaItem[];
+}) {
+  return (
+    <div className="flex-1 bg-[#1c1528] border border-[#2a1f3d] rounded-2xl p-6">
+      {/* Column header */}
+      <div className="flex items-center gap-2 mb-6">
+        {icon}
+        <h3 className="text-white font-bold text-lg">{title}</h3>
+      </div>
+
+      {/* List */}
+      <div className="flex flex-col gap-4">
+        {items.map((item, idx) => (
+          <div key={item.title} className="flex items-center gap-3">
+            <span className="text-gray-600 font-bold text-sm w-5 text-right flex-shrink-0">{idx + 1}</span>
+            <img
+              src={item.posterUrl}
+              alt={item.title}
+              className="w-10 h-14 object-cover rounded-lg flex-shrink-0 bg-[#2a1f3d]"
+            />
+            <div className="min-w-0">
+              <p className="text-white text-sm font-semibold leading-tight line-clamp-2">{item.title}</p>
+              <div className="flex items-center gap-2 mt-1">
+                {item.year && <span className="text-gray-500 text-xs">{item.year}</span>}
+                <StarRating rating={item.rating} />
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 export default function Interests() {
   const [data, setData] = useState<InterestsData>(fallbackData);
-  const [activeTab, setActiveTab] = useState<"movies" | "shows">("movies");
 
   useEffect(() => {
     async function fetchInterests() {
@@ -123,44 +163,22 @@ export default function Interests() {
           </p>
         </div>
 
-        {/* Tabs */}
-        <div className="flex gap-3 justify-center mb-8">
-          <button
-            onClick={() => setActiveTab("movies")}
-            className={`flex items-center gap-2 rounded-full px-5 py-2.5 text-sm font-semibold transition-all ${
-              activeTab === "movies"
-                ? "bg-purple-600 text-white"
-                : "bg-[#1c1528] text-gray-400 hover:text-white"
-            }`}
-          >
-            <Film className="w-4 h-4" />
-            Movies
-          </button>
-          <button
-            onClick={() => setActiveTab("shows")}
-            className={`flex items-center gap-2 rounded-full px-5 py-2.5 text-sm font-semibold transition-all ${
-              activeTab === "shows"
-                ? "bg-purple-600 text-white"
-                : "bg-[#1c1528] text-gray-400 hover:text-white"
-            }`}
-          >
-            <Tv className="w-4 h-4" />
-            Shows
-          </button>
-        </div>
-
-        {/* Media grid */}
-        <div className="flex gap-5 justify-center flex-wrap">
-          {(activeTab === "movies" ? data.movies : data.shows).map((item, idx) => (
-            <div key={item.title} className="flex items-start gap-3">
-              <span className="text-gray-600 font-bold text-lg mt-2 w-5 text-right">{idx + 1}</span>
-              <MediaCard item={item} />
-            </div>
-          ))}
+        {/* Side-by-side columns */}
+        <div className="flex flex-col sm:flex-row gap-4">
+          <MediaColumn
+            title="Movies"
+            icon={<Film className="w-5 h-5 text-purple-400" />}
+            items={data.movies}
+          />
+          <MediaColumn
+            title="Shows"
+            icon={<Tv className="w-5 h-5 text-pink-400" />}
+            items={data.shows}
+          />
         </div>
 
         {/* Spotify */}
-        <div className="mt-14">
+        <div className="mt-6">
           <div className="bg-[#1c1528] border border-[#2a1f3d] rounded-2xl p-6 flex flex-col sm:flex-row items-center justify-between gap-4">
             <div className="flex items-center gap-4">
               <div className="w-12 h-12 bg-[#1DB954] rounded-full flex items-center justify-center">
