@@ -4,6 +4,7 @@ import React, { useEffect, useState } from "react";
 import { Film, Tv, Music, Star } from "lucide-react";
 import { db } from "@/lib/firebase";
 import { collection, getDocs } from "firebase/firestore";
+import type { SpotifyArtist, SpotifyTrack } from "@/app/api/spotify/route";
 
 interface MediaItem {
   title: string;
@@ -15,7 +16,6 @@ interface MediaItem {
 interface InterestsData {
   movies: MediaItem[];
   shows: MediaItem[];
-  spotifyPlaylistUrl: string;
 }
 
 // Fallback data shown when Firebase isn't configured yet
@@ -34,7 +34,6 @@ const fallbackData: InterestsData = {
     { title: "Ripley", rating: 8.7, posterUrl: "https://images.unsplash.com/photo-1529156069898-49953e39b3ac?w=200&h=300&fit=crop", year: 2024 },
     { title: "Fallout", rating: 8.5, posterUrl: "https://images.unsplash.com/photo-1518709414768-a88981a4515d?w=200&h=300&fit=crop", year: 2024 },
   ],
-  spotifyPlaylistUrl: "https://open.spotify.com/user/abhinavp403",
 };
 
 function StarRating({ rating }: { rating?: number }) {
@@ -108,48 +107,56 @@ function PosterCard({ item }: { item: MediaItem }) {
 }
 
 export default function Interests() {
-  const [data, setData] = useState<InterestsData>(fallbackData);
+  const [data, setData]       = useState<InterestsData>(fallbackData);
+  const [artists, setArtists] = useState<SpotifyArtist[]>([]);
+  const [tracks, setTracks]   = useState<SpotifyTrack[]>([]);
+  const [spotifyConfigured, setSpotifyConfigured] = useState(true);
 
   useEffect(() => {
+    // Firebase — movies & shows
     async function fetchInterests() {
       try {
         const [moviesSnap, showsSnap] = await Promise.all([
           getDocs(collection(db, "interests", "current", "movies")),
           getDocs(collection(db, "interests", "current", "shows")),
         ]);
-
         const normalize = (raw: Record<string, unknown>): MediaItem => ({
-          title: raw.title as string,
+          title:     raw.title as string,
           posterUrl: (raw.posterUrl ?? raw.poster_url ?? "") as string,
-          rating: raw.rating as number | undefined,
-          year: raw.year as number | undefined,
+          rating:    raw.rating as number | undefined,
+          year:      raw.year as number | undefined,
         });
-
-        const movies = moviesSnap.docs
-          .sort((a, b) => a.id.localeCompare(b.id))
-          .map(d => normalize(d.data()));
-
-        const shows = showsSnap.docs
-          .sort((a, b) => a.id.localeCompare(b.id))
-          .map(d => normalize(d.data()));
-
+        const movies = moviesSnap.docs.sort((a, b) => a.id.localeCompare(b.id)).map(d => normalize(d.data()));
+        const shows  = showsSnap.docs.sort((a, b) => a.id.localeCompare(b.id)).map(d => normalize(d.data()));
         if (movies.length || shows.length) {
           setData(prev => ({
             ...prev,
             ...(movies.length && { movies }),
-            ...(shows.length && { shows }),
+            ...(shows.length  && { shows  }),
           }));
         }
-      } catch {
-        // Firebase not configured — using fallback data
-      }
+      } catch { /* use fallback */ }
     }
+
+    // Spotify — top artists & tracks
+    async function fetchSpotify() {
+      try {
+        const res  = await fetch("/api/spotify");
+        const data = await res.json();
+        if (!data.configured) { setSpotifyConfigured(false); return; }
+        setArtists(data.artists ?? []);
+        setTracks(data.tracks   ?? []);
+      } catch { setSpotifyConfigured(false); }
+    }
+
     fetchInterests();
+    fetchSpotify();
   }, []);
 
   return (
     <section id="interests" className="py-20 px-4 bg-[#0a0312]">
       <div className="max-w-6xl mx-auto">
+
         {/* Section header */}
         <div className="text-center mb-12">
           <div className="inline-flex items-center gap-2 bg-[#1c1528] rounded-full px-4 py-2 text-xs text-gray-400 mb-4">
@@ -158,11 +165,11 @@ export default function Interests() {
           </div>
           <h2 className="text-4xl font-bold text-white">What I&apos;m Watching &amp; Listening To</h2>
           <p className="text-gray-400 mt-3 max-w-xl mx-auto">
-            My top picks of the year — updated dynamically via Firebase.
+            My top picks of the year — updated dynamically via Firebase &amp; Spotify.
           </p>
         </div>
 
-        {/* Side-by-side columns */}
+        {/* Movies + Shows side by side */}
         <div className="flex flex-col sm:flex-row gap-4">
           <MediaColumn
             title="Movies"
@@ -176,28 +183,83 @@ export default function Interests() {
           />
         </div>
 
-        {/* Spotify */}
-        <div className="mt-6">
-          <div className="bg-[#1c1528] border border-[#2a1f3d] rounded-2xl p-6 flex flex-col sm:flex-row items-center justify-between gap-4">
-            <div className="flex items-center gap-4">
-              <div className="w-12 h-12 bg-[#1DB954] rounded-full flex items-center justify-center">
-                <Music className="w-6 h-6 text-white" />
+        {/* Spotify section */}
+        {spotifyConfigured && (
+          <div className="mt-6 bg-[#1c1528] border border-[#2a1f3d] rounded-2xl p-6">
+            {/* Header */}
+            <div className="flex items-center gap-2 mb-6">
+              <div className="w-6 h-6 flex items-center justify-center">
+                <Music className="w-5 h-5 text-[#1DB954]" />
               </div>
-              <div>
-                <p className="text-white font-semibold">My Spotify</p>
-                <p className="text-gray-400 text-sm">Check out what I&apos;m listening to</p>
-              </div>
+              <h3 className="text-white font-bold text-lg">Spotify</h3>
             </div>
-            <a
-              href={data.spotifyPlaylistUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="bg-[#1DB954] hover:bg-[#1aa34a] text-white font-semibold rounded-full px-6 py-2.5 text-sm transition-colors whitespace-nowrap"
-            >
-              Open Spotify
-            </a>
+
+            <div className="flex flex-col sm:flex-row gap-6">
+              {/* Top Artists */}
+              {artists.length > 0 && (
+                <div className="flex-1">
+                  <p className="text-gray-400 text-xs font-semibold uppercase tracking-wider mb-4">Top Artists</p>
+                  <div className="flex flex-col gap-3">
+                    {artists.map((artist) => (
+                      <a
+                        key={artist.id}
+                        href={artist.url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex items-center gap-3 group"
+                      >
+                        <img
+                          src={artist.imageUrl}
+                          alt={artist.name}
+                          className="w-10 h-10 rounded-full object-cover flex-shrink-0 group-hover:ring-2 ring-[#1DB954] transition-all"
+                        />
+                        <div className="min-w-0">
+                          <p className="text-white text-sm font-semibold truncate group-hover:text-[#1DB954] transition-colors">{artist.name}</p>
+                          {artist.genres.length > 0 && (
+                            <p className="text-gray-500 text-xs truncate capitalize">{artist.genres.join(" · ")}</p>
+                          )}
+                        </div>
+                      </a>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Divider */}
+              {artists.length > 0 && tracks.length > 0 && (
+                <div className="hidden sm:block w-px bg-[#2a1f3d]" />
+              )}
+
+              {/* Top Tracks */}
+              {tracks.length > 0 && (
+                <div className="flex-1">
+                  <p className="text-gray-400 text-xs font-semibold uppercase tracking-wider mb-4">Top Songs</p>
+                  <div className="flex flex-col gap-3">
+                    {tracks.map((track) => (
+                      <a
+                        key={track.id}
+                        href={track.url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex items-center gap-3 group"
+                      >
+                        <img
+                          src={track.albumArt}
+                          alt={track.name}
+                          className="w-10 h-10 rounded-lg object-cover flex-shrink-0 group-hover:ring-2 ring-[#1DB954] transition-all"
+                        />
+                        <div className="min-w-0">
+                          <p className="text-white text-sm font-semibold truncate group-hover:text-[#1DB954] transition-colors">{track.name}</p>
+                          <p className="text-gray-500 text-xs truncate">{track.artist}</p>
+                        </div>
+                      </a>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
           </div>
-        </div>
+        )}
       </div>
     </section>
   );
