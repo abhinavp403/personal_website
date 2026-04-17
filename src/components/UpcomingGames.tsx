@@ -83,7 +83,11 @@ function formatTime(iso: string, sport?: string) {
   return sport === "cricket" ? `${time} IST` : time;
 }
 function daysUntil(iso: string) {
-  const days = Math.floor((new Date(iso).getTime() - Date.now()) / 86400000);
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const match = new Date(iso);
+  match.setHours(0, 0, 0, 0);
+  const days = Math.round((match.getTime() - today.getTime()) / 86400000);
   if (days <= 0) return "Today";
   if (days === 1) return "Tomorrow";
   return `In ${days} days`;
