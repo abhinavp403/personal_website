@@ -47,7 +47,9 @@ async function fetchIPLMatches(apiKey: string): Promise<CricketMatch[]> {
     for (const m of sorted) {
       const teams: string[] = (m.teams as string[]) ?? [];
       // Prefer dateTimeGMT (includes time) over date (date only)
-      const dateStr = ((m.dateTimeGMT ?? m.date ?? "") as string);
+      // Append Z so JavaScript always parses it as UTC, not local time
+      const raw = ((m.dateTimeGMT ?? m.date ?? "") as string);
+      const dateStr = raw && !raw.endsWith("Z") && !raw.includes("+") ? raw + "Z" : raw;
       const matchDate = new Date(dateStr);
       if (isNaN(matchDate.getTime()) || matchDate <= now) continue;
 
@@ -103,7 +105,8 @@ async function fetchIndiaInternational(apiKey: string): Promise<CricketMatch | n
 
     for (const m of sorted) {
       const teams: string[] = (m.teams as string[]) ?? [];
-      const dateStr = ((m.dateTimeGMT ?? m.date ?? "") as string);
+      const raw = ((m.dateTimeGMT ?? m.date ?? "") as string);
+      const dateStr = raw && !raw.endsWith("Z") && !raw.includes("+") ? raw + "Z" : raw;
       const matchDate = new Date(dateStr);
       if (isNaN(matchDate.getTime()) || matchDate <= now) continue;
 
