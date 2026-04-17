@@ -6,7 +6,8 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start -p $PORT",
-    "lint": "eslint"
+    "lint": "eslint",
+    "heroku-postbuild": "next build"
   },
   "dependencies": {
     "@base-ui/react": "^1.4.0",
