@@ -3,6 +3,7 @@ import AIProjects from "@/components/AIProjects";
 import Interests from "@/components/Interests";
 import LinkWebsites from "@/components/LinkWebsites";
 import UpcomingGames from "@/components/UpcomingGames";
+import WordOfDay from "@/components/WordOfDay";
 import GeoGame from "@/components/GeoGame";
 
 export default function Home() {
@@ -12,6 +13,7 @@ export default function Home() {
       <AIProjects />
       <Interests />
       <UpcomingGames />
+      <WordOfDay />
       <GeoGame />
       <LinkWebsites />
 
