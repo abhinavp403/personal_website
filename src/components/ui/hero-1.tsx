@@ -22,22 +22,6 @@ const Hero1 = () => {
         <div className="w-[10rem] h-[30rem]  bg-linear-90 from-white to-blue-300"></div>
         <div className="w-[10rem] h-[30rem]  bg-linear-90 from-white to-blue-300"></div>
       </div>
-      {/* Header */}
-      <header className="flex justify-between items-center p-6">
-        <div className="flex items-center gap-2">
-          <div className="w-8 h-8 bg-gradient-to-br from-purple-500 to-blue-500 rounded-lg flex items-center justify-center font-bold text-sm">A</div>
-          <div className="font-bold text-md">Abhinav P</div>
-        </div>
-        <nav className="hidden md:flex gap-6 text-sm text-gray-400">
-          <a href="#projects" className="hover:text-white transition-colors">Projects</a>
-          <a href="#interests" className="hover:text-white transition-colors">Interests</a>
-          <a href="#games" className="hover:text-white transition-colors">Games</a>
-          <a href="#connect" className="hover:text-white transition-colors">Connect</a>
-        </nav>
-        <a href="https://github.com/abhinavp403" target="_blank" rel="noopener noreferrer" className="bg-white text-black hover:bg-gray-200 rounded-full px-4 py-2 text-sm cursor-pointer font-semibold transition-colors">
-          GitHub
-        </a>
-      </header>
 
       {/* Main Content */}
       <main className="flex-1 flex flex-col items-center justify-center px-4 text-center py-20">

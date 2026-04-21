@@ -135,17 +135,6 @@ export default function UpcomingGames() {
     <section id="games" className="py-20 px-4 bg-[#0a0312]">
       <div className="max-w-6xl mx-auto">
 
-        {/* Header */}
-        <div className="text-center mb-12">
-          <div className="inline-flex items-center gap-2 bg-[#1c1528] rounded-full px-4 py-2 text-xs text-gray-400 mb-4">
-            <span className="w-2 h-2 rounded-full bg-orange-500 animate-pulse" />
-            Sports
-          </div>
-          <h2 className="text-4xl font-bold text-white">Next Games</h2>
-          <p className="text-gray-400 mt-3 max-w-xl mx-auto">
-            Next scheduled fixture for each of my favourite teams.
-          </p>
-        </div>
 
         {/* Sport filter */}
         <div className="flex gap-2 flex-wrap justify-center mb-8">

@@ -43,17 +43,6 @@ export default function AIProjects() {
   return (
     <section id="projects" className="py-20 px-4 bg-[#0c0414]">
       <div className="max-w-6xl mx-auto">
-        {/* Section header */}
-        <div className="text-center mb-12">
-          <div className="inline-flex items-center gap-2 bg-[#1c1528] rounded-full px-4 py-2 text-xs text-gray-400 mb-4">
-            <span className="w-2 h-2 rounded-full bg-purple-500 animate-pulse" />
-            AI Projects
-          </div>
-          <h2 className="text-4xl font-bold text-white">Things I&apos;ve Built</h2>
-          <p className="text-gray-400 mt-3 max-w-xl mx-auto">
-            A collection of AI and ML projects — from prototypes to production apps.
-          </p>
-        </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {projects.map((project) => (

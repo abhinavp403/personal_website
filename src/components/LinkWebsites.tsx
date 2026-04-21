@@ -49,17 +49,6 @@ export default function LinkWebsites() {
   return (
     <section id="connect" className="py-20 px-4 bg-[#0c0414]">
       <div className="max-w-4xl mx-auto">
-        {/* Section header */}
-        <div className="text-center mb-12">
-          <div className="inline-flex items-center gap-2 bg-[#1c1528] rounded-full px-4 py-2 text-xs text-gray-400 mb-4">
-            <span className="w-2 h-2 rounded-full bg-blue-500 animate-pulse" />
-            Connect
-          </div>
-          <h2 className="text-4xl font-bold text-white">Find Me Online</h2>
-          <p className="text-gray-400 mt-3 max-w-xl mx-auto">
-            Reach out, check out my work, or just say hi.
-          </p>
-        </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-5">
           {links.map(({ label, description, url, icon: Icon, color, badge }) => (

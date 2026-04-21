@@ -157,17 +157,6 @@ export default function Interests() {
     <section id="interests" className="py-20 px-4 bg-[#0a0312]">
       <div className="max-w-6xl mx-auto">
 
-        {/* Section header */}
-        <div className="text-center mb-12">
-          <div className="inline-flex items-center gap-2 bg-[#1c1528] rounded-full px-4 py-2 text-xs text-gray-400 mb-4">
-            <span className="w-2 h-2 rounded-full bg-pink-500 animate-pulse" />
-            Interests
-          </div>
-          <h2 className="text-4xl font-bold text-white">What I&apos;m Watching &amp; Listening To</h2>
-          <p className="text-gray-400 mt-3 max-w-xl mx-auto">
-            My top picks of the year — updated dynamically via Firebase &amp; Spotify.
-          </p>
-        </div>
 
         {/* Movies + Shows side by side */}
         <div className="flex flex-col sm:flex-row gap-4">

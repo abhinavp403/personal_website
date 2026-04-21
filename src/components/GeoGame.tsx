@@ -125,18 +125,6 @@ export default function GeoGame() {
   return (
     <section className="py-20 px-4 bg-[#0a0312]">
       <div className="max-w-2xl mx-auto">
-        {/* Section header */}
-        <div className="text-center mb-10">
-          <div className="inline-flex items-center gap-2 bg-[#1c1528] rounded-full px-4 py-2 text-xs text-gray-400 mb-4">
-            <span className="w-2 h-2 rounded-full bg-teal-500 animate-pulse" />
-            Mini Game
-          </div>
-          <h2 className="text-4xl font-bold text-white flex items-center justify-center gap-3">
-            <Globe className="w-8 h-8 text-teal-400" />
-            Guess the Capital
-          </h2>
-          <p className="text-gray-400 mt-3">Test your geography knowledge — {TOTAL_QUESTIONS} questions.</p>
-        </div>
 
         <div className="bg-[#1c1528] border border-[#2a1f3d] rounded-2xl overflow-hidden">
           {!q && !finished ? (
