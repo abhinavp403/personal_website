@@ -1,7 +1,6 @@
 "use client";
 
 import { Download, ExternalLink, GitBranch } from "lucide-react";
-import Image from "next/image";
 
 interface Project {
   title: string;
@@ -15,27 +14,11 @@ interface Project {
 // Replace these with your actual projects
 const projects: Project[] = [
   {
-    title: "AI Chat Assistant",
-    description: "A conversational AI assistant built with Claude API featuring context-aware responses and real-time streaming.",
-    gifUrl: "https://images.unsplash.com/photo-1677442135703-1787eea5ce01?w=600&h=340&fit=crop",
-    githubUrl: "https://github.com/abhinavp403",
-    installUrl: "https://github.com/abhinavp403",
-    tags: ["Python", "Claude API", "FastAPI"],
-  },
-  {
-    title: "Image Recognition App",
-    description: "Real-time object detection and classification using computer vision models deployed on mobile.",
-    gifUrl: "https://images.unsplash.com/photo-1555949963-aa79dcee981c?w=600&h=340&fit=crop",
-    githubUrl: "https://github.com/abhinavp403",
-    tags: ["TensorFlow", "Android", "Kotlin"],
-  },
-  {
-    title: "NLP Text Summarizer",
-    description: "Automatic document summarization using transformer-based models with a clean web interface.",
-    gifUrl: "https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?w=600&h=340&fit=crop",
-    githubUrl: "https://github.com/abhinavp403",
-    installUrl: "https://github.com/abhinavp403",
-    tags: ["HuggingFace", "React", "Node.js"],
+    title: "Tennis Calendar",
+    description: "A desktop app that displays the full 2026 ATP and WTA tour schedules on an interactive calendar, including final results for completed tournaments and keeps track of player rankings.",
+    gifUrl: "/tennis-calendar.gif",
+    githubUrl: "https://github.com/abhinavp403/tennis-calendar",
+    tags: ["JavaScript", "Python", "Shell"],
   },
 ];
 
@@ -44,23 +27,23 @@ export default function AIProjects() {
     <section id="projects" className="py-20 px-4 bg-[#0c0414]">
       <div className="max-w-6xl mx-auto">
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="flex justify-center">
           {projects.map((project) => (
             <div
               key={project.title}
-              className="bg-[#1c1528] border border-[#2a1f3d] rounded-2xl overflow-hidden group hover:border-purple-500/50 transition-all duration-300"
+              className="w-full max-w-lg bg-[#1c1528] border border-[#2a1f3d] rounded-2xl overflow-hidden group hover:border-purple-500/50 transition-all duration-300"
             >
-              {/* Preview image / GIF */}
-              <div className="relative w-full h-44 overflow-hidden bg-[#120d1e]">
-                <Image
+              {/* Preview GIF — natural aspect ratio, no crop */}
+              <div className="w-full bg-[#120d1e]">
+                <img
                   src={project.gifUrl}
                   alt={project.title}
-                  fill
-                  className="object-cover group-hover:scale-105 transition-transform duration-500"
-                  unoptimized
+                  className="w-full h-auto block"
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-[#1c1528] via-transparent to-transparent" />
               </div>
+
+              {/* Divider */}
+              <div className="border-t border-[#2a1f3d]" />
 
               {/* Content */}
               <div className="p-5 space-y-3">
