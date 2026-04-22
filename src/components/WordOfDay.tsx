@@ -21,12 +21,12 @@ export default function WordOfDay() {
       <div className="max-w-6xl mx-auto">
 
         {/* Header */}
-        <div className="flex items-center gap-3 mb-6">
-          <BookOpen className="w-6 h-6 text-purple-400" />
-          <div>
+        <div className="flex flex-col items-center gap-1 mb-6">
+          <div className="flex items-center gap-2">
+            <BookOpen className="w-6 h-6 text-purple-400" />
             <h3 className="text-white font-bold text-2xl">Word of the Day</h3>
-            <p className="text-gray-500 text-sm">via Dictionary.com</p>
           </div>
+          <p className="text-gray-500 text-sm">via Dictionary.com</p>
         </div>
 
         {loading ? (

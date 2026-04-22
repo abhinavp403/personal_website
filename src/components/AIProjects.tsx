@@ -1,6 +1,6 @@
 "use client";
 
-import { Download, ExternalLink, GitBranch } from "lucide-react";
+import { Code2, Download, ExternalLink, GitBranch } from "lucide-react";
 
 interface Project {
   title: string;
@@ -26,6 +26,15 @@ export default function AIProjects() {
   return (
     <section id="projects" className="py-20 px-4 bg-[#0c0414]">
       <div className="max-w-6xl mx-auto">
+
+        {/* Header */}
+        <div className="flex flex-col items-center gap-1 mb-10">
+          <div className="flex items-center gap-2">
+            <Code2 className="w-6 h-6 text-purple-400" />
+            <h3 className="text-white font-bold text-2xl">Projects</h3>
+          </div>
+          <p className="text-gray-500 text-sm">Things I&apos;ve built</p>
+        </div>
 
         <div className="flex justify-center">
           {projects.map((project) => (

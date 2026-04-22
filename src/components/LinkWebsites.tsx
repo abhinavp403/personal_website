@@ -1,6 +1,6 @@
 "use client";
 
-import { ExternalLink, Smartphone } from "lucide-react";
+import { ExternalLink, Link, Smartphone } from "lucide-react";
 
 function GithubIcon({ className }: { className?: string }) {
   return (
@@ -49,6 +49,15 @@ export default function LinkWebsites() {
   return (
     <section id="connect" className="py-20 px-4 bg-[#0c0414]">
       <div className="max-w-4xl mx-auto">
+
+        {/* Header */}
+        <div className="flex flex-col items-center gap-1 mb-10">
+          <div className="flex items-center gap-2">
+            <Link className="w-6 h-6 text-blue-400" />
+            <h3 className="text-white font-bold text-2xl">Connect</h3>
+          </div>
+          <p className="text-gray-500 text-sm">Find me online</p>
+        </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-5">
           {links.map(({ label, description, url, icon: Icon, color, badge }) => (
