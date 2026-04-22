@@ -20,6 +20,13 @@ const projects: Project[] = [
     githubUrl: "https://github.com/abhinavp403/tennis-calendar",
     tags: ["JavaScript", "Python", "Shell"],
   },
+  {
+    title: "Concert Tracklist Finder",
+    description: "A desktop app where you paste a YouTube link for a concert and it finds the comment containing the tracklist ordered by timestamp. Each song is connected to your Spotify and SoundCloud accounts so you can find them with just 1 tap. It saves previously searched links so you can come back and listen to your favourite unreleased songs again.",
+    gifUrl: "/concert-tracklist.gif",
+    githubUrl: "https://github.com/abhinavp403/concert-tracklist-finder",
+    tags: ["JavaScript"],
+  },
 ];
 
 export default function AIProjects() {
@@ -36,7 +43,7 @@ export default function AIProjects() {
           <p className="text-gray-500 text-sm">Things I&apos;ve built</p>
         </div>
 
-        <div className="flex justify-center">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 justify-items-center">
           {projects.map((project) => (
             <div
               key={project.title}
