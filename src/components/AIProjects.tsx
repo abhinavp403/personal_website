@@ -2,12 +2,17 @@
 
 import { Code2, Download, ExternalLink, GitBranch } from "lucide-react";
 
+interface DownloadLink {
+  label: string;
+  url: string;
+}
+
 interface Project {
   title: string;
   description: string;
   gifUrl: string;
   githubUrl: string;
-  installUrl?: string;
+  downloads?: DownloadLink[];
   tags: string[];
 }
 
@@ -18,6 +23,10 @@ const projects: Project[] = [
     description: "A desktop app that displays the full 2026 ATP and WTA tour schedules on an interactive calendar, including final results for completed tournaments and keeps track of player rankings.",
     gifUrl: "/tennis-calendar.gif",
     githubUrl: "https://github.com/abhinavp403/tennis-calendar",
+    downloads: [
+      { label: "Mac", url: "https://github.com/abhinavp403/tennis-calendar/releases/download/v1.0.0/Tennis.Calendar-1.0.0-arm64.dmg" },
+      { label: "Windows", url: "https://github.com/abhinavp403/tennis-calendar/releases/download/v1.0.0/Tennis.Calendar.Setup.1.0.0.exe" },
+    ],
     tags: ["JavaScript", "Python", "Shell"],
   },
   {
@@ -79,7 +88,7 @@ export default function AIProjects() {
                 </div>
 
                 {/* Links */}
-                <div className="flex gap-3 pt-2">
+                <div className="flex flex-wrap gap-3 pt-2">
                   <a
                     href={project.githubUrl}
                     target="_blank"
@@ -89,17 +98,18 @@ export default function AIProjects() {
                     <GitBranch className="w-4 h-4" />
                     GitHub
                   </a>
-                  {project.installUrl && (
+                  {project.downloads?.map(({ label, url }) => (
                     <a
-                      href={project.installUrl}
+                      key={label}
+                      href={url}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="flex items-center gap-2 text-sm text-gray-400 hover:text-white transition-colors bg-[#2a1f3d] hover:bg-[#3a2f4d] rounded-full px-4 py-2"
                     >
                       <Download className="w-4 h-4" />
-                      Install
+                      {label}
                     </a>
-                  )}
+                  ))}
                 </div>
               </div>
             </div>
