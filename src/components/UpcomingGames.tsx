@@ -137,15 +137,6 @@ export default function UpcomingGames() {
       <div className="max-w-6xl mx-auto">
 
 
-        {/* Header */}
-        <div className="flex flex-col items-center gap-1 mb-10">
-          <div className="flex items-center gap-2">
-            <Trophy className="w-6 h-6 text-orange-400" />
-            <h3 className="text-white font-bold text-2xl">Next Games</h3>
-          </div>
-          <p className="text-gray-500 text-sm">Upcoming fixtures for my favourite teams</p>
-        </div>
-
         {/* Sport filter */}
         <div className="flex gap-2 flex-wrap justify-center mb-8">
           {sports.map((sport) => (

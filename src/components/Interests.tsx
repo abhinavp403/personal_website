@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { Film, Heart, Tv, Music, Star } from "lucide-react";
+import { Film, Tv, Music, Star } from "lucide-react";
 import { db } from "@/lib/firebase";
 import { collection, getDocs } from "firebase/firestore";
 import type { SpotifyArtist, SpotifyTrack } from "@/app/api/spotify/route";
@@ -157,15 +157,6 @@ export default function Interests() {
     <section id="interests" className="py-20 px-4 bg-[#0a0312]">
       <div className="max-w-6xl mx-auto">
 
-
-        {/* Header */}
-        <div className="flex flex-col items-center gap-1 mb-10">
-          <div className="flex items-center gap-2">
-            <Heart className="w-6 h-6 text-pink-400" />
-            <h3 className="text-white font-bold text-2xl">Interests</h3>
-          </div>
-          <p className="text-gray-500 text-sm">What I&apos;m watching &amp; listening to</p>
-        </div>
 
         {/* Movies + Shows side by side */}
         <div className="flex flex-col sm:flex-row gap-4">

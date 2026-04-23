@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { BookOpen, ExternalLink } from "lucide-react";
+import { ExternalLink } from "lucide-react";
 import type { WordOfDay } from "@/app/api/wordofday/route";
 
 export default function WordOfDay() {
@@ -20,14 +20,6 @@ export default function WordOfDay() {
     <section className="py-12 px-4 bg-[#0c0414]">
       <div className="max-w-6xl mx-auto">
 
-        {/* Header */}
-        <div className="flex flex-col items-center gap-1 mb-6">
-          <div className="flex items-center gap-2">
-            <BookOpen className="w-6 h-6 text-purple-400" />
-            <h3 className="text-white font-bold text-2xl">Word of the Day</h3>
-          </div>
-          <p className="text-gray-500 text-sm">via Dictionary.com</p>
-        </div>
 
         {loading ? (
           <div className="h-40 bg-[#1c1528] rounded-2xl animate-pulse" />
