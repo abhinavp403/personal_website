@@ -34,6 +34,10 @@ const projects: Project[] = [
     description: "A desktop app where you paste a YouTube link for a concert and it finds the comment containing the tracklist ordered by timestamp. Each song is connected to your Spotify and SoundCloud accounts so you can find them with just 1 tap. It saves previously searched links so you can come back and listen to your favourite unreleased songs again.",
     gifUrl: "/concert-tracklist.gif",
     githubUrl: "https://github.com/abhinavp403/concert-tracklist-finder",
+    downloads: [
+      { label: "Mac", url: "https://github.com/abhinavp403/concert-tracklist-finder/releases/download/v1.0.0/Concert.Tracklist.Finder-1.0.0-arm64.dmg" },
+      { label: "Windows", url: "https://github.com/abhinavp403/concert-tracklist-finder/releases/download/v1.0.0/Concert.Tracklist.Finder.Setup.1.0.0.exe" },
+    ],
     tags: ["JavaScript"],
   },
 ];
