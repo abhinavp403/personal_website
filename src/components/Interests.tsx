@@ -2,6 +2,7 @@
 
 import React, { useEffect, useState } from "react";
 import { Film, Tv, Music, Star } from "lucide-react";
+import { motion } from "framer-motion";
 import { db } from "@/lib/firebase";
 import { collection, getDocs } from "firebase/firestore";
 import type { SpotifyArtist, SpotifyTrack } from "@/app/api/spotify/route";
@@ -35,6 +36,22 @@ const fallbackData: InterestsData = {
     { title: "Fallout", rating: 8.5, posterUrl: "https://images.unsplash.com/photo-1518709414768-a88981a4515d?w=200&h=300&fit=crop", year: 2024 },
   ],
 };
+
+function Equalizer() {
+  return (
+    <span className="flex items-end gap-[2px] h-4 flex-shrink-0">
+      {[1, 2, 3].map((i) => (
+        <motion.span
+          key={i}
+          className="w-[3px] bg-[#1DB954] rounded-full"
+          animate={{ height: ["4px", "14px", "6px", "12px", "4px"] }}
+          transition={{ duration: 1.1, repeat: Infinity, delay: i * 0.18, ease: "easeInOut" }}
+          style={{ display: "block" }}
+        />
+      ))}
+    </span>
+  );
+}
 
 function StarRating({ rating }: { rating?: number }) {
   if (rating == null) return null;
@@ -160,21 +177,43 @@ export default function Interests() {
 
         {/* Movies + Shows side by side */}
         <div className="flex flex-col sm:flex-row gap-4">
-          <MediaColumn
-            title="Movies"
-            icon={<Film className="w-5 h-5 text-purple-400" />}
-            items={data.movies}
-          />
-          <MediaColumn
-            title="Shows"
-            icon={<Tv className="w-5 h-5 text-pink-400" />}
-            items={data.shows}
-          />
+          <motion.div
+            className="flex-1"
+            initial={{ opacity: 0, x: -30 }}
+            whileInView={{ opacity: 1, x: 0 }}
+            viewport={{ once: true, margin: "-60px" }}
+            transition={{ duration: 0.55, ease: "easeOut" }}
+          >
+            <MediaColumn
+              title="Movies"
+              icon={<Film className="w-5 h-5 text-purple-400" />}
+              items={data.movies}
+            />
+          </motion.div>
+          <motion.div
+            className="flex-1"
+            initial={{ opacity: 0, x: 30 }}
+            whileInView={{ opacity: 1, x: 0 }}
+            viewport={{ once: true, margin: "-60px" }}
+            transition={{ duration: 0.55, ease: "easeOut", delay: 0.1 }}
+          >
+            <MediaColumn
+              title="Shows"
+              icon={<Tv className="w-5 h-5 text-pink-400" />}
+              items={data.shows}
+            />
+          </motion.div>
         </div>
 
         {/* Spotify section */}
         {spotifyConfigured && (
-          <div className="mt-6 bg-[#1c1528] border border-[#2a1f3d] rounded-2xl p-6">
+          <motion.div
+            className="mt-6 bg-[#1c1528] border border-[#2a1f3d] rounded-2xl p-6"
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: "-60px" }}
+            transition={{ duration: 0.55, ease: "easeOut", delay: 0.15 }}
+          >
             {/* Header */}
             <div className="flex items-center gap-2 mb-6">
               <div className="w-6 h-6 flex items-center justify-center">
@@ -237,17 +276,18 @@ export default function Interests() {
                           alt={track.name}
                           className="w-10 h-10 rounded-lg object-cover flex-shrink-0 group-hover:ring-2 ring-[#1DB954] transition-all"
                         />
-                        <div className="min-w-0">
+                        <div className="min-w-0 flex-1">
                           <p className="text-white text-sm font-semibold truncate group-hover:text-[#1DB954] transition-colors">{track.name}</p>
                           <p className="text-gray-500 text-xs truncate">{track.artist}</p>
                         </div>
+                        <Equalizer />
                       </a>
                     ))}
                   </div>
                 </div>
               )}
             </div>
-          </div>
+          </motion.div>
         )}
       </div>
     </section>

@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { ExternalLink } from "lucide-react";
+import { motion } from "framer-motion";
 import type { WordOfDay } from "@/app/api/wordofday/route";
 
 export default function WordOfDay() {
@@ -28,7 +29,13 @@ export default function WordOfDay() {
             Could not load today&apos;s word.
           </div>
         ) : (
-          <div className="bg-[#1c1528] border border-[#2a1f3d] rounded-2xl p-6 hover:border-purple-500/30 transition-all">
+          <motion.div
+            className="bg-[#1c1528] border border-[#2a1f3d] rounded-2xl p-6 hover:border-purple-500/30 transition-all"
+            initial={{ opacity: 0, y: 25 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: "-50px" }}
+            transition={{ duration: 0.5, ease: "easeOut" }}
+          >
             <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
 
               {/* Left — word info */}
@@ -81,7 +88,7 @@ export default function WordOfDay() {
                 Full definition
               </a>
             </div>
-          </div>
+          </motion.div>
         )}
       </div>
     </section>

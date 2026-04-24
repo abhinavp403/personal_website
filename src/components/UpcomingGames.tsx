@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { Calendar, MapPin, Trophy } from "lucide-react";
+import { motion } from "framer-motion";
 
 import type { GameEvent } from "@/lib/sports";
 import type { CricketMatch } from "@/app/api/cricket/route";
@@ -167,9 +168,13 @@ export default function UpcomingGames() {
           </div>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            {filtered.map((game) => (
-              <div
+            {filtered.map((game, i) => (
+              <motion.div
                 key={game.id}
+                initial={{ opacity: 0, y: 30 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, margin: "-50px" }}
+                transition={{ duration: 0.45, ease: "easeOut", delay: (i % 3) * 0.1 }}
                 className="bg-[#1c1528] border border-[#2a1f3d] rounded-2xl p-5 hover:border-purple-500/30 transition-all"
               >
                 {/* Badge + countdown */}
@@ -219,7 +224,7 @@ export default function UpcomingGames() {
                   )}
                   <p className="text-gray-600 text-xs">{game.league}</p>
                 </div>
-              </div>
+              </motion.div>
             ))}
           </div>
         )}

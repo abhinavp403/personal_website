@@ -1,6 +1,7 @@
 "use client";
 
 import { ExternalLink, Smartphone } from "lucide-react";
+import { motion } from "framer-motion";
 
 function GithubIcon({ className }: { className?: string }) {
   return (
@@ -51,13 +52,17 @@ export default function LinkWebsites() {
       <div className="max-w-4xl mx-auto">
 
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-5">
-          {links.map(({ label, description, url, icon: Icon, color, badge }) => (
-            <a
+          {links.map(({ label, description, url, icon: Icon, color, badge }, i) => (
+            <motion.a
               key={label}
               href={url}
               target="_blank"
               rel="noopener noreferrer"
               className="group relative bg-[#1c1528] border border-[#2a1f3d] rounded-2xl p-6 hover:border-purple-500/50 transition-all duration-300 overflow-hidden"
+              initial={{ opacity: 0, y: 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, margin: "-50px" }}
+              transition={{ duration: 0.45, ease: "easeOut", delay: i * 0.1 }}
             >
               {/* Gradient background on hover */}
               <div className={`absolute inset-0 bg-gradient-to-br ${color} opacity-0 group-hover:opacity-10 transition-opacity duration-300`} />
@@ -78,7 +83,7 @@ export default function LinkWebsites() {
                   <p className="text-gray-400 text-sm">{description}</p>
                 </div>
               </div>
-            </a>
+            </motion.a>
           ))}
         </div>
       </div>
