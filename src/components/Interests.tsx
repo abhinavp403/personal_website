@@ -1,8 +1,16 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { Film, Tv, Music, Star } from "lucide-react";
+import { Film, Tv, Star } from "lucide-react";
 import { motion } from "framer-motion";
+
+function SpotifyIcon({ className }: { className?: string }) {
+  return (
+    <svg className={className} viewBox="0 0 24 24" fill="#1DB954">
+      <path d="M12 0C5.4 0 0 5.4 0 12s5.4 12 12 12 12-5.4 12-12S18.66 0 12 0zm5.521 17.34c-.24.359-.66.48-1.021.24-2.82-1.74-6.36-2.101-10.561-1.141-.418.122-.779-.179-.899-.539-.12-.421.18-.78.54-.9 4.56-1.021 8.52-.6 11.64 1.32.42.18.479.659.301 1.02zm1.44-3.3c-.301.42-.841.6-1.262.3-3.239-1.98-8.159-2.58-11.939-1.38-.479.12-1.02-.12-1.14-.6-.12-.48.12-1.021.6-1.141C9.6 9.9 15 10.561 18.72 12.84c.361.181.54.78.241 1.2zm.12-3.36C15.24 8.4 8.82 8.16 5.16 9.301c-.6.179-1.2-.181-1.38-.721-.18-.601.18-1.2.72-1.381 4.26-1.26 11.28-1.02 15.721 1.621.539.3.719 1.02.419 1.56-.299.421-1.02.599-1.559.3z"/>
+    </svg>
+  );
+}
 import { db } from "@/lib/firebase";
 import { collection, getDocs } from "firebase/firestore";
 import type { SpotifyArtist, SpotifyTrack } from "@/app/api/spotify/route";
@@ -215,78 +223,91 @@ export default function Interests() {
             transition={{ duration: 0.55, ease: "easeOut", delay: 0.15 }}
           >
             {/* Header */}
-            <div className="flex items-center gap-2 mb-6">
-              <div className="w-6 h-6 flex items-center justify-center">
-                <Music className="w-5 h-5 text-[#1DB954]" />
-              </div>
-              <h3 className="text-white font-bold text-lg">Spotify</h3>
+            <div className="flex items-center gap-3 mb-8">
+              <SpotifyIcon className="w-8 h-8" />
+              <h3 className="text-white font-bold text-2xl">Spotify</h3>
             </div>
 
-            <div className="flex flex-col sm:flex-row gap-6">
-              {/* Top Artists */}
-              {artists.length > 0 && (
-                <div className="flex-1">
-                  <p className="text-gray-400 text-xs font-semibold uppercase tracking-wider mb-4">Top Artists</p>
-                  <div className="flex flex-col gap-3">
-                    {artists.map((artist) => (
-                      <a
-                        key={artist.id}
-                        href={artist.url}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="flex items-center gap-3 group"
-                      >
+            {/* Top Artists */}
+            {artists.length > 0 && (
+              <div className="mb-8">
+                <div className="flex items-center gap-4 mb-5">
+                  <p className="text-gray-500 text-[10px] font-bold uppercase tracking-widest leading-tight whitespace-nowrap">
+                    Top<br />Artists
+                  </p>
+                  <div className="flex-1 h-px bg-[#2a1f3d]" />
+                </div>
+                <div className="flex gap-3">
+                  {artists.map((artist) => (
+                    <a
+                      key={artist.id}
+                      href={artist.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex-1 flex flex-col items-center gap-2 group"
+                    >
+                      <div className="w-full aspect-square rounded-full overflow-hidden ring-2 ring-transparent group-hover:ring-[#1DB954] transition-all duration-300">
                         <img
                           src={artist.imageUrl}
                           alt={artist.name}
-                          className="w-10 h-10 rounded-full object-cover flex-shrink-0 group-hover:ring-2 ring-[#1DB954] transition-all"
+                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                         />
-                        <div className="min-w-0">
-                          <p className="text-white text-sm font-semibold truncate group-hover:text-[#1DB954] transition-colors">{artist.name}</p>
-                          {artist.genres.length > 0 && (
-                            <p className="text-gray-500 text-xs truncate capitalize">{artist.genres.join(" · ")}</p>
-                          )}
-                        </div>
-                      </a>
-                    ))}
-                  </div>
+                      </div>
+                      <p className="text-white text-xs font-semibold text-center leading-tight group-hover:text-[#1DB954] transition-colors">{artist.name}</p>
+                    </a>
+                  ))}
                 </div>
-              )}
+              </div>
+            )}
 
-              {/* Divider */}
-              {artists.length > 0 && tracks.length > 0 && (
-                <div className="hidden sm:block w-px bg-[#2a1f3d]" />
-              )}
+            {/* Top Songs */}
+            {tracks.length > 0 && (
+              <div>
+                <div className="flex items-center gap-4 mb-5">
+                  <p className="text-gray-500 text-[10px] font-bold uppercase tracking-widest leading-tight whitespace-nowrap">
+                    Top<br />Songs
+                  </p>
+                  <div className="flex-1 h-px bg-[#2a1f3d]" />
+                </div>
+                <div className="flex gap-3">
+                  {/* Featured card — first track */}
+                  <a
+                    href={tracks[0].url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex-1 relative rounded-2xl overflow-hidden flex flex-col justify-end p-5 min-h-[260px] group"
+                    style={{ backgroundImage: `url(${tracks[0].albumArt})`, backgroundSize: "cover", backgroundPosition: "center" }}
+                  >
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/30 to-transparent" />
+                    <div className="relative">
+                      <p className="text-white font-bold text-xl leading-tight mb-0.5">{tracks[0].name}</p>
+                      <p className="text-gray-300 text-sm">{tracks[0].artist}</p>
+                      <div className="mt-3"><Equalizer /></div>
+                    </div>
+                  </a>
 
-              {/* Top Tracks */}
-              {tracks.length > 0 && (
-                <div className="flex-1">
-                  <p className="text-gray-400 text-xs font-semibold uppercase tracking-wider mb-4">Top Songs</p>
-                  <div className="flex flex-col gap-3">
-                    {tracks.map((track) => (
+                  {/* 2×2 grid — remaining 4 tracks */}
+                  <div className="flex-1 grid grid-cols-2 gap-3">
+                    {tracks.slice(1).map((track) => (
                       <a
                         key={track.id}
                         href={track.url}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="flex items-center gap-3 group"
+                        className="relative rounded-2xl overflow-hidden flex flex-col justify-end p-3 group"
+                        style={{ backgroundImage: `url(${track.albumArt})`, backgroundSize: "cover", backgroundPosition: "center", minHeight: "120px" }}
                       >
-                        <img
-                          src={track.albumArt}
-                          alt={track.name}
-                          className="w-10 h-10 rounded-lg object-cover flex-shrink-0 group-hover:ring-2 ring-[#1DB954] transition-all"
-                        />
-                        <div className="min-w-0 flex-1">
-                          <p className="text-white text-sm font-semibold truncate group-hover:text-[#1DB954] transition-colors">{track.name}</p>
-                          <p className="text-gray-500 text-xs truncate">{track.artist}</p>
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
+                        <div className="relative">
+                          <p className="text-white font-bold text-sm leading-tight">{track.name}</p>
+                          <p className="text-gray-300 text-xs mt-0.5">{track.artist}</p>
                         </div>
-                        <Equalizer />
                       </a>
                     ))}
                   </div>
                 </div>
-              )}
-            </div>
+              </div>
+            )}
           </motion.div>
         )}
       </div>
