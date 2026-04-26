@@ -1,6 +1,6 @@
 "use client";
 
-import { Download, ExternalLink, GitBranch } from "lucide-react";
+import { Code2, Download, ExternalLink, GitBranch } from "lucide-react";
 import { motion } from "framer-motion";
 import { useInView } from "framer-motion";
 import { useRef } from "react";
@@ -55,10 +55,10 @@ function ProjectCard({ project, index }: { project: Project; index: number }) {
       initial={{ opacity: 0, y: 40 }}
       animate={inView ? { opacity: 1, y: 0 } : {}}
       transition={{ duration: 0.55, ease: "easeOut", delay: index * 0.15 }}
-      className="w-full max-w-lg bg-[#1c1528] border border-[#2a1f3d] rounded-2xl overflow-hidden group hover:border-purple-500/50 transition-all duration-300"
+      className="w-full max-w-lg bg-[#071e38] border border-[#0f2d4a] rounded-2xl overflow-hidden group hover:border-blue-500/50 transition-all duration-300"
     >
       {/* Preview GIF */}
-      <div className="w-full bg-[#120d1e]">
+      <div className="w-full bg-[#040f1e]">
         <img
           src={project.gifUrl}
           alt={project.title}
@@ -67,7 +67,7 @@ function ProjectCard({ project, index }: { project: Project; index: number }) {
       </div>
 
       {/* Divider */}
-      <div className="border-t border-[#2a1f3d]" />
+      <div className="border-t border-[#0f2d4a]" />
 
       {/* Content */}
       <div className="p-5 space-y-3">
@@ -79,7 +79,7 @@ function ProjectCard({ project, index }: { project: Project; index: number }) {
           {project.tags.map((tag) => (
             <span
               key={tag}
-              className="text-xs bg-[#2a1f3d] text-purple-300 rounded-full px-3 py-1"
+              className="text-xs bg-[#0f2d4a] text-blue-300 rounded-full px-3 py-1"
             >
               {tag}
             </span>
@@ -92,7 +92,7 @@ function ProjectCard({ project, index }: { project: Project; index: number }) {
             href={project.githubUrl}
             target="_blank"
             rel="noopener noreferrer"
-            className="flex items-center gap-2 text-sm text-gray-400 hover:text-white transition-colors bg-[#2a1f3d] hover:bg-[#3a2f4d] rounded-full px-4 py-2"
+            className="flex items-center gap-2 text-sm text-gray-400 hover:text-white transition-colors bg-[#0f2d4a] hover:bg-[#163d60] rounded-full px-4 py-2"
           >
             <GitBranch className="w-4 h-4" />
             GitHub
@@ -103,7 +103,7 @@ function ProjectCard({ project, index }: { project: Project; index: number }) {
               href={url}
               target="_blank"
               rel="noopener noreferrer"
-              className="flex items-center gap-2 text-sm text-gray-400 hover:text-white transition-colors bg-[#2a1f3d] hover:bg-[#3a2f4d] rounded-full px-4 py-2"
+              className="flex items-center gap-2 text-sm text-gray-400 hover:text-white transition-colors bg-[#0f2d4a] hover:bg-[#163d60] rounded-full px-4 py-2"
             >
               <Download className="w-4 h-4" />
               {label}
@@ -120,8 +120,14 @@ export default function AIProjects() {
   const inView = useInView(ref, { once: true, margin: "-60px" });
 
   return (
-    <section id="projects" className="py-20 px-4 bg-[#0c0414]">
+    <section id="projects" className="py-20 px-4">
       <div className="max-w-6xl mx-auto">
+
+        {/* Header */}
+        <div className="flex items-center gap-3 mb-10">
+          <Code2 className="w-6 h-6 text-blue-400" />
+          <h3 className="text-white font-bold text-2xl">Check out my Projects</h3>
+        </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 justify-items-center">
           {projects.map((project, i) => (

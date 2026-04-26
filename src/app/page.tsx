@@ -1,4 +1,5 @@
 import { Hero1 } from "@/components/ui/hero-1";
+import { FallingPattern } from "@/components/ui/falling-pattern";
 import AIProjects from "@/components/AIProjects";
 import Interests from "@/components/Interests";
 import LinkWebsites from "@/components/LinkWebsites";
@@ -7,16 +8,35 @@ import WordOfDay from "@/components/WordOfDay";
 
 export default function Home() {
   return (
-    <main className="bg-[#0c0414]">
+    <main className="bg-[#020d1c]">
       <Hero1 />
-      <AIProjects />
-      <Interests />
-      <UpcomingGames />
-      <WordOfDay />
-      <LinkWebsites />
+
+      {/* All sections below hero share a single FallingPattern background */}
+      <div className="relative">
+        {/* Pattern pinned behind all content */}
+        <div className="absolute inset-0 overflow-hidden pointer-events-none">
+          <FallingPattern
+            color="#3b82f6"
+            backgroundColor="#020d1c"
+            duration={120}
+            blurIntensity="0.6em"
+            density={1}
+            className="h-full w-full"
+          />
+        </div>
+
+        {/* Content sits above the pattern */}
+        <div className="relative z-10">
+          <AIProjects />
+          <Interests />
+          <UpcomingGames />
+          <WordOfDay />
+          <LinkWebsites />
+        </div>
+      </div>
 
       {/* Footer */}
-      <footer className="border-t border-[#1c1528] py-8 px-4 text-center bg-[#0c0414]">
+      <footer className="border-t border-[#071e38] py-8 px-4 text-center bg-[#020d1c]">
         <p className="text-gray-600 text-sm">
           Built with Next.js · shadcn/ui · Tailwind CSS · Firebase
         </p>

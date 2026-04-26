@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { Film, Tv, Star } from "lucide-react";
+import { Clapperboard, Film, Tv, Star } from "lucide-react";
 import { motion } from "framer-motion";
 
 function SpotifyIcon({ className }: { className?: string }) {
@@ -85,7 +85,7 @@ function MediaColumn({
   const secondRow = items.slice(3, 5);
 
   return (
-    <div className="flex-1 bg-[#1c1528] border border-[#2a1f3d] rounded-2xl p-6">
+    <div className="flex-1 bg-[#071e38] border border-[#0f2d4a] rounded-2xl p-6">
       {/* Column header */}
       <div className="flex items-center gap-2 mb-6">
         {icon}
@@ -114,7 +114,7 @@ function MediaColumn({
 function PosterCard({ item }: { item: MediaItem }) {
   return (
     <div className="group cursor-pointer">
-      <div className="relative rounded-xl overflow-hidden mb-2 aspect-[2/3] bg-[#2a1f3d]">
+      <div className="relative rounded-xl overflow-hidden mb-2 aspect-[2/3] bg-[#0f2d4a]">
         <img
           src={item.posterUrl}
           alt={item.title}
@@ -179,9 +179,14 @@ export default function Interests() {
   }, []);
 
   return (
-    <section id="interests" className="py-20 px-4 bg-[#0a0312]">
+    <section id="interests" className="py-20 px-4">
       <div className="max-w-6xl mx-auto">
 
+        {/* Header */}
+        <div className="flex items-center gap-3 mb-10">
+          <Clapperboard className="w-6 h-6 text-blue-400" />
+          <h3 className="text-white font-bold text-2xl">Entertainment &amp; Music</h3>
+        </div>
 
         {/* Movies + Shows side by side */}
         <div className="flex flex-col sm:flex-row gap-4">
@@ -194,7 +199,7 @@ export default function Interests() {
           >
             <MediaColumn
               title="Movies"
-              icon={<Film className="w-5 h-5 text-purple-400" />}
+              icon={<Film className="w-5 h-5 text-blue-400" />}
               items={data.movies}
             />
           </motion.div>
@@ -207,7 +212,7 @@ export default function Interests() {
           >
             <MediaColumn
               title="Shows"
-              icon={<Tv className="w-5 h-5 text-pink-400" />}
+              icon={<Tv className="w-5 h-5 text-sky-400" />}
               items={data.shows}
             />
           </motion.div>
@@ -216,7 +221,7 @@ export default function Interests() {
         {/* Spotify section */}
         {spotifyConfigured && (
           <motion.div
-            className="mt-6 bg-[#1c1528] border border-[#2a1f3d] rounded-2xl p-6"
+            className="mt-6 bg-[#071e38] border border-[#0f2d4a] rounded-2xl p-6"
             initial={{ opacity: 0, y: 30 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, margin: "-60px" }}
@@ -235,7 +240,7 @@ export default function Interests() {
                   <p className="text-gray-500 text-[10px] font-bold uppercase tracking-widest leading-tight whitespace-nowrap">
                     Top<br />Artists
                   </p>
-                  <div className="flex-1 h-px bg-[#2a1f3d]" />
+                  <div className="flex-1 h-px bg-[#0f2d4a]" />
                 </div>
                 <div className="flex gap-3">
                   {artists.map((artist) => (
@@ -267,7 +272,7 @@ export default function Interests() {
                   <p className="text-gray-500 text-[10px] font-bold uppercase tracking-widest leading-tight whitespace-nowrap">
                     Top<br />Songs
                   </p>
-                  <div className="flex-1 h-px bg-[#2a1f3d]" />
+                  <div className="flex-1 h-px bg-[#0f2d4a]" />
                 </div>
                 <div className="flex gap-3">
                   {/* Featured card — first track */}

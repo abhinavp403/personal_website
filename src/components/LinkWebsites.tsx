@@ -1,6 +1,6 @@
 "use client";
 
-import { ExternalLink, Smartphone } from "lucide-react";
+import { ExternalLink, Link, Smartphone } from "lucide-react";
 import { motion } from "framer-motion";
 
 function GithubIcon({ className }: { className?: string }) {
@@ -48,8 +48,14 @@ const links = [
 
 export default function LinkWebsites() {
   return (
-    <section id="connect" className="py-20 px-4 bg-[#0c0414]">
+    <section id="connect" className="py-20 px-4">
       <div className="max-w-4xl mx-auto">
+
+        {/* Header */}
+        <div className="flex items-center gap-3 mb-10">
+          <Link className="w-6 h-6 text-blue-400" />
+          <h3 className="text-white font-bold text-2xl">Let&apos;s Connect</h3>
+        </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-5">
           {links.map(({ label, description, url, icon: Icon, color, badge }, i) => (
@@ -58,7 +64,7 @@ export default function LinkWebsites() {
               href={url}
               target="_blank"
               rel="noopener noreferrer"
-              className="group relative bg-[#1c1528] border border-[#2a1f3d] rounded-2xl p-6 hover:border-purple-500/50 transition-all duration-300 overflow-hidden"
+              className="group relative bg-[#071e38] border border-[#0f2d4a] rounded-2xl p-6 hover:border-blue-500/50 transition-all duration-300 overflow-hidden"
               initial={{ opacity: 0, y: 30 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true, margin: "-50px" }}
@@ -69,16 +75,16 @@ export default function LinkWebsites() {
 
               <div className="relative flex flex-col gap-4">
                 <div className="flex items-center justify-between">
-                  <div className="w-12 h-12 bg-[#2a1f3d] rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+                  <div className="w-12 h-12 bg-[#0f2d4a] rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
                     <Icon className="w-6 h-6 text-white" />
                   </div>
-                  <ExternalLink className="w-4 h-4 text-gray-600 group-hover:text-purple-400 transition-colors" />
+                  <ExternalLink className="w-4 h-4 text-gray-600 group-hover:text-blue-400 transition-colors" />
                 </div>
 
                 <div>
                   <div className="flex items-center gap-2 mb-1">
                     <span className="text-white font-semibold">{label}</span>
-                    <span className="text-xs bg-[#2a1f3d] text-purple-300 rounded-full px-2 py-0.5">{badge}</span>
+                    <span className="text-xs bg-[#0f2d4a] text-blue-300 rounded-full px-2 py-0.5">{badge}</span>
                   </div>
                   <p className="text-gray-400 text-sm">{description}</p>
                 </div>

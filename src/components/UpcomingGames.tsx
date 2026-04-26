@@ -134,9 +134,14 @@ export default function UpcomingGames() {
   const filtered = filter === "all" ? games : games.filter((g) => g.sport === filter);
 
   return (
-    <section id="games" className="py-20 px-4 bg-[#0a0312]">
+    <section id="games" className="py-20 px-4">
       <div className="max-w-6xl mx-auto">
 
+        {/* Header */}
+        <div className="flex items-center gap-3 mb-10">
+          <Trophy className="w-6 h-6 text-blue-400" />
+          <h3 className="text-white font-bold text-2xl">Upcoming Matches</h3>
+        </div>
 
         {/* Sport filter */}
         <div className="flex gap-2 flex-wrap justify-center mb-8">
@@ -146,8 +151,8 @@ export default function UpcomingGames() {
               onClick={() => setFilter(sport)}
               className={`flex items-center gap-1.5 rounded-full px-4 py-2 text-sm font-semibold transition-all ${
                 filter === sport
-                  ? "bg-purple-600 text-white"
-                  : "bg-[#1c1528] text-gray-400 hover:text-white"
+                  ? "bg-blue-600 text-white"
+                  : "bg-[#071e38] text-gray-400 hover:text-white"
               }`}
             >
               {sport !== "all" && <span>{SPORT_ICONS[sport]}</span>}
@@ -159,7 +164,7 @@ export default function UpcomingGames() {
         {/* Cards */}
         {loading ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            {[1, 2, 3].map((i) => <div key={i} className="h-44 bg-[#1c1528] rounded-2xl animate-pulse" />)}
+            {[1, 2, 3].map((i) => <div key={i} className="h-44 bg-[#071e38] rounded-2xl animate-pulse" />)}
           </div>
         ) : filtered.length === 0 ? (
           <div className="text-center py-16 text-gray-500">
@@ -175,14 +180,14 @@ export default function UpcomingGames() {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true, margin: "-50px" }}
                 transition={{ duration: 0.45, ease: "easeOut", delay: (i % 3) * 0.1 }}
-                className="bg-[#1c1528] border border-[#2a1f3d] rounded-2xl p-5 hover:border-purple-500/30 transition-all"
+                className="bg-[#071e38] border border-[#0f2d4a] rounded-2xl p-5 hover:border-blue-500/30 transition-all"
               >
                 {/* Badge + countdown */}
                 <div className="flex items-center justify-between mb-4">
                   <span className={`text-xs font-semibold rounded-full px-3 py-1 border ${SPORT_COLORS[game.sport] ?? "bg-gray-500/10 text-gray-400 border-gray-500/20"}`}>
                     {SPORT_ICONS[game.sport]} {SPORT_LABEL[game.sport] ?? game.sport}
                   </span>
-                  <span className="text-xs text-purple-400 font-semibold">{daysUntil(game.date)}</span>
+                  <span className="text-xs text-blue-400 font-semibold">{daysUntil(game.date)}</span>
                 </div>
 
                 {/* Teams / Race */}
@@ -211,7 +216,7 @@ export default function UpcomingGames() {
                 )}
 
                 {/* Date / venue */}
-                <div className="border-t border-[#2a1f3d] pt-3 space-y-1.5">
+                <div className="border-t border-[#0f2d4a] pt-3 space-y-1.5">
                   <div className="flex items-center gap-2 text-gray-400 text-xs">
                     <Calendar className="w-3.5 h-3.5 flex-shrink-0" />
                     {formatDate(game.date)} · {formatTime(game.date)}

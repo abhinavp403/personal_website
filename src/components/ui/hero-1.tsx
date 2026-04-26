@@ -2,6 +2,7 @@
 
 import * as React from "react";
 import { motion } from "framer-motion";
+import { ShaderAnimation } from "@/components/ui/shader-lines";
 
 const ROLES = ["Software Developer", "DJ", "Sports Enthusiast", "Philosopher"];
 
@@ -29,7 +30,7 @@ function TypingText() {
   }, [displayed, deleting, roleIndex]);
 
   return (
-    <span className="text-purple-400 font-semibold">
+    <span className="text-blue-400 font-semibold">
       {displayed}
     </span>
   );
@@ -37,26 +38,14 @@ function TypingText() {
 
 const Hero1 = () => {
   return (
-    <div className="min-h-screen bg-[#0c0414] text-white flex flex-col relative overflow-x-hidden">
-      {/* Background gradients */}
-      <div className="flex gap-[10rem] rotate-[-20deg] absolute top-[-40rem] right-[-30rem] z-[0] blur-[4rem] skew-[-40deg] opacity-50">
-        <div className="w-[10rem] h-[20rem] bg-linear-90 from-white to-blue-300"></div>
-        <div className="w-[10rem] h-[20rem] bg-linear-90 from-white to-blue-300"></div>
-        <div className="w-[10rem] h-[20rem] bg-linear-90 from-white to-blue-300"></div>
-      </div>
-      <div className="flex gap-[10rem] rotate-[-20deg] absolute top-[-50rem] right-[-50rem] z-[0] blur-[4rem] skew-[-40deg] opacity-50">
-        <div className="w-[10rem] h-[20rem] bg-linear-90 from-white to-blue-300"></div>
-        <div className="w-[10rem] h-[20rem] bg-linear-90 from-white to-blue-300"></div>
-        <div className="w-[10rem] h-[20rem] bg-linear-90 from-white to-blue-300"></div>
-      </div>
-      <div className="flex gap-[10rem] rotate-[-20deg] absolute top-[-60rem] right-[-60rem] z-[0] blur-[4rem] skew-[-40deg] opacity-50">
-        <div className="w-[10rem] h-[30rem] bg-linear-90 from-white to-blue-300"></div>
-        <div className="w-[10rem] h-[30rem] bg-linear-90 from-white to-blue-300"></div>
-        <div className="w-[10rem] h-[30rem] bg-linear-90 from-white to-blue-300"></div>
-      </div>
+    <div className="min-h-screen bg-[#020d1c] text-white flex flex-col relative overflow-x-hidden">
+      {/* Shader background */}
+      <ShaderAnimation />
+      {/* Dark overlay so text/cards stay readable */}
+      <div className="absolute inset-0 bg-[#020d1c]/70 z-[1]" />
 
       {/* Main content */}
-      <main className="flex-1 flex items-center justify-center px-6 py-20 z-10">
+      <main className="flex-1 flex items-center justify-center px-6 py-20 z-[2]">
         <div className="max-w-6xl w-full mx-auto flex flex-col md:flex-row items-center gap-12">
 
           {/* Left — photo */}
@@ -69,13 +58,13 @@ const Hero1 = () => {
             <img
               src="/profile.jpg"
               alt="Abhinav Prakash"
-              className="w-72 h-96 object-cover object-top rounded-2xl shadow-2xl ring-1 ring-[#2a1f3d]"
+              className="w-72 h-96 object-cover object-top rounded-2xl shadow-2xl ring-1 ring-[#0f2d4a]"
             />
           </motion.div>
 
           {/* Right — About Me box */}
           <motion.div
-            className="flex-1 bg-[#1c1528] border border-[#2a1f3d] rounded-2xl p-8"
+            className="flex-1 bg-[#071e38] border border-[#0f2d4a] rounded-2xl p-8"
             initial={{ opacity: 0, x: 40 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.7, ease: "easeOut", delay: 0.15 }}
