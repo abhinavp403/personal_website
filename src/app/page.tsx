@@ -5,10 +5,12 @@ import Interests from "@/components/Interests";
 import LinkWebsites from "@/components/LinkWebsites";
 import UpcomingGames from "@/components/UpcomingGames";
 import WordOfDay from "@/components/WordOfDay";
+import SiteNav from "@/components/SiteNav";
 
 export default function Home() {
   return (
     <main className="bg-[#020d1c]">
+      <SiteNav />
       <Hero1 />
 
       {/* All sections below hero share a single FallingPattern background */}

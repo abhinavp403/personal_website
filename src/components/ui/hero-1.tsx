@@ -80,7 +80,6 @@ const Hero1 = () => {
               <p>
                 Beyond development, I have a strong interest in sports, especially tennis and football, and I enjoy unwinding with the occasional film or series. I&apos;m also actively exploring the art of DJing, working to refine my skills in music curation and mixing. I have a natural curiosity for knowledge — from collecting random facts to following the dynamics of the stock market — and I&apos;m currently on a journey to learn every country and its capital.
               </p>
-              <p>Feel free to explore my work and ideas.</p>
             </div>
           </motion.div>
 
