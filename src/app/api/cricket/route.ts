@@ -18,7 +18,7 @@ export interface CricketMatch {
 const IPL_2026_SERIES_ID = "87c62aac-bc3c-4738-ab93-19da0690488f";
 
 // Favourite IPL teams (substring match against team names)
-const IPL_TEAMS = ["Mumbai Indians", "Royal Challengers"];
+const IPL_TEAMS = ["Mumbai Indians", "Royal Challengers Bengaluru"];
 
 // ─── Fetch next IPL game for each favourite team ──────────────────────────────
 async function fetchIPLMatches(apiKey: string): Promise<CricketMatch[]> {
@@ -57,7 +57,8 @@ async function fetchIPLMatches(apiKey: string): Promise<CricketMatch[]> {
 
       for (const fav of IPL_TEAMS) {
         if (found.has(fav)) continue;
-        if (!teamsStr.includes(fav.toLowerCase().split(" ")[0])) continue;
+        const matchKey = fav.toLowerCase().split(" ").slice(0, 2).join(" ");
+        if (!teamsStr.includes(matchKey)) continue;
 
         found.add(fav);
         results.push({
