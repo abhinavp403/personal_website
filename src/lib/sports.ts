@@ -20,6 +20,10 @@ const FOOTBALL_TEAMS = [
 const BASKETBALL_TEAMS = [
   { name: "Celtics", league: "nba" },
 ];
+const NFL_TEAMS = [
+  { name: "Patriots" },
+  { name: "Eagles"   },
+];
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 function dateRange(daysAhead = 75) {
@@ -31,7 +35,8 @@ function dateRange(daysAhead = 75) {
 
 function parseEvent(
   e: Record<string, unknown>,
-  sport: GameEvent["sport"]
+  sport: GameEvent["sport"],
+  leagueName?: string,
 ): GameEvent {
   const comp        = (e.competitions as Record<string, unknown>[])[0];
   const competitors = (comp.competitors as Record<string, unknown>[]) ?? [];
@@ -40,7 +45,7 @@ function parseEvent(
   const homeTeam    = home?.team as Record<string, unknown>;
   const awayTeam    = away?.team as Record<string, unknown>;
   const venue       = (comp.venue as Record<string, unknown>)?.fullName as string | undefined;
-  const league      = (e.league as Record<string, unknown>)?.name as string ?? sport;
+  const league      = leagueName ?? (e.league as Record<string, unknown>)?.name as string ?? sport;
 
   return {
     id:        String(e.id),
@@ -71,6 +76,7 @@ async function findNextGame(
     const res  = await fetch(url, { next: { revalidate: 3600 } });
     const data = await res.json();
     const events: Record<string, unknown>[] = data.events ?? [];
+    const leagueName = (data.leagues as Record<string, unknown>[])?.[0]?.abbreviation as string | undefined;
 
     const match = events
       .sort((a, b) => new Date(a.date as string).getTime() - new Date(b.date as string).getTime())
@@ -84,7 +90,35 @@ async function findNextGame(
         });
       });
 
-    return match ? parseEvent(match, sport === "basketball" ? "basketball" : "football") : null;
+    return match ? parseEvent(match, sport === "basketball" ? "basketball" : "football", leagueName) : null;
+  } catch {
+    return null;
+  }
+}
+
+// ─── NFL: next Patriots game ──────────────────────────────────────────────────
+async function findNextNFLGame(teamKeyword: string): Promise<GameEvent | null> {
+  try {
+    const range = dateRange(270); // wide window to catch upcoming season
+    const url   = `https://site.api.espn.com/apis/site/v2/sports/football/nfl/scoreboard?dates=${range}&limit=200`;
+
+    const res  = await fetch(url, { next: { revalidate: 3600 } });
+    const data = await res.json();
+    const events: Record<string, unknown>[] = data.events ?? [];
+
+    const match = events
+      .sort((a, b) => new Date(a.date as string).getTime() - new Date(b.date as string).getTime())
+      .find((e) => {
+        const competitors = (
+          (e.competitions as Record<string, unknown>[])?.[0]?.competitors
+        ) as Record<string, unknown>[] | undefined;
+        return competitors?.some((c) => {
+          const name = (c?.team as Record<string, unknown>)?.displayName;
+          return typeof name === "string" && name.toLowerCase().includes(teamKeyword.toLowerCase());
+        });
+      });
+
+    return match ? parseEvent(match, "football", "NFL") : null;
   } catch {
     return null;
   }
@@ -119,6 +153,7 @@ export async function getUpcomingGames(): Promise<GameEvent[]> {
   const results = await Promise.allSettled([
     ...FOOTBALL_TEAMS.map((t)   => findNextGame(t.league, "football",   t.name)),
     ...BASKETBALL_TEAMS.map((t) => findNextGame(t.league, "basketball", t.name)),
+    ...NFL_TEAMS.map((t)        => findNextNFLGame(t.name)),
     fetchF1NextRace(),
   ]);
 
