@@ -136,73 +136,83 @@ export default function AIProjects() {
             className="w-full bg-[#071e38] border border-[#0f2d4a] rounded-2xl overflow-hidden cursor-grab active:cursor-grabbing"
             style={{ boxShadow: "0 0 60px rgba(59,130,246,0.12)" }}
           >
-              {/* Preview */}
-              <div className="w-full bg-[#040f1e]">
-                {project.videoUrl ? (
-                  <video
-                    src={project.videoUrl}
-                    autoPlay
-                    loop
-                    muted
-                    playsInline
-                    className="w-full h-auto block pointer-events-none"
-                  />
-                ) : (
-                  <img
-                    src={project.gifUrl}
-                    alt={project.title}
-                    className="w-full h-auto block pointer-events-none"
-                    draggable={false}
-                  />
-                )}
-              </div>
-
-              {/* Blue accent line */}
-              <div className="h-px bg-gradient-to-r from-transparent via-blue-500/60 to-transparent" />
-
-              {/* Content */}
-              <div className="p-5 space-y-3">
-                <h3 className="text-white font-semibold text-lg">{project.title}</h3>
-                <p className="text-gray-400 text-sm leading-relaxed">{project.description}</p>
-
-                {/* Tags */}
-                <div className="flex flex-wrap gap-2">
-                  {project.tags.map((tag) => (
-                    <span
-                      key={tag}
-                      className={`flex items-center gap-1.5 text-xs rounded-full px-3 py-1 ${getTagStyle(tag)}`}
-                    >
-                      {renderTagIcon(tag)}
-                      {tag}
-                    </span>
-                  ))}
+            <AnimatePresence mode="popLayout" initial={false}>
+              <motion.div
+                key={current}
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.22, ease: "easeInOut" }}
+              >
+                {/* Preview */}
+                <div className="w-full bg-[#040f1e]">
+                  {project.videoUrl ? (
+                    <video
+                      src={project.videoUrl}
+                      autoPlay
+                      loop
+                      muted
+                      playsInline
+                      className="w-full h-auto block pointer-events-none"
+                    />
+                  ) : (
+                    <img
+                      src={project.gifUrl}
+                      alt={project.title}
+                      className="w-full h-auto block pointer-events-none"
+                      draggable={false}
+                    />
+                  )}
                 </div>
 
-                {/* Links */}
-                <div className="flex flex-wrap gap-3 pt-2">
-                  <a
-                    href={project.githubUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="flex items-center gap-2 text-sm text-gray-400 hover:text-white transition-colors bg-[#0f2d4a] hover:bg-[#163d60] rounded-full px-4 py-2"
-                  >
-                    <GitBranch className="w-4 h-4" />
-                    GitHub
-                  </a>
-                  {project.downloads?.map(({ label, url }) => (
+                {/* Blue accent line */}
+                <div className="h-px bg-gradient-to-r from-transparent via-blue-500/60 to-transparent" />
+
+                {/* Content */}
+                <div className="p-5 space-y-3">
+                  <h3 className="text-white font-semibold text-lg">{project.title}</h3>
+                  <p className="text-gray-400 text-sm leading-relaxed">{project.description}</p>
+
+                  {/* Tags */}
+                  <div className="flex flex-wrap gap-2">
+                    {project.tags.map((tag) => (
+                      <span
+                        key={tag}
+                        className={`flex items-center gap-1.5 text-xs rounded-full px-3 py-1 ${getTagStyle(tag)}`}
+                      >
+                        {renderTagIcon(tag)}
+                        {tag}
+                      </span>
+                    ))}
+                  </div>
+
+                  {/* Links */}
+                  <div className="flex flex-wrap gap-3 pt-2">
                     <a
-                      key={label}
-                      href={url}
+                      href={project.githubUrl}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="flex items-center gap-2 text-sm text-gray-400 hover:text-white transition-colors bg-[#0f2d4a] hover:bg-[#163d60] rounded-full px-4 py-2"
                     >
-                      <Download className="w-4 h-4" />
-                      {label}
+                      <GitBranch className="w-4 h-4" />
+                      GitHub
                     </a>
-                  ))}
+                    {project.downloads?.map(({ label, url }) => (
+                      <a
+                        key={label}
+                        href={url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex items-center gap-2 text-sm text-gray-400 hover:text-white transition-colors bg-[#0f2d4a] hover:bg-[#163d60] rounded-full px-4 py-2"
+                      >
+                        <Download className="w-4 h-4" />
+                        {label}
+                      </a>
+                    ))}
+                  </div>
                 </div>
-              </div>
+              </motion.div>
+            </AnimatePresence>
           </motion.div>
         </div>
 
