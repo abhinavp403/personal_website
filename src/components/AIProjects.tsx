@@ -12,7 +12,8 @@ interface DownloadLink {
 interface Project {
   title: string;
   description: string;
-  gifUrl: string;
+  gifUrl?: string;
+  videoUrl?: string;
   githubUrl: string;
   downloads?: DownloadLink[];
   tags: string[];
@@ -21,12 +22,12 @@ interface Project {
 const projects: Project[] = [
   {
     title: "Tennis Calendar",
-    description: "A desktop app that displays the full 2026 ATP and WTA tour schedules on an interactive calendar, including final results for completed tournaments and keeps track of player rankings.",
-    gifUrl: "/tennis-calendar.gif",
+    description: "An interactive calendar that visualizes the full ATP and WTA seasons month by month — highlighting tournament finals with badges, revealing match results and details on hover, and providing quick-access summaries, player stats, and rankings.",
+    videoUrl: "/tennis-calendar.mp4",
     githubUrl: "https://github.com/abhinavp403/tennis-calendar",
     downloads: [
-      { label: "Mac", url: "https://github.com/abhinavp403/tennis-calendar/releases/download/v1.0.0/Tennis.Calendar-1.0.0-arm64.dmg" },
-      { label: "Windows", url: "https://github.com/abhinavp403/tennis-calendar/releases/download/v1.0.0/Tennis.Calendar.Setup.1.0.0.exe" },
+      { label: "Mac", url: "https://github.com/abhinavp403/tennis-calendar/releases/download/v1.0.1/Tennis.Calendar-1.0.1-arm64.dmg" },
+      { label: "Windows", url: "https://github.com/abhinavp403/tennis-calendar/releases/download/v1.0.1/Tennis.Calendar.Setup.1.0.1.exe" },
     ],
     tags: ["JavaScript", "Python", "Shell"],
   },
@@ -135,14 +136,25 @@ export default function AIProjects() {
             className="w-full bg-[#071e38] border border-[#0f2d4a] rounded-2xl overflow-hidden cursor-grab active:cursor-grabbing"
             style={{ boxShadow: "0 0 60px rgba(59,130,246,0.12)" }}
           >
-              {/* GIF preview */}
+              {/* Preview */}
               <div className="w-full bg-[#040f1e]">
-                <img
-                  src={project.gifUrl}
-                  alt={project.title}
-                  className="w-full h-auto block pointer-events-none"
-                  draggable={false}
-                />
+                {project.videoUrl ? (
+                  <video
+                    src={project.videoUrl}
+                    autoPlay
+                    loop
+                    muted
+                    playsInline
+                    className="w-full h-auto block pointer-events-none"
+                  />
+                ) : (
+                  <img
+                    src={project.gifUrl}
+                    alt={project.title}
+                    className="w-full h-auto block pointer-events-none"
+                    draggable={false}
+                  />
+                )}
               </div>
 
               {/* Blue accent line */}
