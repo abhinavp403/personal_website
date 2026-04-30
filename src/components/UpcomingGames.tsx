@@ -269,11 +269,11 @@ function FeaturedCard({ game }: { game: GameEvent }) {
           <Badge label={`NEXT UP · ${countdown}`} />
           <span className="text-gray-500 text-sm">Formula 1</span>
         </div>
-        <div className="flex items-center gap-4 mb-6">
-          <div className="w-14 h-14 bg-red-500/10 border border-red-500/20 rounded-xl flex items-center justify-center text-2xl flex-shrink-0">🏎️</div>
+        <div className="flex items-center gap-5 mb-6">
+          <div className="w-16 h-16 bg-red-500/10 border border-red-500/20 rounded-xl flex items-center justify-center text-3xl flex-shrink-0">🏎️</div>
           <div>
-            <p className="text-white font-bold text-2xl">{game.homeTeam}</p>
-            <p className="text-gray-400 text-sm mt-0.5">{game.awayTeam}</p>
+            <p className="text-white font-bold text-3xl">{game.homeTeam}</p>
+            <p className="text-gray-400 text-base mt-0.5">{game.awayTeam}</p>
           </div>
         </div>
         <div className="flex flex-wrap items-center gap-6 pt-4 border-t border-[#0f2d4a] text-sm text-gray-400">
@@ -299,22 +299,22 @@ function FeaturedCard({ game }: { game: GameEvent }) {
         {/* Home */}
         <div className="flex items-center gap-4 flex-1 min-w-0">
           <div className="text-right flex-1 min-w-0">
-            <p className="text-white font-bold text-xl leading-tight">{game.homeTeam}</p>
+            <p className="text-white font-bold text-2xl leading-tight">{game.homeTeam}</p>
           </div>
-          <TeamCircle team={game.homeTeam} logo={game.homeLogo} className="w-16 h-16 text-base" />
+          <TeamCircle team={game.homeTeam} logo={game.homeLogo} className="w-20 h-20 text-lg" />
         </div>
 
         {/* VS + time */}
         <div className="text-center flex-shrink-0 px-2">
-          <p className="text-gray-500 text-xs font-semibold mb-1">VS</p>
-          <p className="text-white font-bold">{formatTime(game.date)}</p>
+          <p className="text-gray-500 text-sm font-semibold mb-1">VS</p>
+          <p className="text-white font-bold text-lg">{formatTime(game.date)}</p>
         </div>
 
         {/* Away */}
         <div className="flex items-center gap-4 flex-1 min-w-0">
-          <TeamCircle team={game.awayTeam} logo={game.awayLogo} className="w-16 h-16 text-base" />
+          <TeamCircle team={game.awayTeam} logo={game.awayLogo} className="w-20 h-20 text-lg" />
           <div className="flex-1 min-w-0">
-            <p className="text-white font-bold text-xl leading-tight">{game.awayTeam}</p>
+            <p className="text-white font-bold text-2xl leading-tight">{game.awayTeam}</p>
           </div>
         </div>
       </div>
@@ -345,22 +345,22 @@ function GameCard({ game, i }: { game: GameEvent; i: number }) {
   if (game.sport === "formula1") {
     return (
       <motion.div
-        className="rounded-2xl p-4 bg-[#071e38] border border-[#0f2d4a]"
+        className="rounded-2xl p-5 bg-[#071e38] border border-[#0f2d4a]"
         style={style}
         initial={{ opacity: 0, y: 20 }}
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true, margin: "-40px" }}
         transition={{ duration: 0.4, ease: "easeOut", delay: (i % 2) * 0.08 }}
       >
-        <div className="flex justify-between items-center mb-4">
+        <div className="flex justify-between items-center mb-5">
           <span className={`text-xs font-bold tracking-widest ${SPORT_TEXT["formula1"]}`}>FORMULA 1</span>
           <span className="text-gray-500 text-xs">{formatDate(game.date)} · {formatTime(game.date)}</span>
         </div>
-        <div className="flex items-center gap-3 mb-4">
-          <div className="w-10 h-10 bg-red-500/10 border border-red-500/20 rounded-lg flex items-center justify-center text-xl flex-shrink-0">🏎️</div>
+        <div className="flex items-center gap-4 mb-5">
+          <div className="w-12 h-12 bg-red-500/10 border border-red-500/20 rounded-xl flex items-center justify-center text-2xl flex-shrink-0">🏎️</div>
           <div>
-            <p className="text-white font-bold">{game.homeTeam}</p>
-            <p className="text-gray-500 text-xs mt-0.5">{game.awayTeam} · 2026 Season</p>
+            <p className="text-white font-bold text-base">{game.homeTeam}</p>
+            <p className="text-gray-500 text-sm mt-0.5">{game.awayTeam} · 2026 Season</p>
           </div>
         </div>
         {game.venue && (
@@ -374,7 +374,7 @@ function GameCard({ game, i }: { game: GameEvent; i: number }) {
 
   return (
     <motion.div
-      className="rounded-2xl p-4 bg-[#071e38] border border-[#0f2d4a]"
+      className="rounded-2xl p-5 bg-[#071e38] border border-[#0f2d4a]"
       style={style}
       initial={{ opacity: 0, y: 20 }}
       whileInView={{ opacity: 1, y: 0 }}
@@ -382,7 +382,7 @@ function GameCard({ game, i }: { game: GameEvent; i: number }) {
       transition={{ duration: 0.4, ease: "easeOut", delay: (i % 2) * 0.08 }}
     >
       {/* Sport + date */}
-      <div className="flex justify-between items-center mb-4">
+      <div className="flex justify-between items-center mb-5">
         <span className={`text-xs font-bold tracking-widest ${SPORT_TEXT[game.sport]}`}>
           {SPORT_LABEL[game.sport].toUpperCase()}
         </span>
@@ -390,12 +390,12 @@ function GameCard({ game, i }: { game: GameEvent; i: number }) {
       </div>
 
       {/* Teams */}
-      <div className="flex items-center gap-2 mb-4">
-        <TeamCircle team={game.homeTeam} logo={game.homeLogo} className="w-10 h-10 text-xs" />
-        <p className="text-white font-semibold text-sm flex-1 leading-tight">{game.homeTeam}</p>
+      <div className="flex items-center gap-3 mb-5">
+        <TeamCircle team={game.homeTeam} logo={game.homeLogo} className="w-12 h-12 text-sm" />
+        <p className="text-white font-semibold text-base flex-1 leading-tight">{game.homeTeam}</p>
         <span className="text-gray-500 text-xs font-semibold flex-shrink-0">VS</span>
-        <p className="text-white font-semibold text-sm flex-1 text-right leading-tight">{game.awayTeam}</p>
-        <TeamCircle team={game.awayTeam} logo={game.awayLogo} className="w-10 h-10 text-xs" />
+        <p className="text-white font-semibold text-base flex-1 text-right leading-tight">{game.awayTeam}</p>
+        <TeamCircle team={game.awayTeam} logo={game.awayLogo} className="w-12 h-12 text-sm" />
       </div>
 
       {/* Venue */}
