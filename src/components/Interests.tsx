@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { Clapperboard, Film, Tv, Star } from "lucide-react";
 import { motion } from "framer-motion";
 
@@ -27,23 +27,27 @@ interface InterestsData {
   shows: MediaItem[];
 }
 
-// Fallback data shown when Firebase isn't configured yet
 const fallbackData: InterestsData = {
   movies: [
-    { title: "Dune: Part Two", rating: 9.5, posterUrl: "https://images.unsplash.com/photo-1536440136628-849c177e76a1?w=200&h=300&fit=crop", year: 2024 },
-    { title: "Poor Things", rating: 9.0, posterUrl: "https://images.unsplash.com/photo-1485846234645-a62644f84728?w=200&h=300&fit=crop", year: 2024 },
-    { title: "The Brutalist", rating: 9.2, posterUrl: "https://images.unsplash.com/photo-1440404653325-ab127d49abc1?w=200&h=300&fit=crop", year: 2024 },
-    { title: "Anora", rating: 8.8, posterUrl: "https://images.unsplash.com/photo-1517604931442-7e0c8ed2963c?w=200&h=300&fit=crop", year: 2024 },
-    { title: "Conclave", rating: 8.5, posterUrl: "https://images.unsplash.com/photo-1574267432553-4b4628081c31?w=200&h=300&fit=crop", year: 2024 },
+    { title: "Dune: Part Two",  rating: 9.5, posterUrl: "https://images.unsplash.com/photo-1536440136628-849c177e76a1?w=200&h=300&fit=crop", year: 2024 },
+    { title: "Poor Things",     rating: 9.0, posterUrl: "https://images.unsplash.com/photo-1485846234645-a62644f84728?w=200&h=300&fit=crop", year: 2024 },
+    { title: "The Brutalist",   rating: 9.2, posterUrl: "https://images.unsplash.com/photo-1440404653325-ab127d49abc1?w=200&h=300&fit=crop", year: 2024 },
+    { title: "Anora",           rating: 8.8, posterUrl: "https://images.unsplash.com/photo-1517604931442-7e0c8ed2963c?w=200&h=300&fit=crop", year: 2024 },
+    { title: "Conclave",        rating: 8.5, posterUrl: "https://images.unsplash.com/photo-1574267432553-4b4628081c31?w=200&h=300&fit=crop", year: 2024 },
   ],
   shows: [
-    { title: "Shōgun", rating: 9.8, posterUrl: "https://images.unsplash.com/photo-1542751371-adc38448a05e?w=200&h=300&fit=crop", year: 2024 },
-    { title: "The Bear", rating: 9.3, posterUrl: "https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=200&h=300&fit=crop", year: 2024 },
+    { title: "Shōgun",        rating: 9.8, posterUrl: "https://images.unsplash.com/photo-1542751371-adc38448a05e?w=200&h=300&fit=crop", year: 2024 },
+    { title: "The Bear",      rating: 9.3, posterUrl: "https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=200&h=300&fit=crop", year: 2024 },
     { title: "Baby Reindeer", rating: 9.0, posterUrl: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=200&h=300&fit=crop", year: 2024 },
-    { title: "Ripley", rating: 8.7, posterUrl: "https://images.unsplash.com/photo-1529156069898-49953e39b3ac?w=200&h=300&fit=crop", year: 2024 },
-    { title: "Fallout", rating: 8.5, posterUrl: "https://images.unsplash.com/photo-1518709414768-a88981a4515d?w=200&h=300&fit=crop", year: 2024 },
+    { title: "Ripley",        rating: 8.7, posterUrl: "https://images.unsplash.com/photo-1529156069898-49953e39b3ac?w=200&h=300&fit=crop", year: 2024 },
+    { title: "Fallout",       rating: 8.5, posterUrl: "https://images.unsplash.com/photo-1518709414768-a88981a4515d?w=200&h=300&fit=crop", year: 2024 },
   ],
 };
+
+const INTRO_LS_KEY   = "entertainment_intro_ts";
+const INTRO_INTERVAL = 15 * 60 * 1000; // 15 minutes
+
+/* ── Helpers ───────────────────────────────────────────────────────────── */
 
 function Equalizer() {
   return (
@@ -71,49 +75,30 @@ function StarRating({ rating }: { rating?: number }) {
   );
 }
 
+/* ── Animated poster card ──────────────────────────────────────────────── */
 
-function MediaColumn({
-  title,
-  icon,
-  items,
+function AnimatedPosterCard({
+  item,
+  delay,
+  xFrom,
+  triggered,
 }: {
-  title: string;
-  icon: React.ReactNode;
-  items: MediaItem[];
+  item: MediaItem;
+  delay: number;
+  xFrom: string;
+  triggered: boolean;
 }) {
-  const firstRow  = items.slice(0, 3);
-  const secondRow = items.slice(3, 5);
-
   return (
-    <div className="flex-1 bg-[#071e38] border border-[#0f2d4a] rounded-2xl p-6">
-      {/* Column header */}
-      <div className="flex items-center gap-2 mb-6">
-        {icon}
-        <h3 className="text-white font-bold text-lg">{title}</h3>
-      </div>
-
-      {/* Row 1 — 3 posters */}
-      <div className="grid grid-cols-3 gap-3 mb-3">
-        {firstRow.map((item) => (
-          <PosterCard key={item.title} item={item} />
-        ))}
-      </div>
-
-      {/* Row 2 — 2 posters, centred */}
-      <div className="flex justify-center gap-3">
-        {secondRow.map((item) => (
-          <div key={item.title} className="w-[calc(33.333%-6px)]">
-            <PosterCard item={item} />
-          </div>
-        ))}
-      </div>
-    </div>
-  );
-}
-
-function PosterCard({ item }: { item: MediaItem }) {
-  return (
-    <div className="group cursor-pointer">
+    <motion.div
+      initial={{ x: xFrom }}
+      animate={{ x: triggered ? 0 : xFrom }}
+      transition={{
+        duration: 0.9,
+        ease: [0.22, 1, 0.36, 1], // expo-out — fast entry, smooth settle
+        delay,
+      }}
+      className="group cursor-pointer"
+    >
       <div className="relative rounded-xl overflow-hidden mb-2 aspect-[2/3] bg-[#0f2d4a]">
         <img
           src={item.posterUrl}
@@ -127,18 +112,80 @@ function PosterCard({ item }: { item: MediaItem }) {
       </div>
       <p className="text-white text-xs font-semibold line-clamp-2 leading-tight">{item.title}</p>
       {item.year && <p className="text-gray-500 text-xs mt-0.5">{item.year}</p>}
+    </motion.div>
+  );
+}
+
+/* ── Media column ──────────────────────────────────────────────────────── */
+
+function MediaColumn({
+  title,
+  icon,
+  items,
+  triggered,
+  xFrom,
+}: {
+  title: string;
+  icon: React.ReactNode;
+  items: MediaItem[];
+  triggered: boolean;
+  xFrom: string;
+}) {
+  const firstRow  = items.slice(0, 3);
+  const secondRow = items.slice(3, 5);
+
+  return (
+    <div className="flex-1 bg-[#071e38] border border-[#0f2d4a] rounded-2xl p-6">
+      <div className="flex items-center gap-2 mb-6">
+        {icon}
+        <h3 className="text-white font-bold text-lg">{title}</h3>
+      </div>
+
+      {/* Row 1 — 3 posters */}
+      <div className="grid grid-cols-3 gap-3 mb-3">
+        {firstRow.map((item, i) => (
+          <AnimatedPosterCard
+            key={item.title}
+            item={item}
+            delay={i * 1}
+            xFrom={xFrom}
+            triggered={triggered}
+          />
+        ))}
+      </div>
+
+      {/* Row 2 — 2 posters centred */}
+      <div className="flex justify-center gap-3">
+        {secondRow.map((item, i) => (
+          <div key={item.title} className="w-[calc(33.333%-6px)]">
+            <AnimatedPosterCard
+              item={item}
+              delay={(3 + i) * 1}
+              xFrom={xFrom}
+              triggered={triggered}
+            />
+          </div>
+        ))}
+      </div>
     </div>
   );
 }
 
+/* ── Main component ────────────────────────────────────────────────────── */
+
 export default function Interests() {
-  const [data, setData]       = useState<InterestsData>(fallbackData);
-  const [artists, setArtists] = useState<SpotifyArtist[]>([]);
-  const [tracks, setTracks]   = useState<SpotifyTrack[]>([]);
+  const [data, setData]         = useState<InterestsData>(fallbackData);
+  const [artists, setArtists]   = useState<SpotifyArtist[]>([]);
+  const [tracks, setTracks]     = useState<SpotifyTrack[]>([]);
   const [spotifyConfigured, setSpotifyConfigured] = useState(true);
 
+  // Animation: triggered = true means items should be at x:0 (final position)
+  const [triggered, setTriggered] = useState(false);
+  const [shouldPlay, setShouldPlay] = useState(false);
+  const spotifyRef = useRef<HTMLDivElement>(null);
+
+  /* ── Data fetching ────────────────────────────────────────────────── */
   useEffect(() => {
-    // Firebase — movies & shows
     async function fetchInterests() {
       try {
         const [moviesSnap, showsSnap] = await Promise.all([
@@ -163,14 +210,13 @@ export default function Interests() {
       } catch { /* use fallback */ }
     }
 
-    // Spotify — top artists & tracks
     async function fetchSpotify() {
       try {
         const res  = await fetch("/api/spotify");
-        const data = await res.json();
-        if (!data.configured) { setSpotifyConfigured(false); return; }
-        setArtists(data.artists ?? []);
-        setTracks(data.tracks   ?? []);
+        const json = await res.json();
+        if (!json.configured) { setSpotifyConfigured(false); return; }
+        setArtists(json.artists ?? []);
+        setTracks(json.tracks   ?? []);
       } catch { setSpotifyConfigured(false); }
     }
 
@@ -178,8 +224,59 @@ export default function Interests() {
     fetchSpotify();
   }, []);
 
+  /* ── Check 15-minute gate on mount ───────────────────────────────── */
+  useEffect(() => {
+    try {
+      const ts   = localStorage.getItem(INTRO_LS_KEY);
+      const play = !ts || Date.now() - Number(ts) > INTRO_INTERVAL;
+      if (play) {
+        setShouldPlay(true);
+      } else {
+        setTriggered(true); // skip straight to settled positions
+      }
+    } catch {
+      setTriggered(true);
+    }
+  }, []);
+
+  /* ── IntersectionObserver — fire when Spotify card enters view ──── */
+  useEffect(() => {
+    if (!shouldPlay) return;
+
+    // Use Spotify card ref when available, fall back to the whole section
+    const getTarget = () =>
+      spotifyRef.current ?? document.querySelector<HTMLElement>("#interests");
+
+    // Observe immediately if target already exists, otherwise wait a tick
+    // for the Spotify card to mount after spotifyConfigured settles
+    const setup = () => {
+      const target = getTarget();
+      if (!target) return;
+
+      const observer = new IntersectionObserver(
+        ([entry]) => {
+          if (entry.isIntersecting) {
+            setTriggered(true);
+            try { localStorage.setItem(INTRO_LS_KEY, String(Date.now())); } catch {}
+            observer.disconnect();
+          }
+        },
+        { threshold: 0.15 },
+      );
+
+      observer.observe(target);
+      return () => observer.disconnect();
+    };
+
+    // Small delay to let the Spotify section render if configured
+    const id = setTimeout(setup, 100);
+    return () => clearTimeout(id);
+  }, [shouldPlay, spotifyConfigured]);
+
+  /* ── Render ──────────────────────────────────────────────────────── */
   return (
-    <section id="interests" className="py-20 px-4">
+    // overflow-x-hidden keeps off-screen posters from creating a scrollbar
+    <section id="interests" className="py-20 px-4 overflow-x-hidden">
       <div className="max-w-6xl mx-auto">
 
         {/* Header */}
@@ -188,52 +285,39 @@ export default function Interests() {
           <h3 className="text-white font-bold text-2xl">Entertainment &amp; Music</h3>
         </div>
 
-        {/* Movies + Shows side by side */}
+        {/* Movies + Shows — always visible as empty cards until train arrives */}
         <div className="flex flex-col sm:flex-row gap-4">
-          <motion.div
-            className="flex-1"
-            initial={{ opacity: 0, x: -30 }}
-            whileInView={{ opacity: 1, x: 0 }}
-            viewport={{ once: true, margin: "-60px" }}
-            transition={{ duration: 0.55, ease: "easeOut" }}
-          >
-            <MediaColumn
-              title="Movies"
-              icon={<Film className="w-5 h-5 text-blue-400" />}
-              items={data.movies}
-            />
-          </motion.div>
-          <motion.div
-            className="flex-1"
-            initial={{ opacity: 0, x: 30 }}
-            whileInView={{ opacity: 1, x: 0 }}
-            viewport={{ once: true, margin: "-60px" }}
-            transition={{ duration: 0.55, ease: "easeOut", delay: 0.1 }}
-          >
-            <MediaColumn
-              title="Shows"
-              icon={<Tv className="w-5 h-5 text-sky-400" />}
-              items={data.shows}
-            />
-          </motion.div>
+          <MediaColumn
+            title="Movies"
+            icon={<Film className="w-5 h-5 text-blue-400" />}
+            items={data.movies}
+            triggered={triggered}
+            xFrom="100vw"   // movies train in from the right
+          />
+          <MediaColumn
+            title="Shows"
+            icon={<Tv className="w-5 h-5 text-sky-400" />}
+            items={data.shows}
+            triggered={triggered}
+            xFrom="-100vw"  // shows train in from the left
+          />
         </div>
 
-        {/* Spotify section */}
+        {/* Spotify — ref here is the IntersectionObserver trigger */}
         {spotifyConfigured && (
           <motion.div
+            ref={spotifyRef}
             className="mt-6 bg-[#071e38] border border-[#0f2d4a] rounded-2xl p-6"
             initial={{ opacity: 0, y: 30 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, margin: "-60px" }}
             transition={{ duration: 0.55, ease: "easeOut", delay: 0.15 }}
           >
-            {/* Header */}
             <div className="flex items-center gap-3 mb-8">
               <SpotifyIcon className="w-8 h-8" />
               <h3 className="text-white font-bold text-2xl">Spotify</h3>
             </div>
 
-            {/* Top Artists */}
             {artists.length > 0 && (
               <div className="mb-8">
                 <div className="flex items-center gap-4 mb-5">
@@ -265,7 +349,6 @@ export default function Interests() {
               </div>
             )}
 
-            {/* Top Songs */}
             {tracks.length > 0 && (
               <div>
                 <div className="flex items-center gap-4 mb-5">
@@ -275,7 +358,6 @@ export default function Interests() {
                   <div className="flex-1 h-px bg-[#0f2d4a]" />
                 </div>
                 <div className="flex gap-3">
-                  {/* Featured card — first track */}
                   <a
                     href={tracks[0].url}
                     target="_blank"
@@ -290,8 +372,6 @@ export default function Interests() {
                       <div className="mt-3"><Equalizer /></div>
                     </div>
                   </a>
-
-                  {/* 2×2 grid — remaining 4 tracks */}
                   <div className="flex-1 grid grid-cols-2 gap-3">
                     {tracks.slice(1).map((track) => (
                       <a
