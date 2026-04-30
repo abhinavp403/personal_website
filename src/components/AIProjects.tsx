@@ -144,7 +144,7 @@ export default function AIProjects() {
                   style={{ gridArea: "1 / 1" }}
                   animate={{ opacity: i === current ? 1 : 0 }}
                   transition={{ duration: 0.22, ease: "easeInOut" }}
-                  className={i !== current ? "pointer-events-none select-none" : ""}
+                  className={`flex flex-col${i !== current ? " pointer-events-none select-none" : ""}`}
                 >
                   {/* Preview */}
                   <div className="w-full bg-[#040f1e]">
@@ -171,46 +171,49 @@ export default function AIProjects() {
                   <div className="h-px bg-gradient-to-r from-transparent via-blue-500/60 to-transparent" />
 
                   {/* Content */}
-                  <div className="p-5 space-y-3">
+                  <div className="p-5 flex flex-col gap-3 flex-1">
                     <h3 className="text-white font-semibold text-lg">{p.title}</h3>
-                    <p className="text-gray-400 text-sm leading-relaxed">{p.description}</p>
+                    <p className="text-gray-400 text-sm leading-relaxed line-clamp-4">{p.description}</p>
 
-                    {/* Tags */}
-                    <div className="flex flex-wrap gap-2">
-                      {p.tags.map((tag) => (
-                        <span
-                          key={tag}
-                          className={`flex items-center gap-1.5 text-xs rounded-full px-3 py-1 ${getTagStyle(tag)}`}
-                        >
-                          {renderTagIcon(tag)}
-                          {tag}
-                        </span>
-                      ))}
-                    </div>
+                    {/* Tags + Links pinned to bottom */}
+                    <div className="mt-auto flex flex-col gap-3">
+                      {/* Tags */}
+                      <div className="flex flex-wrap gap-2">
+                        {p.tags.map((tag) => (
+                          <span
+                            key={tag}
+                            className={`flex items-center gap-1.5 text-xs rounded-full px-3 py-1 ${getTagStyle(tag)}`}
+                          >
+                            {renderTagIcon(tag)}
+                            {tag}
+                          </span>
+                        ))}
+                      </div>
 
-                    {/* Links */}
-                    <div className="flex flex-wrap gap-3 pt-2">
-                      <a
-                        href={p.githubUrl}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="flex items-center gap-2 text-sm text-gray-400 hover:text-white transition-colors bg-[#0f2d4a] hover:bg-[#163d60] rounded-full px-4 py-2"
-                      >
-                        <GitBranch className="w-4 h-4" />
-                        GitHub
-                      </a>
-                      {p.downloads?.map(({ label, url }) => (
+                      {/* Links */}
+                      <div className="flex flex-wrap gap-3">
                         <a
-                          key={label}
-                          href={url}
+                          href={p.githubUrl}
                           target="_blank"
                           rel="noopener noreferrer"
                           className="flex items-center gap-2 text-sm text-gray-400 hover:text-white transition-colors bg-[#0f2d4a] hover:bg-[#163d60] rounded-full px-4 py-2"
                         >
-                          <Download className="w-4 h-4" />
-                          {label}
+                          <GitBranch className="w-4 h-4" />
+                          GitHub
                         </a>
-                      ))}
+                        {p.downloads?.map(({ label, url }) => (
+                          <a
+                            key={label}
+                            href={url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="flex items-center gap-2 text-sm text-gray-400 hover:text-white transition-colors bg-[#0f2d4a] hover:bg-[#163d60] rounded-full px-4 py-2"
+                          >
+                            <Download className="w-4 h-4" />
+                            {label}
+                          </a>
+                        ))}
+                      </div>
                     </div>
                   </div>
                 </motion.div>
