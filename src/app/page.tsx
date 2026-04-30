@@ -7,6 +7,16 @@ import UpcomingGames from "@/components/UpcomingGames";
 import WordOfDay from "@/components/WordOfDay";
 import SiteNav from "@/components/SiteNav";
 
+function Divider() {
+  return (
+    <div className="flex items-center gap-4 px-8 max-w-6xl mx-auto">
+      <div className="flex-1 h-px bg-gradient-to-r from-transparent to-[#0f2d4a]" />
+      <div className="w-1 h-1 rounded-full bg-blue-500/40 flex-shrink-0" />
+      <div className="flex-1 h-px bg-gradient-to-l from-transparent to-[#0f2d4a]" />
+    </div>
+  );
+}
+
 export default function Home() {
   return (
     <main className="bg-[#020d1c]">
@@ -30,9 +40,13 @@ export default function Home() {
         {/* Content sits above the pattern */}
         <div className="relative z-10">
           <AIProjects />
+          <Divider />
           <Interests />
+          <Divider />
           <UpcomingGames />
+          <Divider />
           <WordOfDay />
+          <Divider />
           <LinkWebsites />
         </div>
       </div>
