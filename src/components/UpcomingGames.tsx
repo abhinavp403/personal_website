@@ -435,7 +435,7 @@ export default function UpcomingGames() {
 
   return (
     <section id="games" className="py-20 px-4">
-      <div className="max-w-4xl mx-auto">
+      <div className="max-w-6xl mx-auto">
 
         {/* Header */}
         <div className="flex items-center gap-3 mb-1">
