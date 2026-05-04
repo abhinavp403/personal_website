@@ -429,8 +429,10 @@ export default function UpcomingGames() {
     }).finally(() => setLoading(false));
   }, []);
 
-  const sports   = ["all", "football", "basketball", "cricket", "formula1"];
-  const filtered = filter === "all" ? games : games.filter((g) => g.sport === filter);
+  const allSports = ["all", "football", "basketball", "cricket", "formula1"];
+  const sports    = allSports.filter((s) => s === "all" || games.some((g) => g.sport === s));
+  const activeFilter = sports.includes(filter) ? filter : "all";
+  const filtered  = activeFilter === "all" ? games : games.filter((g) => g.sport === activeFilter);
   const [featured, ...rest] = filtered;
 
   return (
@@ -453,7 +455,7 @@ export default function UpcomingGames() {
               key={sport}
               onClick={() => setFilter(sport)}
               className={`flex items-center gap-2 rounded-full px-4 py-2 text-sm font-semibold transition-all border ${
-                filter === sport
+                activeFilter === sport
                   ? "bg-[#0f2d4a] text-white border-blue-500/40"
                   : "bg-transparent text-gray-400 border-[#0f2d4a] hover:text-white"
               }`}
