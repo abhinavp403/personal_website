@@ -43,6 +43,17 @@ const projects: Project[] = [
     ],
     tags: ["JavaScript"],
   },
+  {
+    title: "World Map",
+    description: "An interactive desktop app for exploring the world — browse about 200 countries on a zoomable map with hover tooltips showing flag, name, and capital. Toggle between a map view and a collapsible country list organized by continent, filter and search in real time, and hear the correct pronunciation of any country or capital via text-to-speech.",
+    videoUrl: "/world-map.mov",
+    githubUrl: "https://github.com/abhinavp403/world-map-list",
+    downloads: [
+      { label: "Mac", url: "https://github.com/abhinavp403/world-map-list/releases/download/v1.0.0/World.Map-1.0.0-arm64.dmg" },
+      { label: "Windows", url: "https://github.com/abhinavp403/world-map-list/releases/download/v1.0.0/World.Map.Setup.1.0.0.exe" },
+    ],
+    tags: ["HTML", "Python", "Shell"],
+  },
 ];
 
 /* ── Tag helpers ───────────────────────────────────────────────────────── */
@@ -64,11 +75,20 @@ function PythonIcon({ className }: { className?: string }) {
   );
 }
 
+function HTMLIcon({ className }: { className?: string }) {
+  return (
+    <svg className={className} viewBox="0 0 24 24" fill="currentColor">
+      <path d="M1.5 0h21l-1.91 21.563L11.977 24l-8.565-2.438L1.5 0zm7.031 9.75l-.232-2.718 10.059.003.23-2.622L5.412 4.41l.698 8.01h9.126l-.326 3.426-2.91.804-2.955-.81-.188-2.11H6.248l.33 4.171L12 19.351l5.379-1.443.744-8.157H8.531z"/>
+    </svg>
+  );
+}
+
 function renderTagIcon(tag: string) {
   switch (tag) {
     case "JavaScript": return <JSIcon className="w-3 h-3" />;
     case "Python":     return <PythonIcon className="w-3 h-3" />;
     case "Shell":      return <Terminal className="w-3 h-3" />;
+    case "HTML":       return <HTMLIcon className="w-3 h-3" />;
     default:           return null;
   }
 }
@@ -78,6 +98,7 @@ function getTagStyle(tag: string) {
     case "JavaScript": return "text-yellow-300 bg-yellow-500/10 border border-yellow-500/20";
     case "Python":     return "text-sky-300 bg-sky-500/10 border border-sky-500/20";
     case "Shell":      return "text-gray-300 bg-gray-500/10 border border-gray-500/20";
+    case "HTML":       return "text-orange-300 bg-orange-500/10 border border-orange-500/20";
     default:           return "text-blue-300 bg-[#0f2d4a]";
   }
 }
