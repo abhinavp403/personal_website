@@ -66,7 +66,7 @@ function TournamentCard({ t, i }: { t: ATPTournament; i: number }) {
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, margin: "-30px" }}
       transition={{ duration: 0.35, ease: "easeOut", delay: (i % 4) * 0.06 }}
-      className={`relative rounded-2xl p-4 border transition-all duration-200 ${
+      className={`relative rounded-2xl p-5 border transition-all duration-200 ${
         isLive
           ? "bg-[#071e38] border-blue-500/50 shadow-[0_0_20px_rgba(59,130,246,0.15)]"
           : "bg-[#071e38] border-[#0f2d4a] hover:border-[#1a3d5c]"
@@ -103,18 +103,18 @@ function TournamentCard({ t, i }: { t: ATPTournament; i: number }) {
       </div>
 
       {/* Name */}
-      <p className={`font-bold leading-snug mb-2 ${t.major || t.tier === "tour-finals" ? "text-base" : "text-sm"} text-white`}>
+      <p className={`font-bold leading-snug mb-2 ${t.major || t.tier === "tour-finals" ? "text-lg" : "text-base"} text-white`}>
         {t.name}
       </p>
 
       {/* Dates */}
-      <p className="text-gray-500 text-xs mb-1.5 font-mono">
+      <p className="text-gray-500 text-sm mb-2 font-mono">
         {formatDateRange(t.startDate, t.endDate)}
       </p>
 
       {/* Venue */}
       {t.venue && (
-        <div className="flex items-center gap-1 text-gray-500 text-xs">
+        <div className="flex items-center gap-1 text-gray-500 text-sm">
           <MapPin className="w-3 h-3 flex-shrink-0" />
           {t.venue}
         </div>
@@ -188,16 +188,16 @@ export default function ATPSchedule() {
 
         {/* Loading skeleton */}
         {loading && (
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
             {Array.from({ length: 4 }).map((_, i) => (
-              <div key={i} className="h-32 bg-[#071e38] rounded-2xl animate-pulse" />
+              <div key={i} className="h-36 bg-[#071e38] rounded-2xl animate-pulse" />
             ))}
           </div>
         )}
 
         {/* Tournament cards */}
         {!loading && (
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
             {thisMonthTournaments.map((t, i) => (
               <TournamentCard key={t.id} t={t} i={i} />
             ))}
