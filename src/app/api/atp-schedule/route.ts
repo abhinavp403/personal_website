@@ -22,7 +22,8 @@ const CLAY_KEYWORDS = [
 ];
 const GRASS_KEYWORDS = [
   "wimbledon", "halle", "boss open", "stuttgart", "hertogenbosch", "libéma",
-  "eastbourne", "mallorca", "hsbc championships", "birmingham", "bali",
+  "eastbourne", "mallorca", "nottingham", "ilkley", "birmingham classic",
+  "bad homburg", "queens", "bali",
 ];
 
 function getSurface(name: string): ATPTournament["surface"] {
@@ -32,31 +33,120 @@ function getSurface(name: string): ATPTournament["surface"] {
   return "hard";
 }
 
-// ── Tier detection ─────────────────────────────────────────────────────────────
-const TIER_1000_KEYWORDS = [
-  "indian wells", "miami open", "monte-carlo", "mutua madrid", "internazionali",
-  "national bank open", "cincinnati", "shanghai", "rolex paris masters", "paris masters",
-  "canadian open", "rogers cup", "china open", "wuhan open", "guadalajara",
-];
+// ── Tour Finals ────────────────────────────────────────────────────────────────
 const TIER_FINALS_KEYWORDS = [
-  "nitto atp finals", "atp finals", "wta finals",
-];
-const TIER_500_KEYWORDS = [
-  "abn amro", "rotterdam", "dubai", "telcel", "acapulco", "barcelona open",
-  "hamburg", "mubadala", "japan open", "china open", "erste bank", "swiss indoors",
-  "nordea", "ostrava", "san diego", "pan pacific",
+  "nitto atp finals", "atp finals", "wta finals", "next gen atp finals",
 ];
 
-// WTA 125K / ITF W125 series — filter these out entirely
+// ── ATP tier keywords (men's tour) ─────────────────────────────────────────────
+const ATP_TIER_1000 = [
+  "bnp paribas open",     // Indian Wells
+  "miami open",
+  "monte-carlo",
+  "mutua madrid",
+  "internazionali",       // Rome
+  "national bank open", "rogers cup", "canadian open",
+  "cincinnati",
+  "shanghai", "rolex shanghai",
+  "rolex paris masters", "paris masters",
+  "china open",
+  "guadalajara",
+];
+const ATP_TIER_500 = [
+  "abn amro", "rotterdam",
+  "dubai",
+  "telcel", "acapulco",
+  "barcelona open",
+  "hamburg", "bitpanda hamburg",
+  "mubadala citi",        // Washington DC
+  "mifel", "los cabos",
+  "japan open",
+  "erste bank",
+  "swiss indoors",               // Basel ATP 500 only (not Gstaad ATP 250)
+  "nordea",               // Bastad
+  "hsbc",
+  "san diego",
+  "pan pacific",
+];
+
+// ── WTA tier keywords (women's tour) ──────────────────────────────────────────
+// Source: https://www.wtatennis.com/tournaments (official WTA API, 2026 season)
+const WTA_TIER_1000 = [
+  "bnp paribas open",     // Indian Wells
+  "miami open",
+  "mutua madrid",
+  "internazionali bnl",   // Rome
+  "national bank open", "rogers cup", "canadian open",
+  "cincinnati",
+  "china open",           // Beijing
+  "wuhan", "dongfeng",
+  "qatar total energies", // Doha (WTA 1000 in 2026)
+  "dubai duty free",      // Dubai (WTA 1000 in 2026)
+];
+const WTA_TIER_500 = [
+  "united cup",
+  "brisbane international",
+  "adelaide international",
+  "abu dhabi",            // Mubadala Abu Dhabi Open
+  "mubadala citi",        // Washington DC
+  "mérida", "merida",
+  "charleston",           // Credit One Charleston Open
+  "linz",                 // Upper Austria Ladies Linz
+  "porsche", "stuttgart", // Porsche Tennis Grand Prix
+  "strasbourg",
+  "hsbc championships",   // Queen's / London
+  "berlin",               // VANDA Berlin Open
+  "bad homburg",
+  "abierto gnp",          // Monterrey
+  "guadalajara",          // WTA 500 (different from ATP 1000)
+  "singapore tennis",
+  "pan pacific", "toray", // Ningbo / Tokyo
+  "ningbo",               // AUX Ningbo Open (WTA 500)
+  "tokyo",
+];
+
+// ── WTA 125K series — filter out entirely ─────────────────────────────────────
+// Source: WTA official API cross-referenced with ESPN event names
 const WTA_125_KEYWORDS = [
-  "125", "canberra international", "philippine women", "mumbai open", "l&t",
-  "oeiras", "les sables", "dow tennis classic", "megasaray", "dubrovnik open",
-  "villa de madrid gp", "capfinances", "rouen", "huzhou", "saint malo",
-  "catalonia open", "jiangxi", "trophée clarins", "delle puglie", "makarska",
-  "eugenio fontana", "femminili", "figueira da foz", "grand est open",
-  "iasi open", "athens open", "istanbul open", "parma ladies", "hamburg ladies", "sp open", "ningbo",
-  "guangzhou", "hong kong", "kinoshita", "chennai open", "austin 125",
-  "bogota cup", "saguenay", "contrexeville", "portoroz challenger",
+  "125",
+  "canberra international", "philippine women", "manila",
+  "mumbai open",
+  "oeiras",
+  "les sables",
+  "dow tennis classic", "midland",
+  "megasaray", "antalya open",
+  "dubrovnik open",
+  "villa de madrid",      // Grand Prix Open Villa de Madrid (WTA 125, not Madrid WTA 1000)
+  "capfinances",
+  "huzhou",
+  "saint malo",
+  "vic 125", "jiujiang",
+  "catalonia open", "solgironès", "solgirones", "jiangxi",
+  "trophée clarins",
+  "delle puglie", "bari",
+  "makarska",
+  "eugenio fontana",
+  "femminili",            // catches Internazionali Femminili Di Brescia etc.
+  "figueira da foz",
+  "grand est open",
+  "modena",               // Modena WTA 125
+  "palermo",              // WTA 125 Palermo (separate from any WTA 250)
+  "kitzbü", "kitzbuehel",
+  "contrexeville",
+  "bastad 125", "newport 125", "rome 125", "targu mures",
+  "vancouver 125", "warsaw 125",
+  "istanbul open", "istanbul 125",
+  "parma ladies",
+  "lexus birmingham",     // Birmingham Classic WTA 125
+  "lexus ilkley",         // Ilkley WTA 125
+  "hall of fame",         // ATP Newport event appearing in WTA feed
+  "nordea open",          // ATP Bastad event appearing in WTA feed
+  "austin 125",
+  "bogota cup",
+  "saguenay",
+  "portoroz challenger",
+  "sp open",
+  "kinoshita",
 ];
 
 function isWTA125(name: string): boolean {
@@ -64,12 +154,17 @@ function isWTA125(name: string): boolean {
   return WTA_125_KEYWORDS.some((k) => n.includes(k));
 }
 
-function getTier(name: string, major: boolean): ATPTournament["tier"] {
+function getTier(name: string, major: boolean, tour: "atp" | "wta"): ATPTournament["tier"] {
   if (major) return "grand-slam";
   const n = name.toLowerCase();
   if (TIER_FINALS_KEYWORDS.some((k) => n.includes(k))) return "tour-finals";
-  if (TIER_1000_KEYWORDS.some((k) => n.includes(k))) return "masters-1000";
-  if (TIER_500_KEYWORDS.some((k) => n.includes(k))) return "atp-500";
+  if (tour === "wta") {
+    if (WTA_TIER_1000.some((k) => n.includes(k))) return "masters-1000";
+    if (WTA_TIER_500.some((k) => n.includes(k))) return "atp-500";
+  } else {
+    if (ATP_TIER_1000.some((k) => n.includes(k))) return "masters-1000";
+    if (ATP_TIER_500.some((k) => n.includes(k))) return "atp-500";
+  }
   return "atp-250";
 }
 
@@ -91,7 +186,7 @@ function parseEvents(events: Record<string, unknown>[], tour: "atp" | "wta"): AT
     const major     = (e.major as boolean) ?? false;
     const venue     = ((e.venue as Record<string, unknown>)?.displayName as string) ?? "";
 
-    // Skip WTA 125-level events
+    // Skip WTA 125-level and ITF events
     if (tour === "wta" && isWTA125(name)) continue;
 
     results.push({
@@ -101,7 +196,7 @@ function parseEvents(events: Record<string, unknown>[], tour: "atp" | "wta"): AT
       endDate,
       venue,
       surface: getSurface(name),
-      tier:    getTier(name, major),
+      tier:    getTier(name, major, tour),
       status:  getStatus(startDate, endDate),
       major,
       tour,
