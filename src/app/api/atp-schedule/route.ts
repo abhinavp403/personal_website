@@ -7,7 +7,7 @@ export interface ATPTournament {
   endDate: string;
   venue: string;
   surface: "clay" | "grass" | "hard";
-  tier: "grand-slam" | "masters-1000" | "atp-500" | "atp-250";
+  tier: "tour-finals" | "grand-slam" | "masters-1000" | "atp-500" | "atp-250";
   status: "past" | "live" | "upcoming";
   major: boolean;
   tour: "atp" | "wta";
@@ -38,10 +38,13 @@ const TIER_1000_KEYWORDS = [
   "national bank open", "cincinnati", "shanghai", "rolex paris masters", "paris masters",
   "canadian open", "rogers cup", "china open", "wuhan open", "guadalajara",
 ];
+const TIER_FINALS_KEYWORDS = [
+  "nitto atp finals", "atp finals", "wta finals",
+];
 const TIER_500_KEYWORDS = [
   "abn amro", "rotterdam", "dubai", "telcel", "acapulco", "barcelona open",
   "hamburg", "mubadala", "japan open", "china open", "erste bank", "swiss indoors",
-  "nordea", "ostrava", "san diego", "wta finals", "pan pacific",
+  "nordea", "ostrava", "san diego", "pan pacific",
 ];
 
 // WTA 125K / ITF W125 series — filter these out entirely
@@ -64,6 +67,7 @@ function isWTA125(name: string): boolean {
 function getTier(name: string, major: boolean): ATPTournament["tier"] {
   if (major) return "grand-slam";
   const n = name.toLowerCase();
+  if (TIER_FINALS_KEYWORDS.some((k) => n.includes(k))) return "tour-finals";
   if (TIER_1000_KEYWORDS.some((k) => n.includes(k))) return "masters-1000";
   if (TIER_500_KEYWORDS.some((k) => n.includes(k))) return "atp-500";
   return "atp-250";

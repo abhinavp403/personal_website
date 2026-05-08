@@ -27,13 +27,15 @@ function getMonth(iso: string): number {
 // ── Badges ─────────────────────────────────────────────────────────────────────
 
 const TIER_STYLES: Record<ATPTournament["tier"], string> = {
-  "grand-slam":  "text-yellow-300 bg-yellow-500/15 border border-yellow-500/30",
-  "masters-1000":"text-purple-300 bg-purple-500/10 border border-purple-500/25",
-  "atp-500":     "text-blue-300   bg-blue-500/10   border border-blue-500/20",
-  "atp-250":     "text-gray-400   bg-gray-500/10   border border-gray-500/20",
+  "tour-finals": "text-emerald-300 bg-emerald-500/15 border border-emerald-500/30",
+  "grand-slam":  "text-yellow-300  bg-yellow-500/15  border border-yellow-500/30",
+  "masters-1000":"text-purple-300  bg-purple-500/10  border border-purple-500/25",
+  "atp-500":     "text-blue-300    bg-blue-500/10    border border-blue-500/20",
+  "atp-250":     "text-gray-400    bg-gray-500/10    border border-gray-500/20",
 };
 
 const TIER_LABELS: Record<ATPTournament["tier"], { atp: string; wta: string }> = {
+  "tour-finals": { atp: "ATP Finals",   wta: "WTA Finals"  },
   "grand-slam":  { atp: "Grand Slam",   wta: "Grand Slam"  },
   "masters-1000":{ atp: "Masters 1000", wta: "WTA 1000"    },
   "atp-500":     { atp: "ATP 500",      wta: "WTA 500"     },
@@ -101,7 +103,7 @@ function TournamentCard({ t, i }: { t: ATPTournament; i: number }) {
       </div>
 
       {/* Name */}
-      <p className={`font-bold leading-snug mb-2 ${t.major ? "text-base" : "text-sm"} text-white`}>
+      <p className={`font-bold leading-snug mb-2 ${t.major || t.tier === "tour-finals" ? "text-base" : "text-sm"} text-white`}>
         {t.name}
       </p>
 
