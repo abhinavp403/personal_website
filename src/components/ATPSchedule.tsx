@@ -123,11 +123,16 @@ function TournamentCard({ t, i }: { t: ATPTournament; i: number }) {
   );
 }
 
+// ── Tour filter ────────────────────────────────────────────────────────────────
+
+type TourFilter = "all" | "atp" | "wta";
+
 // ── Main component ─────────────────────────────────────────────────────────────
 
 export default function ATPSchedule() {
   const [tournaments, setTournaments] = useState<ATPTournament[]>([]);
   const [loading, setLoading]         = useState(true);
+  const [filter, setFilter]           = useState<TourFilter>("all");
   const currentMonth = new Date().getMonth();
 
   useEffect(() => {
@@ -142,7 +147,9 @@ export default function ATPSchedule() {
     const startsThisMonth = getMonth(t.startDate) === currentMonth;
     const endsThisMonthOrLater = new Date(t.endDate).getMonth() >= currentMonth
       && new Date(t.endDate).getFullYear() === new Date().getFullYear();
-    return startsThisMonth || (endsThisMonthOrLater && getMonth(t.startDate) < currentMonth);
+    const inMonth = startsThisMonth || (endsThisMonthOrLater && getMonth(t.startDate) < currentMonth);
+    const inTour  = filter === "all" || t.tour === filter;
+    return inMonth && inTour;
   });
 
   return (
@@ -150,11 +157,32 @@ export default function ATPSchedule() {
       <div className="max-w-6xl mx-auto">
 
         {/* Header */}
-        <div className="flex items-center gap-3 mb-8">
-          <CalendarDays className="w-6 h-6 text-yellow-400" />
-          <div>
-            <h3 className="text-white font-bold text-2xl">ATP / WTA Tour 2026</h3>
-            <p className="text-gray-500 text-sm mt-0.5">{MONTH_NAMES[currentMonth]} tournaments</p>
+        <div className="flex flex-wrap items-center justify-between gap-4 mb-8">
+          <div className="flex items-center gap-3">
+            <CalendarDays className="w-6 h-6 text-yellow-400" />
+            <div>
+              <h3 className="text-white font-bold text-2xl">ATP / WTA Tour 2026</h3>
+              <p className="text-gray-500 text-sm mt-0.5">{MONTH_NAMES[currentMonth]} tournaments</p>
+            </div>
+          </div>
+
+          {/* Filter pills */}
+          <div className="flex gap-1 bg-[#071e38] border border-[#0f2d4a] rounded-full p-1">
+            {(["all", "atp", "wta"] as TourFilter[]).map((t) => (
+              <button
+                key={t}
+                onClick={() => setFilter(t)}
+                className={`text-xs font-semibold px-4 py-1.5 rounded-full transition-all duration-200 ${
+                  filter === t
+                    ? t === "wta"
+                      ? "bg-pink-500/20 text-white border border-pink-500/40"
+                      : "bg-blue-500/20 text-white border border-blue-500/40"
+                    : "text-gray-400 hover:text-white border border-transparent"
+                }`}
+              >
+                {t.toUpperCase()}
+              </button>
+            ))}
           </div>
         </div>
 
