@@ -54,7 +54,7 @@ const WTA_125_KEYWORDS = [
   "villa de madrid gp", "capfinances", "rouen", "huzhou", "saint malo",
   "catalonia open", "jiangxi", "trophée clarins", "delle puglie", "makarska",
   "eugenio fontana", "femminili", "figueira da foz", "grand est open",
-  "iasi open", "athens open", "istanbul open", "hamburg ladies", "sp open", "ningbo",
+  "iasi open", "athens open", "istanbul open", "parma ladies", "hamburg ladies", "sp open", "ningbo",
   "guangzhou", "hong kong", "kinoshita", "chennai open", "austin 125",
   "bogota cup", "saguenay", "contrexeville", "portoroz challenger",
 ];
