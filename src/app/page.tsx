@@ -5,6 +5,7 @@ import Interests from "@/components/Interests";
 import LinkWebsites from "@/components/LinkWebsites";
 import UpcomingGames from "@/components/UpcomingGames";
 import ATPSchedule from "@/components/ATPSchedule";
+import TournamentTable from "@/components/TournamentTable";
 import WordOfDay from "@/components/WordOfDay";
 import SiteNav from "@/components/SiteNav";
 
@@ -47,6 +48,8 @@ export default function Home() {
           <UpcomingGames />
           <Divider />
           <ATPSchedule />
+          <Divider />
+          <TournamentTable />
           <Divider />
           <WordOfDay />
           <Divider />
