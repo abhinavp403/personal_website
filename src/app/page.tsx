@@ -4,6 +4,7 @@ import AIProjects from "@/components/AIProjects";
 import Interests from "@/components/Interests";
 import LinkWebsites from "@/components/LinkWebsites";
 import UpcomingGames from "@/components/UpcomingGames";
+import ATPSchedule from "@/components/ATPSchedule";
 import WordOfDay from "@/components/WordOfDay";
 import SiteNav from "@/components/SiteNav";
 
@@ -44,6 +45,8 @@ export default function Home() {
           <Interests />
           <Divider />
           <UpcomingGames />
+          <Divider />
+          <ATPSchedule />
           <Divider />
           <WordOfDay />
           <Divider />

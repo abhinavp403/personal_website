@@ -5,8 +5,9 @@ import { useEffect, useRef, useState } from "react";
 const NAV_LINKS = [
   { label: "Projects",             href: "#projects"  },
   { label: "Entertainment & Music", href: "#interests" },
-  { label: "Upcoming Matches",     href: "#games"     },
-  { label: "Let's Connect",        href: "#connect"   },
+  { label: "Upcoming Matches",     href: "#games"         },
+  { label: "ATP Schedule",         href: "#atp-schedule"  },
+  { label: "Let's Connect",        href: "#connect"       },
 ];
 
 export default function SiteNav() {
