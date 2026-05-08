@@ -55,15 +55,19 @@ const ATP_TIER_1000 = [
 const ATP_TIER_500 = [
   "abn amro", "rotterdam",
   "dubai",
+  "doha", "qatar exxonmobil",   // Doha ATP 500
+  "dallas",                      // Dallas ATP 500
+  "rio open",                    // Rio de Janeiro ATP 500
   "telcel", "acapulco",
   "barcelona open",
+  "bmw open", "munich",          // BMW Open Munich ATP 500
   "hamburg", "bitpanda hamburg",
-  "mubadala citi",        // Washington DC
+  "mubadala citi",               // Washington DC
   "mifel", "los cabos",
   "japan open",
   "erste bank",
   "swiss indoors",               // Basel ATP 500 only (not Gstaad ATP 250)
-  "nordea",               // Bastad
+  "nordea",                      // Bastad
   "hsbc",
   "san diego",
   "pan pacific",
@@ -104,6 +108,16 @@ const WTA_TIER_500 = [
   "ningbo",               // AUX Ningbo Open (WTA 500)
   "tokyo",
 ];
+
+// ── ATP events removed from / not on 2026 calendar ────────────────────────────
+const ATP_EXCLUDE_KEYWORDS = [
+  "estoril",   // Removed from 2026 ATP calendar
+];
+
+function isATPExcluded(name: string): boolean {
+  const n = name.toLowerCase();
+  return ATP_EXCLUDE_KEYWORDS.some((k) => n.includes(k));
+}
 
 // ── WTA 125K series — filter out entirely ─────────────────────────────────────
 // Source: WTA official API cross-referenced with ESPN event names
@@ -188,6 +202,8 @@ function parseEvents(events: Record<string, unknown>[], tour: "atp" | "wta"): AT
 
     // Skip WTA 125-level and ITF events
     if (tour === "wta" && isWTA125(name)) continue;
+    // Skip ATP events removed from 2026 calendar
+    if (tour === "atp" && isATPExcluded(name)) continue;
 
     results.push({
       id:      `${tour}-${e.id as string}`,
