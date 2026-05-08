@@ -5,7 +5,7 @@ import type { CSSProperties } from "react";
 import { Calendar, MapPin, Trophy } from "lucide-react";
 import { motion } from "framer-motion";
 
-import type { GameEvent } from "@/lib/sports";
+import type { GameEvent, TennisMatch } from "@/lib/sports";
 import type { CricketMatch } from "@/app/api/cricket/route";
 
 // ── Sport config ───────────────────────────────────────────────────────────────
@@ -15,6 +15,7 @@ const SPORT_LABEL: Record<string, string> = {
   cricket:    "Cricket",
   basketball: "Basketball",
   formula1:   "Formula 1",
+  tennis:     "Tennis",
 };
 
 // Single-league sports get a sensible fallback; multi-league sports (football) get null
@@ -33,6 +34,7 @@ const SPORT_DOT: Record<string, string> = {
   basketball: "bg-orange-400",
   cricket:    "bg-blue-400",
   formula1:   "bg-red-400",
+  tennis:     "bg-yellow-400",
 };
 
 const SPORT_TEXT: Record<string, string> = {
@@ -40,6 +42,7 @@ const SPORT_TEXT: Record<string, string> = {
   basketball: "text-orange-400",
   cricket:    "text-blue-400",
   formula1:   "text-red-400",
+  tennis:     "text-yellow-400",
 };
 
 // ── Team colours (for card glow) ──────────────────────────────────────────────
@@ -82,6 +85,10 @@ const TEAM_COLOR_MAP: Record<string, TeamColor> = {
   "australia": { primary: "#f6c600" },
   "england":   { primary: "#003087" },
   "pakistan":  { primary: "#01411c" },
+  // Tennis players — national colours
+  "sinner":   { primary: "#009246", secondary: "#CE2B37" }, // Italy
+  "alcaraz":  { primary: "#AA151B", secondary: "#F1BF00" }, // Spain
+  "djokovic": { primary: "#C6363C", secondary: "#0C4076" }, // Serbia
 };
 
 // Teams the user follows — these win colour priority when playing away
@@ -90,6 +97,7 @@ const MY_TEAMS = [
   "patriots", "eagles",
   "boston celtics",
   "mumbai indians", "royal challengers",
+  "sinner", "alcaraz", "djokovic",
 ];
 
 function getTeamColor(name: string): TeamColor | null {
@@ -179,6 +187,20 @@ function cricketMatchToEvent(m: CricketMatch): GameEvent {
     league:    m.matchType === "IPL" ? "IPL 2026" : `${m.matchType} · ${m.series}`,
     sport:     "cricket",
     venue:     m.venue,
+  };
+}
+
+function tennisMatchToEvent(m: TennisMatch): GameEvent {
+  return {
+    id:       m.id,
+    homeTeam: m.player1,
+    awayTeam: m.player2,
+    homeLogo: m.player1Flag,
+    awayLogo: m.player2Flag,
+    date:     m.date,
+    league:   m.tournament,
+    sport:    "tennis",
+    venue:    m.venue,
   };
 }
 
@@ -419,17 +441,19 @@ export default function UpcomingGames() {
     Promise.all([
       fetch("/api/games").then((r) => r.json()).catch(() => ({ games: [] })),
       fetch("/api/cricket").then((r) => r.json()).catch(() => ({ matches: [] })),
-    ]).then(([gamesData, cricketData]) => {
+      fetch("/api/tennis").then((r) => r.json()).catch(() => ({ matches: [] })),
+    ]).then(([gamesData, cricketData, tennisData]) => {
       const sportGames: GameEvent[]   = gamesData.games?.length ? gamesData.games : buildFallbackGames();
       const cricketGames: GameEvent[] = (cricketData.matches ?? []).map(cricketMatchToEvent);
-      const all = [...sportGames, ...cricketGames].sort(
+      const tennisGames: GameEvent[]  = (tennisData.matches ?? []).map(tennisMatchToEvent);
+      const all = [...sportGames, ...cricketGames, ...tennisGames].sort(
         (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()
       );
       setGames(all);
     }).finally(() => setLoading(false));
   }, []);
 
-  const allSports = ["all", "football", "basketball", "cricket", "formula1"];
+  const allSports = ["all", "football", "basketball", "cricket", "formula1", "tennis"];
   const sports    = allSports.filter((s) => s === "all" || games.some((g) => g.sport === s));
   const activeFilter = sports.includes(filter) ? filter : "all";
   const filtered  = activeFilter === "all" ? games : games.filter((g) => g.sport === activeFilter);

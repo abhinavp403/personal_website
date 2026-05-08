@@ -1,3 +1,14 @@
+export interface TennisMatch {
+  id: string;
+  player1: string;
+  player2: string;
+  player1Flag?: string;
+  player2Flag?: string;
+  tournament: string;
+  date: string;
+  venue?: string;
+}
+
 export interface GameEvent {
   id: string;
   homeTeam: string;
@@ -6,7 +17,7 @@ export interface GameEvent {
   awayLogo?: string;
   date: string;
   league: string;
-  sport: "football" | "cricket" | "basketball" | "formula1";
+  sport: "football" | "cricket" | "basketball" | "formula1" | "tennis";
   venue?: string;
 }
 
