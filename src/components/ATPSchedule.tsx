@@ -21,7 +21,51 @@ function formatDateRange(start: string, end: string): string {
 }
 
 function getMonth(iso: string): number {
-  return new Date(iso).getMonth(); // 0-indexed
+  return new Date(iso).getMonth();
+}
+
+// ── Grouping ───────────────────────────────────────────────────────────────────
+
+interface TournamentGroup {
+  key:       string;
+  name:      string;
+  surface:   ATPTournament["surface"];
+  venue:     string;
+  startDate: string;
+  endDate:   string;
+  status:    ATPTournament["status"];
+  major:     boolean;
+  atp?:      ATPTournament;
+  wta?:      ATPTournament;
+}
+
+function groupTournaments(list: ATPTournament[]): TournamentGroup[] {
+  const map = new Map<string, TournamentGroup>();
+  for (const t of list) {
+    const key = t.name.toLowerCase().trim();
+    if (map.has(key)) {
+      const g = map.get(key)!;
+      g[t.tour] = t;
+      if (t.startDate < g.startDate) g.startDate = t.startDate;
+      if (t.endDate   > g.endDate)   g.endDate   = t.endDate;
+      if (t.status === "live") g.status = "live";
+    } else {
+      map.set(key, {
+        key,
+        name:      t.name,
+        surface:   t.surface,
+        venue:     t.venue,
+        startDate: t.startDate,
+        endDate:   t.endDate,
+        status:    t.status,
+        major:     t.major,
+        [t.tour]:  t,
+      });
+    }
+  }
+  return [...map.values()].sort(
+    (a, b) => new Date(a.startDate).getTime() - new Date(b.startDate).getTime()
+  );
 }
 
 // ── Badges ─────────────────────────────────────────────────────────────────────
@@ -49,24 +93,26 @@ const SURFACE_STYLES: Record<ATPTournament["surface"], string> = {
 };
 
 const SURFACE_LABELS: Record<ATPTournament["surface"], string> = {
-  clay:  "Clay",
-  grass: "Grass",
-  hard:  "Hard",
+  clay: "Clay", grass: "Grass", hard: "Hard",
 };
 
 // ── Tournament card ────────────────────────────────────────────────────────────
 
-function TournamentCard({ t, i }: { t: ATPTournament; i: number }) {
-  const isLive  = t.status === "live";
-  const isPast  = t.status === "past";
+function TournamentCard({ g, i }: { g: TournamentGroup; i: number }) {
+  const isLive = g.status === "live";
+  const isPast = g.status === "past";
+  const isBig  = g.major || g.atp?.tier === "tour-finals" || g.wta?.tier === "tour-finals";
+
+  // Pick the "primary" entry for tier badge (ATP if present, else WTA)
+  const primary = g.atp ?? g.wta!;
 
   return (
     <motion.div
       initial={{ opacity: 0, y: 16 }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, margin: "-30px" }}
-      transition={{ duration: 0.35, ease: "easeOut", delay: (i % 4) * 0.06 }}
-      className={`relative rounded-2xl p-5 border transition-all duration-200 ${
+      transition={{ duration: 0.35, ease: "easeOut", delay: (i % 3) * 0.06 }}
+      className={`relative flex flex-col justify-between rounded-2xl p-5 min-h-[200px] border transition-all duration-200 ${
         isLive
           ? "bg-[#071e38] border-blue-500/50 shadow-[0_0_20px_rgba(59,130,246,0.15)]"
           : "bg-[#071e38] border-[#0f2d4a] hover:border-[#1a3d5c]"
@@ -81,44 +127,55 @@ function TournamentCard({ t, i }: { t: ATPTournament; i: number }) {
       )}
 
       {/* Grand Slam star */}
-      {t.major && (
+      {g.major && (
         <div className="absolute top-3 right-3 text-yellow-400 text-sm">★</div>
       )}
 
-      {/* Tour + tier + surface badges */}
-      <div className="flex flex-wrap gap-1.5 mb-3">
-        <span className={`text-[10px] font-bold rounded-full px-2 py-0.5 ${
-          t.tour === "atp"
-            ? "text-blue-300 bg-blue-500/15 border border-blue-500/25"
-            : "text-pink-300 bg-pink-500/15 border border-pink-500/25"
-        }`}>
-          {t.tour.toUpperCase()}
-        </span>
-        <span className={`text-[10px] font-semibold rounded-full px-2 py-0.5 ${TIER_STYLES[t.tier]}`}>
-          {TIER_LABELS[t.tier][t.tour]}
-        </span>
-        <span className={`text-[10px] font-semibold rounded-full px-2 py-0.5 ${SURFACE_STYLES[t.surface]}`}>
-          {SURFACE_LABELS[t.surface]}
-        </span>
+      {/* Top: badges + name */}
+      <div>
+        <div className="flex flex-wrap gap-1.5 mb-3">
+          {g.atp && (
+            <span className="text-xs font-bold rounded-full px-2.5 py-0.5 text-blue-300 bg-blue-500/15 border border-blue-500/25">
+              ATP
+            </span>
+          )}
+          {g.wta && (
+            <span className="text-xs font-bold rounded-full px-2.5 py-0.5 text-pink-300 bg-pink-500/15 border border-pink-500/25">
+              WTA
+            </span>
+          )}
+          {g.atp && (
+            <span className={`text-xs font-semibold rounded-full px-2.5 py-0.5 ${TIER_STYLES[g.atp.tier]}`}>
+              {TIER_LABELS[g.atp.tier].atp}
+            </span>
+          )}
+          {g.wta && (!g.atp || g.wta.tier !== g.atp.tier) && (
+            <span className={`text-xs font-semibold rounded-full px-2.5 py-0.5 ${TIER_STYLES[g.wta.tier]}`}>
+              {TIER_LABELS[g.wta.tier].wta}
+            </span>
+          )}
+          <span className={`text-xs font-semibold rounded-full px-2.5 py-0.5 ${SURFACE_STYLES[g.surface]}`}>
+            {SURFACE_LABELS[g.surface]}
+          </span>
+        </div>
+
+        <p className={`font-bold leading-snug ${isBig ? "text-xl" : "text-lg"} text-white`}>
+          {g.name}
+        </p>
       </div>
 
-      {/* Name */}
-      <p className={`font-bold leading-snug mb-2 ${t.major || t.tier === "tour-finals" ? "text-lg" : "text-base"} text-white`}>
-        {t.name}
-      </p>
-
-      {/* Dates */}
-      <p className="text-gray-500 text-sm mb-2 font-mono">
-        {formatDateRange(t.startDate, t.endDate)}
-      </p>
-
-      {/* Venue */}
-      {t.venue && (
-        <div className="flex items-center gap-1 text-gray-500 text-sm">
-          <MapPin className="w-3 h-3 flex-shrink-0" />
-          {t.venue}
-        </div>
-      )}
+      {/* Bottom: dates + venue */}
+      <div className="mt-3">
+        <p className="text-gray-400 text-[13px] font-mono mb-1">
+          {formatDateRange(g.startDate, g.endDate)}
+        </p>
+        {g.venue && (
+          <div className="flex items-center gap-1 text-gray-500 text-[13px]">
+            <MapPin className="w-3 h-3 flex-shrink-0" />
+            {g.venue}
+          </div>
+        )}
+      </div>
     </motion.div>
   );
 }
@@ -143,14 +200,16 @@ export default function ATPSchedule() {
       .finally(() => setLoading(false));
   }, []);
 
-  const thisMonthTournaments = tournaments.filter((t) => {
+  const thisMonth = tournaments.filter((t) => {
     const startsThisMonth = getMonth(t.startDate) === currentMonth;
-    const endsThisMonthOrLater = new Date(t.endDate).getMonth() >= currentMonth
-      && new Date(t.endDate).getFullYear() === new Date().getFullYear();
-    const inMonth = startsThisMonth || (endsThisMonthOrLater && getMonth(t.startDate) < currentMonth);
-    const inTour  = filter === "all" || t.tour === filter;
-    return inMonth && inTour;
+    const endsThisMonthOrLater =
+      new Date(t.endDate).getMonth() >= currentMonth &&
+      new Date(t.endDate).getFullYear() === new Date().getFullYear();
+    return startsThisMonth || (endsThisMonthOrLater && getMonth(t.startDate) < currentMonth);
   });
+
+  const filtered = filter === "all" ? thisMonth : thisMonth.filter((t) => t.tour === filter);
+  const displayed = groupTournaments(filtered);
 
   return (
     <section id="atp-schedule" className="py-20 px-4">
@@ -168,19 +227,19 @@ export default function ATPSchedule() {
 
           {/* Filter pills */}
           <div className="flex gap-1 bg-[#071e38] border border-[#0f2d4a] rounded-full p-1">
-            {(["all", "atp", "wta"] as TourFilter[]).map((t) => (
+            {(["all", "atp", "wta"] as TourFilter[]).map((f) => (
               <button
-                key={t}
-                onClick={() => setFilter(t)}
+                key={f}
+                onClick={() => setFilter(f)}
                 className={`text-xs font-semibold px-4 py-1.5 rounded-full transition-all duration-200 ${
-                  filter === t
-                    ? t === "wta"
+                  filter === f
+                    ? f === "wta"
                       ? "bg-pink-500/20 text-white border border-pink-500/40"
                       : "bg-blue-500/20 text-white border border-blue-500/40"
                     : "text-gray-400 hover:text-white border border-transparent"
                 }`}
               >
-                {t.toUpperCase()}
+                {f.toUpperCase()}
               </button>
             ))}
           </div>
@@ -198,8 +257,8 @@ export default function ATPSchedule() {
         {/* Tournament cards */}
         {!loading && (
           <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
-            {thisMonthTournaments.map((t, i) => (
-              <TournamentCard key={t.id} t={t} i={i} />
+            {displayed.map((g, i) => (
+              <TournamentCard key={g.key} g={g} i={i} />
             ))}
           </div>
         )}
