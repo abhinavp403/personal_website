@@ -6,7 +6,7 @@ const NAV_LINKS = [
   { label: "Projects",             href: "#projects"  },
   { label: "Entertainment & Music", href: "#interests" },
   { label: "Upcoming Matches",     href: "#games"         },
-  { label: "ATP Schedule",         href: "#atp-schedule"  },
+  { label: "Tennis Schedule",       href: "#atp-schedule"  },
   { label: "Let's Connect",        href: "#connect"       },
 ];
 
