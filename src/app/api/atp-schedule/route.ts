@@ -6,7 +6,7 @@ export interface ATPTournament {
   startDate: string;
   endDate: string;
   venue: string;
-  surface: "clay" | "grass" | "hard";
+  surface: "clay" | "grass" | "hard" | "hard-indoor";
   tier: "tour-finals" | "grand-slam" | "masters-1000" | "atp-500" | "atp-250";
   status: "past" | "live" | "upcoming";
   major: boolean;
@@ -26,10 +26,34 @@ const GRASS_KEYWORDS = [
   "bad homburg", "queens", "bali",
 ];
 
+// Confirmed indoor hard-court venues (conservative — only add when certain)
+const INDOOR_HARD_KEYWORDS = [
+  // ATP
+  "abn amro", "rotterdam",          // Rotterdam
+  "nexo dallas", "dallas open",     // Dallas
+  "open occitanie", "montpellier",  // Montpellier
+  "erste bank", "vienna",           // Vienna
+  "swiss indoors",                  // Basel (literally in the name)
+  "paris masters", "rolex paris",   // Paris-Bercy
+  "auvergne", "grand prix lyon", "ldlc", // Lyon (Grand Prix Auvergne-Rhône-Alpes)
+  "almaty",                         // Almaty
+  "nordic open",                    // Stockholm
+  "european open", "antwerp",       // Antwerp
+  "atp finals", "next gen atp",     // ATP Finals / Next Gen
+  "japan open", "ariake",           // Tokyo (Ariake Colosseum)
+  // WTA
+  "ostrava",                        // Ostrava
+  "transylvania", "cluj",           // Cluj-Napoca
+  "upper austria", "ladies linz",   // Linz
+  "memphis classic", "the memphis", // Memphis
+  "wta finals",                     // WTA Finals
+];
+
 function getSurface(name: string): ATPTournament["surface"] {
   const n = name.toLowerCase();
   if (GRASS_KEYWORDS.some((k) => n.includes(k))) return "grass";
   if (CLAY_KEYWORDS.some((k) => n.includes(k))) return "clay";
+  if (INDOOR_HARD_KEYWORDS.some((k) => n.includes(k))) return "hard-indoor";
   return "hard";
 }
 

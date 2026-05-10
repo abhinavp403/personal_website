@@ -87,13 +87,17 @@ const TIER_LABELS: Record<ATPTournament["tier"], { atp: string; wta: string }> =
 };
 
 const SURFACE_STYLES: Record<ATPTournament["surface"], string> = {
-  clay:  "text-orange-300 bg-orange-500/10 border border-orange-500/20",
-  grass: "text-green-300  bg-green-500/10  border border-green-500/20",
-  hard:  "text-sky-300    bg-sky-500/10    border border-sky-500/20",
+  clay:         "text-orange-300 bg-orange-500/10 border border-orange-500/20",
+  grass:        "text-green-300  bg-green-500/10  border border-green-500/20",
+  hard:         "text-sky-300    bg-sky-500/10    border border-sky-500/20",
+  "hard-indoor":"text-cyan-300   bg-cyan-500/10   border border-cyan-500/20",
 };
 
 const SURFACE_LABELS: Record<ATPTournament["surface"], string> = {
-  clay: "Clay", grass: "Grass", hard: "Hard",
+  clay:         "Clay",
+  grass:        "Grass",
+  hard:         "Hard",
+  "hard-indoor":"Indoor Hard",
 };
 
 // ── Tournament card ────────────────────────────────────────────────────────────
