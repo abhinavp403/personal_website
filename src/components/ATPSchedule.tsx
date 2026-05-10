@@ -100,6 +100,43 @@ const SURFACE_LABELS: Record<ATPTournament["surface"], string> = {
   "hard-indoor":"Indoor Hard",
 };
 
+// ── Backdrop image mapping ─────────────────────────────────────────────────────
+
+const BACKDROP_MAP: Partial<Record<ATPTournament["surface"], Partial<Record<ATPTournament["tier"], string>>>> = {
+  clay: {
+    "grand-slam":   "/clay_gs.jpg",
+    "masters-1000": "/clay_1000.jpg",
+    "atp-500":      "/clay_500.jpg",
+    "atp-250":      "/clay_250.jpg",
+    "tour-finals":  "/clay_1000.jpg",
+  },
+  grass: {
+    "grand-slam":   "/grass_gs.jpg",
+    "masters-1000": "/grass_gs.jpg",   // no grass M1000 exists; fallback to GS image
+    "atp-500":      "/grass_500.avif",
+    "atp-250":      "/grass_250.jpg",
+    "tour-finals":  "/grass_500.avif",
+  },
+  hard: {
+    "grand-slam":   "/hard_gs.jpg",
+    "masters-1000": "/hard_1000.jpg",
+    "atp-500":      "/hard_500.jpg",
+    "atp-250":      "/hard_250.jpeg",
+    "tour-finals":  "/hard_1000.jpg",
+  },
+  "hard-indoor": {
+    "grand-slam":   "/indoor_hard_1000.jpg", // no indoor grand slams; fallback
+    "masters-1000": "/indoor_hard_1000.jpg",
+    "atp-500":      "/indoor_hard_500.jpg",
+    "atp-250":      "/indoor_hard_250.jpg",
+    "tour-finals":  "/indoor_hard_1000.jpg",
+  },
+};
+
+function getBackdrop(surface: ATPTournament["surface"], tier: ATPTournament["tier"]): string | null {
+  return BACKDROP_MAP[surface]?.[tier] ?? null;
+}
+
 // ── Tournament card ────────────────────────────────────────────────────────────
 
 function TournamentCard({ g, i }: { g: TournamentGroup; i: number }) {
@@ -109,6 +146,7 @@ function TournamentCard({ g, i }: { g: TournamentGroup; i: number }) {
 
   // Pick the "primary" entry for tier badge (ATP if present, else WTA)
   const primary = g.atp ?? g.wta!;
+  const backdrop = getBackdrop(g.surface, primary.tier);
 
   return (
     <motion.div
@@ -116,11 +154,20 @@ function TournamentCard({ g, i }: { g: TournamentGroup; i: number }) {
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, margin: "-30px" }}
       transition={{ duration: 0.35, ease: "easeOut", delay: (i % 3) * 0.06 }}
-      className={`relative flex flex-col justify-between rounded-2xl p-5 min-h-[200px] border transition-all duration-200 ${
+      className={`relative flex flex-col justify-between rounded-2xl p-5 min-h-[200px] border transition-all duration-200 overflow-hidden ${
         isLive
-          ? "bg-[#071e38] border-blue-500/50 shadow-[0_0_20px_rgba(59,130,246,0.15)]"
-          : "bg-[#071e38] border-[#0f2d4a] hover:border-[#1a3d5c]"
+          ? "border-blue-500/50 shadow-[0_0_20px_rgba(59,130,246,0.15)]"
+          : "border-[#0f2d4a] hover:border-[#1a3d5c]"
       } ${isPast ? "opacity-45" : ""}`}
+      style={
+        backdrop
+          ? {
+              backgroundImage: `linear-gradient(rgba(2,13,28,0.78), rgba(7,30,56,0.82)), url(${backdrop})`,
+              backgroundSize: "cover",
+              backgroundPosition: "center",
+            }
+          : { backgroundColor: "#071e38" }
+      }
     >
       {/* Live pulse */}
       {isLive && (
