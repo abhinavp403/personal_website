@@ -362,7 +362,7 @@ export default function Interests() {
                     href={tracks[0].url}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="flex-1 relative rounded-2xl overflow-hidden flex flex-col justify-end p-5 min-h-[260px] group"
+                    className="flex-1 h-[440px] relative rounded-2xl overflow-hidden flex flex-col justify-end p-5 group"
                     style={{ backgroundImage: `url(${tracks[0].albumArt})`, backgroundSize: "cover", backgroundPosition: "center" }}
                   >
                     <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/30 to-transparent" />
@@ -379,8 +379,8 @@ export default function Interests() {
                         href={track.url}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="relative rounded-2xl overflow-hidden flex flex-col justify-end p-3 group"
-                        style={{ backgroundImage: `url(${track.albumArt})`, backgroundSize: "cover", backgroundPosition: "center", minHeight: "120px" }}
+                        className="relative rounded-2xl overflow-hidden flex flex-col justify-end p-3 h-[214px] group"
+                        style={{ backgroundImage: `url(${track.albumArt})`, backgroundSize: "cover", backgroundPosition: "center" }}
                       >
                         <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
                         <div className="relative">
