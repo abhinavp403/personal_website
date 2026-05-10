@@ -92,6 +92,8 @@ async function findNextGame(
     const match = events
       .sort((a, b) => new Date(a.date as string).getTime() - new Date(b.date as string).getTime())
       .find((e) => {
+        const completed = (e.status as Record<string, unknown>)?.type as Record<string, unknown>;
+        if (completed?.completed === true) return false;
         const competitors = (
           (e.competitions as Record<string, unknown>[])?.[0]?.competitors
         ) as Record<string, unknown>[] | undefined;
@@ -120,6 +122,8 @@ async function findNextNFLGame(teamKeyword: string): Promise<GameEvent | null> {
     const match = events
       .sort((a, b) => new Date(a.date as string).getTime() - new Date(b.date as string).getTime())
       .find((e) => {
+        const completed = (e.status as Record<string, unknown>)?.type as Record<string, unknown>;
+        if (completed?.completed === true) return false;
         const competitors = (
           (e.competitions as Record<string, unknown>[])?.[0]?.competitors
         ) as Record<string, unknown>[] | undefined;
