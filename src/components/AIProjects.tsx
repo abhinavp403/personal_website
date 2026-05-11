@@ -7,6 +7,7 @@ import { motion, AnimatePresence } from "framer-motion";
 interface DownloadLink {
   label: string;
   url: string;
+  filename?: string; // sets the HTML download attribute (forces save-as with this name)
 }
 
 interface Project {
@@ -28,6 +29,7 @@ const projects: Project[] = [
     downloads: [
       { label: "Mac", url: "https://github.com/abhinavp403/tennis-calendar/releases/download/v1.0.2/Tennis.Calendar-1.0.2-arm64.dmg" },
       { label: "Windows", url: "https://github.com/abhinavp403/tennis-calendar/releases/download/v1.0.2/Tennis.Calendar.Setup.1.0.2.exe" },
+      { label: ".ics", url: "https://abhinavp403.github.io/tennis-calendar/tennis_calendar.ics", filename: "tennis_calendar.ics" },
     ],
     tags: ["JavaScript", "Python", "Shell"],
   },
@@ -222,10 +224,11 @@ export default function AIProjects() {
                           <GitBranch className="w-4 h-4" />
                           GitHub
                         </a>
-                        {p.downloads?.map(({ label, url }) => (
+                        {p.downloads?.map(({ label, url, filename }) => (
                           <a
                             key={label}
                             href={url}
+                            download={filename}
                             target="_blank"
                             rel="noopener noreferrer"
                             className="flex items-center gap-2 text-sm text-gray-400 hover:text-white transition-colors bg-[#0f2d4a] hover:bg-[#163d60] rounded-full px-4 py-2"
