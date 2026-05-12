@@ -1,36 +1,41 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Abhinav P — Personal Website
 
-## Getting Started
+![Site Preview](public/readme_screenshot.png)
 
-First, run the development server:
+A personal website built with Next.js, Tailwind CSS, and Firebase. Live at [abhinavp403.github.io](https://abhinavp403.github.io).
+
+## Sections
+
+**Projects** — Showcases apps and projects made using AI with demo videos, GitHub links, and download buttons where applicable. These projects are made from my interests with the hopes of solving niche, everyday problems with simple well-architected solutions with seamless and feasible UX.
+
+**Entertainment & Music** — Displays my favourite movies and TV shows that I've been watching in the current year as an animated poster grid. Below that, I've linked my live Spotify data to show my top artists and top tracks with album art that I'm currently listening to.
+
+**Upcoming Matches** — Shows the next fixture for my favourite teams and players across various soccer leagues (EPL, LaLiga, MLS), NBA, NFL, Formula 1, and tennis. Completed games are automatically skipped so the card always shows the next unplayed match.
+
+**Tennis Schedule** — Lists ATP and WTA tournaments for the current month, grouped so shared events show a single card. Cards have surface-specific backdrop images (clay/grass/hard/indoor-hard) matched to tournament tier (Grand Slam, 1000, 500, 250). Filter by All / ATP / WTA.
+
+**Word of the Day** — Displays a daily word with its definition (retrieved from Dictionary.com API).
+
+**Links** — Quick-access links to my social profiles and other pages.
+
+## Tech Stack
+
+- **Framework:** Next.js 16 (App Router)
+- **Styling:** Tailwind CSS v4
+- **Animations:** Framer Motion
+- **Database:** Firebase Firestore (movies/shows data)
+- **APIs:** ESPN (sports fixtures + tennis schedule), Spotify, Dictionary API
+- **Language:** TypeScript
+
+## Deployment
+
+Deployed on **Heroku** using the [heroku/nodejs](https://devcenter.heroku.com/articles/nodejs-support) buildpack. The app runs as a standard Next.js server (`npm start`) on Heroku's dynos. Environment variables (Spotify, Firebase, etc.) are configured via Heroku Config Vars in the dashboard rather than a `.env` file.
+
+## Running Locally
 
 ```bash
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
-
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
-
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
-
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Open [http://localhost:3000](http://localhost:3000).
