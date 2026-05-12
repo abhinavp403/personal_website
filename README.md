@@ -2,7 +2,7 @@
 
 ![Site Preview](public/readme_screenshot.png)
 
-A personal website built with Next.js, Tailwind CSS, and Firebase. Live at [abhinavp403.github.io](https://abhinavp403.github.io).
+A personal website built with Next.js, Tailwind CSS, and Firebase. Live at [apwebsite-5c4657230595.herokuapp.com](https://apwebsite-5c4657230595.herokuapp.com).
 
 ## Sections
 
@@ -31,11 +31,3 @@ A personal website built with Next.js, Tailwind CSS, and Firebase. Live at [abhi
 
 Deployed on **Heroku** using the [heroku/nodejs](https://devcenter.heroku.com/articles/nodejs-support) buildpack. The app runs as a standard Next.js server (`npm start`) on Heroku's dynos. Environment variables (Spotify, Firebase, etc.) are configured via Heroku Config Vars in the dashboard rather than a `.env` file.
 
-## Running Locally
-
-```bash
-npm install
-npm run dev
-```
-
-Open [http://localhost:3000](http://localhost:3000).
