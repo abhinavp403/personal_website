@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 
-export const revalidate = 21600; // re-fetch every 6 hours
+export const dynamic = "force-dynamic"; // never serve stale — always check in-memory cache
 
 export interface WordOfDay {
   word: string;
@@ -13,6 +13,13 @@ export interface WordOfDay {
   url: string;
 }
 
+// ── In-memory date cache — re-fetches once per calendar day ──────────────────
+let memCache: { date: string; data: WordOfDay } | null = null;
+
+function todayUTC(): string {
+  return new Date().toISOString().slice(0, 10); // "YYYY-MM-DD"
+}
+
 function extract(html: string, classname: string, closingTag = "div"): string {
   const re = new RegExp(`class=["']${classname}["'][^>]*>([\\s\\S]*?)<\\/${closingTag}>`, "s");
   const m  = html.match(re);
@@ -21,10 +28,15 @@ function extract(html: string, classname: string, closingTag = "div"): string {
 }
 
 export async function GET() {
+  // Serve from memory if we already fetched today's word
+  if (memCache && memCache.date === todayUTC()) {
+    return NextResponse.json(memCache.data);
+  }
+
   try {
     const res = await fetch("https://www.dictionary.com/word-of-the-day", {
       headers: { "User-Agent": "Mozilla/5.0 (compatible; personal-website-bot/1.0)" },
-      next: { revalidate: 3600 },
+      cache: "no-store",
     });
 
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
@@ -53,9 +65,10 @@ export async function GET() {
 
     if (!word) throw new Error("Could not parse word");
 
-    return NextResponse.json({
-      word, phonetics, partOfSpeech, definition, example, explanation, date, url: wordUrl,
-    } satisfies WordOfDay);
+    const result: WordOfDay = { word, phonetics, partOfSpeech, definition, example, explanation, date, url: wordUrl };
+    memCache = { date: todayUTC(), data: result };
+
+    return NextResponse.json(result);
   } catch (e) {
     return NextResponse.json({ error: String(e) }, { status: 500 });
   }
