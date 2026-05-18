@@ -27,9 +27,9 @@ const projects: Project[] = [
     videoUrl: "/tennis-calendar.mp4",
     githubUrl: "https://github.com/abhinavp403/tennis-calendar",
     downloads: [
-      { label: "Mac", url: "https://github.com/abhinavp403/tennis-calendar/releases/download/v1.0.2/Tennis.Calendar-1.0.2-arm64.dmg" },
-      { label: "Windows", url: "https://github.com/abhinavp403/tennis-calendar/releases/download/v1.0.2/Tennis.Calendar.Setup.1.0.2.exe" },
-      { label: ".ics", url: "https://abhinavp403.github.io/tennis-calendar/tennis_calendar.ics", filename: "tennis_calendar.ics" },
+      { label: "Mac", url: "https://github.com/abhinavp403/tennis-calendar/releases/download/v1.0.3/Tennis.Calendar-1.0.3-arm64.dmg" },
+      { label: "Windows", url: "https://github.com/abhinavp403/tennis-calendar/releases/download/v1.0.3/Tennis.Calendar.Setup.1.0.3.exe" },
+      { label: ".ics", url: "https://raw.githubusercontent.com/abhinavp403/tennis-calendar/main/tennis_calendar.ics", filename: "tennis_calendar.ics" },
     ],
     tags: ["JavaScript", "Python", "Shell"],
   },
