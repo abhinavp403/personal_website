@@ -11,6 +11,7 @@ import type { CricketMatch } from "@/app/api/cricket/route";
 // ── Sport config ───────────────────────────────────────────────────────────────
 
 const SPORT_LABEL: Record<string, string> = {
+  soccer:     "Soccer",
   football:   "Football",
   cricket:    "Cricket",
   basketball: "Basketball",
@@ -30,7 +31,8 @@ function leagueDisplay(game: { league: string; sport: string }): string | null {
 }
 
 const SPORT_DOT: Record<string, string> = {
-  football:   "bg-green-400",
+  soccer:     "bg-green-400",
+  football:   "bg-indigo-400",
   basketball: "bg-orange-400",
   cricket:    "bg-blue-400",
   formula1:   "bg-red-400",
@@ -38,7 +40,8 @@ const SPORT_DOT: Record<string, string> = {
 };
 
 const SPORT_TEXT: Record<string, string> = {
-  football:   "text-green-400",
+  soccer:     "text-green-400",
+  football:   "text-indigo-400",
   basketball: "text-orange-400",
   cricket:    "text-blue-400",
   formula1:   "text-red-400",
@@ -207,11 +210,11 @@ function tennisMatchToEvent(m: TennisMatch): GameEvent {
 function buildFallbackGames(): GameEvent[] {
   const d = (n: number) => new Date(Date.now() + n * 86400000).toISOString();
   return [
-    { id:"1", homeTeam:"Manchester United", awayTeam:"Chelsea",       date:d(1), league:"Premier League", sport:"football",   venue:"Old Trafford" },
-    { id:"2", homeTeam:"Barcelona",         awayTeam:"Real Madrid",   date:d(2), league:"La Liga",        sport:"football",   venue:"Camp Nou" },
+    { id:"1", homeTeam:"Manchester United", awayTeam:"Chelsea",       date:d(1), league:"Premier League", sport:"soccer",     venue:"Old Trafford" },
+    { id:"2", homeTeam:"Barcelona",         awayTeam:"Real Madrid",   date:d(2), league:"La Liga",        sport:"soccer",     venue:"Camp Nou" },
     { id:"4", homeTeam:"Boston Celtics",    awayTeam:"Miami Heat",    date:d(3), league:"NBA",            sport:"basketball", venue:"TD Garden" },
     { id:"5", homeTeam:"Miami Grand Prix",  awayTeam:"Round 6",       date:d(4), league:"Formula 1",      sport:"formula1",   venue:"Miami International Autodrome" },
-    { id:"6", homeTeam:"Inter Miami",       awayTeam:"LA Galaxy",     date:d(5), league:"MLS",            sport:"football",   venue:"Chase Stadium" },
+    { id:"6", homeTeam:"Inter Miami",       awayTeam:"LA Galaxy",     date:d(5), league:"MLS",            sport:"soccer",     venue:"Chase Stadium" },
   ];
 }
 
@@ -453,7 +456,7 @@ export default function UpcomingGames() {
     }).finally(() => setLoading(false));
   }, []);
 
-  const allSports = ["all", "football", "basketball", "cricket", "formula1", "tennis"];
+  const allSports = ["all", "soccer", "football", "basketball", "cricket", "formula1", "tennis"];
   const sports    = allSports.filter((s) => s === "all" || games.some((g) => g.sport === s));
   const activeFilter = sports.includes(filter) ? filter : "all";
   const filtered  = activeFilter === "all" ? games : games.filter((g) => g.sport === activeFilter);
@@ -487,7 +490,7 @@ export default function UpcomingGames() {
               {sport !== "all" && (
                 <span className={`w-2 h-2 rounded-full flex-shrink-0 ${SPORT_DOT[sport]}`} />
               )}
-              {sport === "all" ? "All" : sport === "formula1" ? "F1" : SPORT_LABEL[sport]}
+              {sport === "all" ? "All" : sport === "formula1" ? "F1" : SPORT_LABEL[sport] ?? sport}
             </button>
           ))}
         </div>

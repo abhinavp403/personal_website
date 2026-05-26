@@ -17,7 +17,7 @@ export interface GameEvent {
   awayLogo?: string;
   date: string;
   league: string;
-  sport: "football" | "cricket" | "basketball" | "formula1" | "tennis";
+  sport: "soccer" | "football" | "cricket" | "basketball" | "formula1" | "tennis";
   venue?: string;
 }
 
@@ -103,7 +103,7 @@ async function findNextGame(
         });
       });
 
-    return match ? parseEvent(match, sport === "basketball" ? "basketball" : "football", leagueName) : null;
+    return match ? parseEvent(match, sport === "basketball" ? "basketball" : "soccer", leagueName) : null;
   } catch {
     return null;
   }
