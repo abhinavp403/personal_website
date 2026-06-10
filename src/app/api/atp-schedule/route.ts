@@ -19,11 +19,12 @@ const CLAY_KEYWORDS = [
   "hamburg", "munich", "bmw open", "buenos aires", "rio", "chile", "geneva", "gonet",
   "marrakech", "bucharest", "tiriac", "houston", "clay court", "estoril",
   "strasbourg", "rabat", "parma", "bogota", "warsaw", "prague",
+  "nordea", "gstaad", "generali", "umag", "porsche", "charleston",
 ];
 const GRASS_KEYWORDS = [
   "wimbledon", "halle", "boss open", "stuttgart", "hertogenbosch", "libéma",
   "eastbourne", "mallorca", "nottingham", "ilkley", "birmingham classic",
-  "bad homburg", "queens", "bali",
+  "bad homburg", "queens", "hsbc", "terra wortmann", "vanda", "bali",
 ];
 
 // Confirmed indoor hard-court venues (conservative — only add when certain)
