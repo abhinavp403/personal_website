@@ -86,8 +86,14 @@ const TEAM_COLOR_MAP: Record<string, TeamColor> = {
   // International cricket
   "india":     { primary: "#ff6600" },
   "australia": { primary: "#f6c600" },
-  "england":   { primary: "#003087" },
   "pakistan":  { primary: "#01411c" },
+  // National soccer teams
+  "argentina": { primary: "#74ACDF", secondary: "#003082" },   // sky blue + darker blue
+  "france":    { primary: "#003189", secondary: "#ED2939" },   // bleu + rouge
+  "spain":     { primary: "#AA151B", secondary: "#F1BF00" },   // rojo + amarillo
+  "brazil":    { primary: "#009C3B", secondary: "#FFDF00" },   // verde + amarelo
+  "england":   { primary: "#CE1126" },                         // St George red
+  "germany":   { primary: "#DD0000", secondary: "#FFCD00" },   // rot + gold
   // Tennis players — national colours
   "sinner":   { primary: "#009246", secondary: "#CE2B37" }, // Italy
   "alcaraz":  { primary: "#AA151B", secondary: "#F1BF00" }, // Spain
@@ -97,6 +103,7 @@ const TEAM_COLOR_MAP: Record<string, TeamColor> = {
 // Teams the user follows — these win colour priority when playing away
 const MY_TEAMS = [
   "manchester united", "barcelona", "inter miami",
+  "argentina", "france", "spain", "brazil", "england", "germany",
   "patriots", "eagles",
   "boston celtics",
   "mumbai indians", "royal challengers",

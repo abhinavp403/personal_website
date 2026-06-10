@@ -28,6 +28,9 @@ const FOOTBALL_TEAMS = [
   { name: "Barcelona",         league: "esp.1" },
   { name: "Inter Miami",       league: "usa.1" },
 ];
+const NATIONAL_TEAMS = [
+  "Argentina", "France", "Spain", "Brazil", "England", "Germany",
+];
 const BASKETBALL_TEAMS = [
   { name: "Celtics", league: "nba" },
 ];
@@ -139,6 +142,44 @@ async function findNextNFLGame(teamKeyword: string): Promise<GameEvent | null> {
   }
 }
 
+// ─── National teams: search FIFA World Cup + international competitions ────────
+async function findNextNationalGame(teamName: string): Promise<GameEvent | null> {
+  const leagues = ["fifa.world", "uefa.nations", "conmebol.america", "concacaf.gold"];
+  try {
+    const range = dateRange(120);
+    const results = await Promise.all(
+      leagues.map((league) =>
+        fetch(`https://site.api.espn.com/apis/site/v2/sports/soccer/${league}/scoreboard?dates=${range}&limit=100`, { next: { revalidate: 3600 } })
+          .then((r) => r.json())
+          .catch(() => ({ events: [] }))
+      )
+    );
+    let match: Record<string, unknown> | undefined;
+    let leagueName = "International";
+    const sortedPairs: Array<{ event: Record<string, unknown>; league: string }> = results
+      .flatMap((d) => {
+        const abbr = (d.leagues as Record<string, unknown>[])?.[0]?.abbreviation as string ?? "International";
+        return (d.events ?? []).map((e: Record<string, unknown>) => ({ event: e, league: abbr }));
+      })
+      .sort((a, b) => new Date(a.event.date as string).getTime() - new Date(b.event.date as string).getTime());
+    const pair = sortedPairs.find(({ event: e }) => {
+      const completed = (e.status as Record<string, unknown>)?.type as Record<string, unknown>;
+      if (completed?.completed === true) return false;
+      const competitors = (
+        (e.competitions as Record<string, unknown>[])?.[0]?.competitors
+      ) as Record<string, unknown>[] | undefined;
+      return competitors?.some((c) => {
+        const name = (c?.team as Record<string, unknown>)?.displayName;
+        return typeof name === "string" && name.toLowerCase().includes(teamName.toLowerCase());
+      });
+    });
+    if (pair) { match = pair.event; leagueName = pair.league; }
+    return match ? parseEvent(match, "soccer", leagueName) : null;
+  } catch {
+    return null;
+  }
+}
+
 // ─── F1: next Grand Prix (no favourite team — just the next race) ─────────────
 async function fetchF1NextRace(): Promise<GameEvent | null> {
   try {
@@ -167,6 +208,7 @@ async function fetchF1NextRace(): Promise<GameEvent | null> {
 export async function getUpcomingGames(): Promise<GameEvent[]> {
   const results = await Promise.allSettled([
     ...FOOTBALL_TEAMS.map((t)   => findNextGame(t.league, "football",   t.name)),
+    ...NATIONAL_TEAMS.map((t)   => findNextNationalGame(t)),
     ...BASKETBALL_TEAMS.map((t) => findNextGame(t.league, "basketball", t.name)),
     ...NFL_TEAMS.map((t)        => findNextNFLGame(t.name)),
     fetchF1NextRace(),
