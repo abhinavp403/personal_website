@@ -1,13 +1,14 @@
 "use client";
 
 import { useState } from "react";
-import { ChevronLeft, ChevronRight, Code2, Download, GitBranch, Terminal } from "lucide-react";
+import { ChevronLeft, ChevronRight, Code2, Download, ExternalLink, GitBranch, Terminal } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
 interface DownloadLink {
   label: string;
   url: string;
-  filename?: string; // sets the HTML download attribute (forces save-as with this name)
+  filename?: string;
+  type?: "download" | "link";
 }
 
 interface Project {
@@ -21,6 +22,16 @@ interface Project {
 }
 
 const projects: Project[] = [
+  {
+    title: "FIFA World Cup 26",
+    description: "A real-time dashboard for the FIFA World Cup 2026 — live group standings, a dynamic knockout bracket, deep match analytics, per-player stat sheets, head-to-head team comparison, squad rosters, and host-city information.",
+    videoUrl: "/fifa-world-cup-26.mov",
+    githubUrl: "https://github.com/abhinavp403/fifa-world-cup-26",
+    downloads: [
+      { label: "Live Site", url: "https://fifa-world-cup-26-nu.vercel.app", type: "link" },
+    ],
+    tags: ["JavaScript", "CSS", "SQL"],
+  },
   {
     title: "Tennis Calendar",
     description: "An interactive calendar that visualizes the full ATP and WTA seasons month by month — highlighting tournament finals with badges, revealing match results and details on hover, and providing quick-access summaries, player stats, and rankings.",
@@ -85,12 +96,30 @@ function HTMLIcon({ className }: { className?: string }) {
   );
 }
 
+function CSSIcon({ className }: { className?: string }) {
+  return (
+    <svg className={className} viewBox="0 0 24 24" fill="currentColor">
+      <path d="M1.5 0h21l-1.91 21.563L11.977 24l-8.565-2.438L1.5 0zm17.09 4.413L5.41 4.41l.213 2.622 10.125.002-.255 2.716h-6.64l.24 2.573h6.182l-.366 3.523-2.91.804-2.956-.81-.188-2.11h-2.61l.29 3.855L12 19.288l5.373-1.53L18.59 4.414z"/>
+    </svg>
+  );
+}
+
+function SQLIcon({ className }: { className?: string }) {
+  return (
+    <svg className={className} viewBox="0 0 24 24" fill="currentColor">
+      <path d="M12 2C6.477 2 2 4.03 2 6.5v11C2 19.97 6.477 22 12 22s10-2.03 10-4.5v-11C22 4.03 17.523 2 12 2zm0 2c4.755 0 8 1.71 8 2.5S16.755 9 12 9 4 7.29 4 6.5 7.245 4 12 4zm-8 4.24C5.407 9.35 8.469 10 12 10s6.593-.65 8-1.76V10.5c0 .79-3.245 2.5-8 2.5s-8-1.71-8-2.5V8.24zm0 5.5C5.407 14.85 8.469 15.5 12 15.5s6.593-.65 8-1.76v1.76c0 .79-3.245 2.5-8 2.5s-8-1.71-8-2.5v-1.76zm0 5.5C5.407 20.35 8.469 21 12 21s6.593-.65 8-1.76V17.5c0 .79-3.245 2.5-8 2.5s-8-1.71-8-2.5v2.24z"/>
+    </svg>
+  );
+}
+
 function renderTagIcon(tag: string) {
   switch (tag) {
     case "JavaScript": return <JSIcon className="w-3 h-3" />;
     case "Python":     return <PythonIcon className="w-3 h-3" />;
     case "Shell":      return <Terminal className="w-3 h-3" />;
     case "HTML":       return <HTMLIcon className="w-3 h-3" />;
+    case "CSS":        return <CSSIcon className="w-3 h-3" />;
+    case "SQL":        return <SQLIcon className="w-3 h-3" />;
     default:           return null;
   }
 }
@@ -101,6 +130,8 @@ function getTagStyle(tag: string) {
     case "Python":     return "text-sky-300 bg-sky-500/10 border border-sky-500/20";
     case "Shell":      return "text-gray-300 bg-gray-500/10 border border-gray-500/20";
     case "HTML":       return "text-orange-300 bg-orange-500/10 border border-orange-500/20";
+    case "CSS":        return "text-blue-300 bg-blue-500/10 border border-blue-500/20";
+    case "SQL":        return "text-emerald-300 bg-emerald-500/10 border border-emerald-500/20";
     default:           return "text-blue-300 bg-[#0f2d4a]";
   }
 }
@@ -170,7 +201,7 @@ export default function AIProjects() {
                   className={`flex flex-col${i !== current ? " pointer-events-none select-none" : ""}`}
                 >
                   {/* Preview */}
-                  <div className="w-full bg-[#040f1e]">
+                  <div className="w-full bg-[#040f1e] overflow-hidden" style={{ aspectRatio: "3024/1964" }}>
                     {p.videoUrl ? (
                       <video
                         src={p.videoUrl}
@@ -178,13 +209,13 @@ export default function AIProjects() {
                         loop
                         muted
                         playsInline
-                        className="w-full h-auto block pointer-events-none"
+                        className="w-full h-full object-cover block pointer-events-none"
                       />
                     ) : (
                       <img
                         src={p.gifUrl}
                         alt={p.title}
-                        className="w-full h-auto block pointer-events-none"
+                        className="w-full h-full object-cover block pointer-events-none"
                         draggable={false}
                       />
                     )}
@@ -224,7 +255,7 @@ export default function AIProjects() {
                           <GitBranch className="w-4 h-4" />
                           GitHub
                         </a>
-                        {p.downloads?.map(({ label, url, filename }) => (
+                        {p.downloads?.map(({ label, url, filename, type }) => (
                           <a
                             key={label}
                             href={url}
@@ -233,7 +264,7 @@ export default function AIProjects() {
                             rel="noopener noreferrer"
                             className="flex items-center gap-2 text-sm text-gray-400 hover:text-white transition-colors bg-[#0f2d4a] hover:bg-[#163d60] rounded-full px-4 py-2"
                           >
-                            <Download className="w-4 h-4" />
+                            {type === "link" ? <ExternalLink className="w-4 h-4" /> : <Download className="w-4 h-4" />}
                             {label}
                           </a>
                         ))}
