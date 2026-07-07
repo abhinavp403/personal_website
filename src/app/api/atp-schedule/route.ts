@@ -24,7 +24,7 @@ const CLAY_KEYWORDS = [
 const GRASS_KEYWORDS = [
   "wimbledon", "halle", "boss open", "stuttgart", "hertogenbosch", "libéma",
   "eastbourne", "mallorca", "nottingham", "ilkley", "birmingham classic",
-  "bad homburg", "queens", "hsbc", "terra wortmann", "vanda", "bali",
+  "bad homburg", "queens", "hsbc championships", "terra wortmann", "vanda", "bali",
 ];
 
 // Confirmed indoor hard-court venues (conservative — only add when certain)
@@ -93,7 +93,7 @@ const ATP_TIER_500 = [
   "erste bank",
   "swiss indoors",               // Basel ATP 500 only (not Gstaad ATP 250)
   "nordea",                      // Bastad
-  "hsbc",
+  "hsbc championships",          // Queen's (not Acapulco "…presentado por HSBC")
   "san diego",
   "pan pacific",
 ];
