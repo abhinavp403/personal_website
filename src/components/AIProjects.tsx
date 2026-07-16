@@ -39,8 +39,8 @@ const projects: Project[] = [
     githubUrl: "https://github.com/abhinavp403/tennis-calendar",
     downloads: [
       { label: "Live Site", url: "https://tennis-calendar-ivory.vercel.app", type: "link" },
-      { label: "Mac", url: "https://github.com/abhinavp403/tennis-calendar/releases/download/v1.0.5/Tennis.Calendar-1.0.5-arm64.dmg" },
-      { label: "Windows", url: "https://github.com/abhinavp403/tennis-calendar/releases/download/v1.0.5/Tennis.Calendar.Setup.1.0.5.exe" },
+      { label: "Mac", url: "https://github.com/abhinavp403/tennis-calendar/releases/download/v1.0.6/Tennis.Calendar-1.0.6-arm64.dmg" },
+      { label: "Windows", url: "https://github.com/abhinavp403/tennis-calendar/releases/download/v1.0.6/Tennis.Calendar.Setup.1.0.6.exe" },
       { label: ".ics", url: "https://raw.githubusercontent.com/abhinavp403/tennis-calendar/main/tennis_calendar.ics", filename: "tennis_calendar.ics" },
     ],
     tags: ["JavaScript", "Python", "Shell"],
@@ -63,8 +63,8 @@ const projects: Project[] = [
     videoUrl: "/world-map.mov",
     githubUrl: "https://github.com/abhinavp403/world-map-list",
     downloads: [
-      { label: "Mac", url: "https://github.com/abhinavp403/world-map-list/releases/download/v1.0.0/World.Map-1.0.0-arm64.dmg" },
-      { label: "Windows", url: "https://github.com/abhinavp403/world-map-list/releases/download/v1.0.0/World.Map.Setup.1.0.0.exe" },
+      { label: "Mac", url: "https://github.com/abhinavp403/world-map-list/releases/download/v1.1.0/World.Map-1.1.0.dmg" },
+      { label: "Windows", url: "https://github.com/abhinavp403/world-map-list/releases/download/v1.1.0/World.Map.Setup.1.1.0.exe" },
     ],
     tags: ["HTML", "Python", "Shell"],
   },
