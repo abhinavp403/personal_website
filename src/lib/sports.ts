@@ -214,9 +214,20 @@ export async function getUpcomingGames(): Promise<GameEvent[]> {
     fetchF1NextRace(),
   ]);
 
-  return results
+  const games = results
     .filter((r): r is PromiseFulfilledResult<GameEvent | null> => r.status === "fulfilled")
     .map((r) => r.value)
-    .filter((g): g is GameEvent => g !== null)
-    .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+    .filter((g): g is GameEvent => g !== null);
+
+  // Two favourite teams can face each other (e.g. two national teams in the
+  // same match), which resolves to the same underlying event id via separate
+  // searches — dedupe so it isn't shown twice.
+  const seen = new Set<string>();
+  const deduped = games.filter((g) => {
+    if (seen.has(g.id)) return false;
+    seen.add(g.id);
+    return true;
+  });
+
+  return deduped.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
 }
