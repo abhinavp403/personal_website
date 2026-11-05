@@ -251,13 +251,11 @@ export default function ATPSchedule() {
       .finally(() => setLoading(false));
   }, []);
 
-  const thisMonth = tournaments.filter((t) => {
-    const startsThisMonth = getMonth(t.startDate) === currentMonth;
-    const endsThisMonthOrLater =
-      new Date(t.endDate).getMonth() >= currentMonth &&
-      new Date(t.endDate).getFullYear() === new Date().getFullYear();
-    return startsThisMonth || (endsThisMonthOrLater && getMonth(t.startDate) < currentMonth);
-  });
+  const thisMonth = tournaments.filter(
+    (t) =>
+      getMonth(t.endDate) === currentMonth &&
+      new Date(t.endDate).getFullYear() === new Date().getFullYear()
+  );
 
   const filtered = filter === "all" ? thisMonth : thisMonth.filter((t) => t.tour === filter);
   const displayed = groupTournaments(filtered);
