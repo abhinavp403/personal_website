@@ -105,7 +105,7 @@ const MY_TEAMS = [
   "manchester united", "barcelona", "inter miami",
   "argentina", "france", "spain", "brazil", "england", "germany",
   "patriots", "eagles",
-  "boston celtics",
+  "boston celtics", "philadelphia 76ers",
   "mumbai indians", "royal challengers",
   "sinner", "alcaraz", "djokovic",
 ];

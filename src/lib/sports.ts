@@ -33,6 +33,7 @@ const NATIONAL_TEAMS = [
 ];
 const BASKETBALL_TEAMS = [
   { name: "Celtics", league: "nba" },
+  { name: "76ers",   league: "nba" },
 ];
 const NFL_TEAMS = [
   { name: "Patriots" },
@@ -40,11 +41,40 @@ const NFL_TEAMS = [
 ];
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
-function dateRange(daysAhead = 75) {
-  const from = new Date();
-  const to   = new Date(Date.now() + daysAhead * 86400000);
-  const fmt  = (d: Date) => d.toISOString().slice(0, 10).replace(/-/g, "");
-  return `${fmt(from)}-${fmt(to)}`;
+const ESPN_BASE = "https://site.api.espn.com/apis/site/v2/sports";
+
+// Months (YYYYMM) from today through daysAhead from now
+function monthsAhead(daysAhead: number): string[] {
+  const end    = new Date(Date.now() + daysAhead * 86400000);
+  const cursor = new Date(Date.UTC(new Date().getUTCFullYear(), new Date().getUTCMonth(), 1));
+  const months: string[] = [];
+  while (cursor <= end) {
+    months.push(`${cursor.getUTCFullYear()}${String(cursor.getUTCMonth() + 1).padStart(2, "0")}`);
+    cursor.setUTCMonth(cursor.getUTCMonth() + 1);
+  }
+  return months;
+}
+
+// ESPN's team-sport scoreboards reject YYYYMMDD-YYYYMMDD ranges (HTTP 400,
+// observed 2026-11-03) but accept whole months, so fetch each month in the
+// window and merge. Events before today are dropped.
+async function fetchScoreboard(path: string, daysAhead = 75) {
+  const today = new Date();
+  today.setUTCHours(0, 0, 0, 0);
+  const pages = await Promise.all(
+    monthsAhead(daysAhead).map((m) =>
+      fetch(`${ESPN_BASE}/${path}/scoreboard?dates=${m}&limit=1000`, { next: { revalidate: 3600 } })
+        .then((r) => (r.ok ? r.json() : { events: [] }))
+        .catch(() => ({ events: [] }))
+    )
+  );
+  const events: Record<string, unknown>[] = pages
+    .flatMap((p) => p.events ?? [])
+    .filter((e: Record<string, unknown>) => new Date(e.date as string) >= today);
+  const leagueName = pages
+    .map((p) => (p.leagues as Record<string, unknown>[] | undefined)?.[0]?.abbreviation as string | undefined)
+    .find(Boolean);
+  return { events, leagueName };
 }
 
 function parseEvent(
@@ -81,16 +111,10 @@ async function findNextGame(
   teamKeyword: string
 ): Promise<GameEvent | null> {
   try {
-    const range = dateRange();
-    const base  = sport === "basketball"
+    const base = sport === "basketball"
       ? "basketball/nba"
       : `soccer/${leagueSlug}`;
-    const url   = `https://site.api.espn.com/apis/site/v2/sports/${base}/scoreboard?dates=${range}&limit=200`;
-
-    const res  = await fetch(url, { next: { revalidate: 3600 } });
-    const data = await res.json();
-    const events: Record<string, unknown>[] = data.events ?? [];
-    const leagueName = (data.leagues as Record<string, unknown>[])?.[0]?.abbreviation as string | undefined;
+    const { events, leagueName } = await fetchScoreboard(base);
 
     const match = events
       .sort((a, b) => new Date(a.date as string).getTime() - new Date(b.date as string).getTime())
@@ -115,12 +139,7 @@ async function findNextGame(
 // ─── NFL: next Patriots game ──────────────────────────────────────────────────
 async function findNextNFLGame(teamKeyword: string): Promise<GameEvent | null> {
   try {
-    const range = dateRange(270); // wide window to catch upcoming season
-    const url   = `https://site.api.espn.com/apis/site/v2/sports/football/nfl/scoreboard?dates=${range}&limit=200`;
-
-    const res  = await fetch(url, { next: { revalidate: 3600 } });
-    const data = await res.json();
-    const events: Record<string, unknown>[] = data.events ?? [];
+    const { events } = await fetchScoreboard("football/nfl", 270); // wide window to catch upcoming season
 
     const match = events
       .sort((a, b) => new Date(a.date as string).getTime() - new Date(b.date as string).getTime())
@@ -146,21 +165,11 @@ async function findNextNFLGame(teamKeyword: string): Promise<GameEvent | null> {
 async function findNextNationalGame(teamName: string): Promise<GameEvent | null> {
   const leagues = ["fifa.world", "uefa.nations", "conmebol.america", "concacaf.gold"];
   try {
-    const range = dateRange(120);
-    const results = await Promise.all(
-      leagues.map((league) =>
-        fetch(`https://site.api.espn.com/apis/site/v2/sports/soccer/${league}/scoreboard?dates=${range}&limit=100`, { next: { revalidate: 3600 } })
-          .then((r) => r.json())
-          .catch(() => ({ events: [] }))
-      )
-    );
+    const results = await Promise.all(leagues.map((league) => fetchScoreboard(`soccer/${league}`, 120)));
     let match: Record<string, unknown> | undefined;
     let leagueName = "International";
     const sortedPairs: Array<{ event: Record<string, unknown>; league: string }> = results
-      .flatMap((d) => {
-        const abbr = (d.leagues as Record<string, unknown>[])?.[0]?.abbreviation as string ?? "International";
-        return (d.events ?? []).map((e: Record<string, unknown>) => ({ event: e, league: abbr }));
-      })
+      .flatMap((d) => d.events.map((e) => ({ event: e, league: d.leagueName ?? "International" })))
       .sort((a, b) => new Date(a.event.date as string).getTime() - new Date(b.event.date as string).getTime());
     const pair = sortedPairs.find(({ event: e }) => {
       const completed = (e.status as Record<string, unknown>)?.type as Record<string, unknown>;
