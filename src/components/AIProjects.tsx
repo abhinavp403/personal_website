@@ -43,7 +43,6 @@ const webProjects: Project[] = [
       { label: "Live Site", url: "https://tennis-calendar-ivory.vercel.app", type: "link" },
       { label: "Mac", url: "https://github.com/abhinavp403/tennis-calendar/releases/download/v1.0.7/Tennis.Calendar-1.0.7-arm64.dmg" },
       { label: "Windows", url: "https://github.com/abhinavp403/tennis-calendar/releases/download/v1.0.7/Tennis.Calendar.Setup.1.0.7.exe" },
-      { label: "Android", url: "https://play.google.com/store/apps/details?id=dev.abhinav.tenniscalendar", type: "link" },
       { label: ".ics", url: "https://raw.githubusercontent.com/abhinavp403/tennis-calendar/main/tennis_calendar.ics", filename: "tennis_calendar.ics" },
     ],
     tags: ["JavaScript", "Python", "Shell"],
@@ -73,7 +72,19 @@ const webProjects: Project[] = [
   },
 ];
 
-const mobileProjects: Project[] = [];
+const mobileProjects: Project[] = [
+  {
+    title: "Tennis Calendar",
+    description: "The full ATP and WTA season on your phone — a colour-coded month grid of every tournament, champions and final scores for finished events, player stats and profiles, live rankings, and the Race to the Finals.",
+    screenshots: ["/tennis-calendar-mobile-1.png", "/tennis-calendar-mobile-2.png", "/tennis-calendar-mobile-3.png"],
+    screenshotLabels: ["Calendar", "Player Statistics", "Rankings"],
+    githubUrl: "https://github.com/abhinavp403/tennis-calendar-mobile-app",
+    downloads: [
+      { label: "Google Play", url: "https://play.google.com/store/apps/details?id=dev.abhinav.tenniscalendar", type: "link" },
+    ],
+    tags: ["Kotlin", "Jetpack Compose"],
+  },
+];
 
 type Category = "web" | "mobile";
 
@@ -340,7 +351,7 @@ export default function AIProjects() {
                 transition={{ duration: 0.2 }}
                 className="text-blue-400 font-bold"
               >
-                {String(n ? current + 1 : 0).padStart(2, "0")}
+                {String(current + 1).padStart(2, "0")}
               </motion.span>
             </AnimatePresence>
             <span className="text-gray-600 mx-0.5">/</span>
@@ -372,11 +383,7 @@ export default function AIProjects() {
 
       {/* Mobile apps break out of the narrow column into a full-width showcase */}
       {category === "mobile" ? (
-        n > 0 ? (
-          <MobileShowcase project={projects[current]} />
-        ) : (
-          <p className="max-w-2xl mx-auto px-4 text-gray-500 text-sm">Mobile apps coming soon.</p>
-        )
+        <MobileShowcase project={projects[current]} />
       ) : (
       <div className="max-w-2xl mx-auto px-4">
         {/* Card */}
