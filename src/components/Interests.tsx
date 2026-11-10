@@ -44,9 +44,6 @@ const fallbackData: InterestsData = {
   ],
 };
 
-const INTRO_LS_KEY   = "entertainment_intro_ts";
-const INTRO_INTERVAL = 15 * 60 * 1000; // 15 minutes
-
 /* ── Helpers ───────────────────────────────────────────────────────────── */
 
 function Equalizer() {
@@ -124,18 +121,24 @@ function MediaColumn({
   items,
   triggered,
   xFrom,
+  reverse = false,
+  className = "",
 }: {
   title: string;
   icon: React.ReactNode;
   items: MediaItem[];
   triggered: boolean;
   xFrom: string;
+  reverse?: boolean; // animate from the last poster to the first
+  className?: string;
 }) {
   const firstRow  = items.slice(0, 3);
   const secondRow = items.slice(3, 5);
+  const count     = firstRow.length + secondRow.length;
+  const delayFor  = (index: number) => (reverse ? count - 1 - index : index) * 1;
 
   return (
-    <div className="flex-1 bg-[#071e38] border border-[#0f2d4a] rounded-2xl p-6">
+    <div className={`flex-1 ${className}`}>
       <div className="flex items-center gap-2 mb-6">
         {icon}
         <h3 className="text-white font-bold text-lg">{title}</h3>
@@ -147,7 +150,7 @@ function MediaColumn({
           <AnimatedPosterCard
             key={item.title}
             item={item}
-            delay={i * 1}
+            delay={delayFor(i)}
             xFrom={xFrom}
             triggered={triggered}
           />
@@ -160,7 +163,7 @@ function MediaColumn({
           <div key={item.title} className="w-[calc(33.333%-6px)]">
             <AnimatedPosterCard
               item={item}
-              delay={(3 + i) * 1}
+              delay={delayFor(3 + i)}
               xFrom={xFrom}
               triggered={triggered}
             />
@@ -181,8 +184,7 @@ export default function Interests() {
 
   // Animation: triggered = true means items should be at x:0 (final position)
   const [triggered, setTriggered] = useState(false);
-  const [shouldPlay, setShouldPlay] = useState(false);
-  const spotifyRef = useRef<HTMLDivElement>(null);
+  const triggerRef = useRef<HTMLDivElement>(null);
 
   /* ── Data fetching ────────────────────────────────────────────────── */
   useEffect(() => {
@@ -224,60 +226,32 @@ export default function Interests() {
     fetchSpotify();
   }, []);
 
-  /* ── Check 15-minute gate on mount ───────────────────────────────── */
+  /* ── IntersectionObserver — fire 75% of the way through Movies/Shows ── */
   useEffect(() => {
-    try {
-      const ts   = localStorage.getItem(INTRO_LS_KEY);
-      const play = !ts || Date.now() - Number(ts) > INTRO_INTERVAL;
-      if (play) {
-        setShouldPlay(true);
-      } else {
-        setTriggered(true); // skip straight to settled positions
-      }
-    } catch {
-      setTriggered(true);
-    }
+    const target = triggerRef.current;
+    if (!target) return;
+
+    // The marker sits 75% down the Movies/Shows block; fire as soon as it
+    // scrolls into view from the bottom of the screen.
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setTriggered(true);
+          observer.disconnect();
+        }
+      },
+      { threshold: 0 },
+    );
+
+    observer.observe(target);
+    return () => observer.disconnect();
   }, []);
-
-  /* ── IntersectionObserver — fire when Spotify card enters view ──── */
-  useEffect(() => {
-    if (!shouldPlay) return;
-
-    // Use Spotify card ref when available, fall back to the whole section
-    const getTarget = () =>
-      spotifyRef.current ?? document.querySelector<HTMLElement>("#interests");
-
-    // Observe immediately if target already exists, otherwise wait a tick
-    // for the Spotify card to mount after spotifyConfigured settles
-    const setup = () => {
-      const target = getTarget();
-      if (!target) return;
-
-      const observer = new IntersectionObserver(
-        ([entry]) => {
-          if (entry.isIntersecting) {
-            setTriggered(true);
-            try { localStorage.setItem(INTRO_LS_KEY, String(Date.now())); } catch {}
-            observer.disconnect();
-          }
-        },
-        { threshold: 0.15 },
-      );
-
-      observer.observe(target);
-      return () => observer.disconnect();
-    };
-
-    // Small delay to let the Spotify section render if configured
-    const id = setTimeout(setup, 100);
-    return () => clearTimeout(id);
-  }, [shouldPlay, spotifyConfigured]);
 
   /* ── Render ──────────────────────────────────────────────────────── */
   return (
     // overflow-x-hidden keeps off-screen posters from creating a scrollbar
     <section id="interests" className="py-20 px-4 overflow-x-hidden">
-      <div className="max-w-6xl mx-auto">
+      <div className="max-w-7xl mx-auto">
 
         {/* Header */}
         <div className="flex items-center gap-3 mb-10">
@@ -286,7 +260,9 @@ export default function Interests() {
         </div>
 
         {/* Movies + Shows — always visible as empty cards until train arrives */}
-        <div className="flex flex-col sm:flex-row gap-4">
+        <div className="relative flex flex-col sm:flex-row gap-12 sm:gap-20">
+          {/* Animation trigger marker — 75% down this block */}
+          <div ref={triggerRef} aria-hidden className="absolute left-0 top-[75%] h-px w-px pointer-events-none" />
           <MediaColumn
             title="Movies"
             icon={<Film className="w-5 h-5 text-blue-400" />}
@@ -300,14 +276,15 @@ export default function Interests() {
             items={data.shows}
             triggered={triggered}
             xFrom="-100vw"  // shows train in from the left
+            reverse         // last show arrives first
+            className="sm:mt-12"
           />
         </div>
 
-        {/* Spotify — ref here is the IntersectionObserver trigger */}
+        {/* Spotify */}
         {spotifyConfigured && (
           <motion.div
-            ref={spotifyRef}
-            className="mt-6 bg-[#071e38] border border-[#0f2d4a] rounded-2xl p-6"
+            className="mt-20"
             initial={{ opacity: 0, y: 30 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, margin: "-60px" }}
