@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { ChevronLeft, ChevronRight, Code2, Download, ExternalLink, GitBranch, Terminal } from "lucide-react";
+import { ChevronLeft, ChevronRight, Code2, Download, ExternalLink, GitBranch, Globe, Smartphone, Terminal } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
 interface DownloadLink {
@@ -16,12 +16,14 @@ interface Project {
   description: string;
   gifUrl?: string;
   videoUrl?: string;
+  screenshots?: string[]; // portrait phone screenshots, shown in the isometric phone showcase
+  screenshotLabels?: string[]; // one short caption per screenshot
   githubUrl: string;
   downloads?: DownloadLink[];
   tags: string[];
 }
 
-const projects: Project[] = [
+const webProjects: Project[] = [
   {
     title: "FIFA World Cup 26",
     description: "A real-time dashboard for the FIFA World Cup 2026 — live group standings, a dynamic knockout bracket, deep match analytics, per-player stat sheets, head-to-head team comparison, squad rosters, and host-city information.",
@@ -69,6 +71,15 @@ const projects: Project[] = [
     ],
     tags: ["HTML", "Python", "Shell"],
   },
+];
+
+const mobileProjects: Project[] = [];
+
+type Category = "web" | "mobile";
+
+const CATEGORIES: { id: Category; label: string; icon: typeof Globe; projects: Project[] }[] = [
+  { id: "web",    label: "Web Apps",    icon: Globe,      projects: webProjects },
+  { id: "mobile", label: "Mobile Apps", icon: Smartphone, projects: mobileProjects },
 ];
 
 /* ── Tag helpers ───────────────────────────────────────────────────────── */
@@ -122,12 +133,21 @@ function SQLIcon({ className }: { className?: string }) {
   );
 }
 
+function KotlinIcon({ className }: { className?: string }) {
+  return (
+    <svg className={className} viewBox="0 0 24 24" fill="currentColor">
+      <path d="M24 24H0V0h24L12 12Z" />
+    </svg>
+  );
+}
+
 function renderTagIcon(tag: string) {
   switch (tag) {
     case "JavaScript": return <JSIcon className="w-3 h-3" />;
     case "Python":     return <PythonIcon className="w-3 h-3" />;
     case "Shell":      return <Terminal className="w-3 h-3" />;
     case "HTML":       return <HTMLIcon className="w-3 h-3" />;
+    case "Kotlin":     return <KotlinIcon className="w-3 h-3" />;
     case "CSS":        return <CSSIcon className="w-3 h-3" />;
     case "SQL":        return <SQLIcon className="w-3 h-3" />;
     default:           return null;
@@ -140,28 +160,170 @@ function getTagStyle(tag: string) {
     case "Python":     return "text-sky-300 bg-sky-500/10 border border-sky-500/20";
     case "Shell":      return "text-gray-300 bg-gray-500/10 border border-gray-500/20";
     case "HTML":       return "text-orange-300 bg-orange-500/10 border border-orange-500/20";
+    case "Kotlin":     return "text-violet-300 bg-violet-500/10 border border-violet-500/20";
+    case "Jetpack Compose": return "text-emerald-300 bg-emerald-500/10 border border-emerald-500/20";
     case "CSS":        return "text-blue-300 bg-blue-500/10 border border-blue-500/20";
     case "SQL":        return "text-emerald-300 bg-emerald-500/10 border border-emerald-500/20";
     default:           return "text-blue-300 bg-[#0f2d4a]";
   }
 }
 
+/* ── Mobile showcase (isometric phones, full-width) ────────────────────── */
+
+// Every length in the showcase is a multiple of --u, which is 1/1440 of the
+// showcase width on xl screens (1/1000 below that), so the whole composition
+// scales with the viewport without JavaScript.
+const u = (n: number) => `calc(${n} * var(--u))`;
+
+function PhoneFrame({ src, alt }: { src: string; alt: string }) {
+  const edge = [
+    ["#2b3342", 2], ["#252c3a", 4], ["#1f2532", 6], ["#191f2a", 8], ["#141922", 10], ["#0f131b", 12],
+  ].map(([color, d]) => `${u(-(d as number))} ${u(d as number)} 0 ${color}`);
+  return (
+    <div
+      className="relative flex-none box-border bg-[#0d1118]"
+      style={{
+        width: u(300),
+        padding: u(7),
+        borderRadius: u(44),
+        boxShadow: [
+          "inset 0 0 0 1px rgba(255,255,255,0.24)",
+          ...edge,
+          `${u(-60)} ${u(60)} ${u(70)} rgba(0,0,0,0.7)`,
+        ].join(", "),
+      }}
+    >
+      <div className="relative overflow-hidden bg-[#0b1020]" style={{ borderRadius: u(37) }}>
+        <div style={{ height: u(21) }} />
+        <div
+          aria-hidden
+          className="absolute left-1/2 rounded-full bg-[#02040a]"
+          style={{ top: u(6), width: u(10), height: u(10), marginLeft: u(-5) }}
+        />
+        <img
+          src={src}
+          alt={alt}
+          className="block w-full object-cover pointer-events-none"
+          style={{ aspectRatio: "540 / 1133" }}
+          draggable={false}
+        />
+      </div>
+    </div>
+  );
+}
+
+function MobileShowcase({ project: p }: { project: Project }) {
+  const shots = p.screenshots ?? [];
+  const labels = p.screenshotLabels ?? [];
+  return (
+    <div className="w-full max-w-[1440px] mx-auto [container-type:inline-size]">
+      <div className="relative flex flex-col gap-8 [--u:calc(100cqw/1000)] xl:block xl:[--u:calc(100cqw/1440)] xl:h-[calc(790*var(--u))]">
+
+        {/* Title + description — top-left on xl, above the phones otherwise */}
+        <div className="relative z-10 mx-auto w-full max-w-2xl px-4 flex flex-col gap-4 xl:absolute xl:mx-0 xl:max-w-none xl:px-0 xl:left-[calc(72*var(--u))] xl:top-[calc(16*var(--u))] xl:w-[calc(460*var(--u))]">
+          <div className="flex items-center gap-2.5 font-mono text-[11px] uppercase tracking-[0.16em] text-blue-400">
+            <span aria-hidden className="w-5 h-px bg-blue-400" />
+            Android app
+          </div>
+          <h3 className="text-white font-extrabold tracking-tight leading-none text-4xl xl:whitespace-nowrap xl:text-[calc(58*var(--u))]">
+            {p.title}
+          </h3>
+          <p className="text-gray-400 text-sm leading-relaxed xl:text-[calc(15*var(--u))]">{p.description}</p>
+        </div>
+
+        {/* Phones lying flat in an isometric view */}
+        <div className="relative h-[calc(640*var(--u))] overflow-hidden xl:absolute xl:inset-0 xl:h-auto">
+          <div
+            aria-hidden
+            className="absolute rounded-full -translate-x-1/2 -translate-y-1/2 left-1/2 top-1/2 w-[calc(640*var(--u))] h-[calc(640*var(--u))] xl:left-[calc(845*var(--u))] xl:top-[calc(390*var(--u))] xl:w-[calc(700*var(--u))] xl:h-[calc(700*var(--u))]"
+            style={{ background: "radial-gradient(closest-side, rgba(37,99,235,0.45), rgba(37,99,235,0))" }}
+          />
+          <div
+            className="absolute flex left-[calc(50%_-_510*var(--u))] top-[calc(2*var(--u))] xl:left-[calc(335*var(--u))] xl:top-[calc(72*var(--u))]"
+            style={{ width: u(1020), gap: u(60), transform: "rotateX(45deg) rotateZ(-20deg) scale(0.93)" }}
+          >
+            {shots.map((src, i) => (
+              <PhoneFrame key={src} src={src} alt={`${p.title} — ${labels[i] ?? "screenshot"} screen`} />
+            ))}
+          </div>
+        </div>
+
+        {/* Captions, tags and links — bottom-right on xl, below the phones otherwise */}
+        <div className="relative z-10 mx-auto w-full max-w-2xl px-4 flex flex-col gap-4 xl:absolute xl:mx-0 xl:w-auto xl:max-w-none xl:px-0 xl:items-end xl:right-[calc(72*var(--u))] xl:bottom-[calc(40*var(--u))]">
+          {labels.length > 0 && (
+            <div className="flex flex-wrap gap-x-4 gap-y-1 font-mono text-[11px] uppercase tracking-[0.16em] text-gray-400">
+              {labels.map((label, i) => (
+                <span key={label}>
+                  <span className="text-blue-400">{String(i + 1).padStart(2, "0")}</span> {label}
+                </span>
+              ))}
+            </div>
+          )}
+          <div className="flex flex-wrap gap-2">
+            {p.tags.map((tag) => (
+              <span key={tag} className={`flex items-center gap-1.5 text-xs rounded-full px-3 py-1 ${getTagStyle(tag)}`}>
+                {renderTagIcon(tag)}
+                {tag}
+              </span>
+            ))}
+          </div>
+          <div className="flex flex-wrap gap-3">
+            <a
+              href={p.githubUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center gap-2 text-sm text-gray-400 hover:text-white transition-colors bg-[#0f2d4a] hover:bg-[#163d60] rounded-full px-5 py-2.5"
+            >
+              <GitBranch className="w-4 h-4" />
+              GitHub
+            </a>
+            {p.downloads?.map(({ label, url }) => (
+              <a
+                key={label}
+                href={url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-2 text-sm font-medium text-white transition-colors bg-blue-600 hover:bg-blue-500 rounded-full px-5 py-2.5"
+              >
+                {label === "Android" || label === "Google Play" ? (
+                  <AndroidIcon className="w-4 h-4" />
+                ) : (
+                  <ExternalLink className="w-4 h-4" />
+                )}
+                {label}
+              </a>
+            ))}
+          </div>
+        </div>
+
+      </div>
+    </div>
+  );
+}
+
 /* ── Main component ────────────────────────────────────────────────────── */
 
 export default function AIProjects() {
+  const [category, setCategory] = useState<Category>("web");
   const [current, setCurrent] = useState(0);
+  const projects = CATEGORIES.find((c) => c.id === category)!.projects;
   const n = projects.length;
+
+  const selectCategory = (c: Category) => {
+    setCategory(c);
+    setCurrent(0);
+  };
 
   const navigate = (dir: number) => {
     setCurrent((c) => (c + dir + n) % n);
   };
 
   return (
-    <section id="projects" className="py-20 px-4">
-      <div className="max-w-2xl mx-auto">
+    <section id="projects" className="py-20">
+      <div className="max-w-2xl mx-auto px-4">
 
         {/* Header row — title left, counter right */}
-        <div className="flex items-center justify-between mb-10">
+        <div className="flex items-center justify-between mb-6">
           <div className="flex items-center gap-3">
             <Code2 className="w-6 h-6 text-blue-400" />
             <h3 className="text-white font-bold text-2xl">Check out my Projects</h3>
@@ -178,7 +340,7 @@ export default function AIProjects() {
                 transition={{ duration: 0.2 }}
                 className="text-blue-400 font-bold"
               >
-                {String(current + 1).padStart(2, "0")}
+                {String(n ? current + 1 : 0).padStart(2, "0")}
               </motion.span>
             </AnimatePresence>
             <span className="text-gray-600 mx-0.5">/</span>
@@ -186,22 +348,53 @@ export default function AIProjects() {
           </div>
         </div>
 
+        {/* Web / Mobile toggle */}
+        <div className="flex mb-6">
+          <div className="flex gap-1 bg-[#071e38] border border-[#0f2d4a] rounded-full p-1">
+            {CATEGORIES.map(({ id, label, icon: Icon }) => (
+              <button
+                key={id}
+                onClick={() => selectCategory(id)}
+                className={`flex items-center gap-1.5 text-xs font-semibold px-4 py-1.5 rounded-full transition-all duration-200 ${
+                  category === id
+                    ? "bg-blue-500/20 text-white border border-blue-500/40"
+                    : "text-gray-400 hover:text-white border border-transparent"
+                }`}
+              >
+                <Icon className="w-3.5 h-3.5" />
+                {label}
+              </button>
+            ))}
+          </div>
+        </div>
+
+      </div>
+
+      {/* Mobile apps break out of the narrow column into a full-width showcase */}
+      {category === "mobile" ? (
+        n > 0 ? (
+          <MobileShowcase project={projects[current]} />
+        ) : (
+          <p className="max-w-2xl mx-auto px-4 text-gray-500 text-sm">Mobile apps coming soon.</p>
+        )
+      ) : (
+      <div className="max-w-2xl mx-auto px-4">
         {/* Card */}
         <div className="relative rounded-2xl">
           <motion.div
-            drag="x"
+            drag={n > 1 ? "x" : false}
             dragConstraints={{ left: 0, right: 0 }}
             dragElastic={0.1}
             onDragEnd={(_, info) => {
               if (info.offset.x < -80)     navigate(1);
               else if (info.offset.x > 80) navigate(-1);
             }}
-            className="w-full bg-[#071e38] border border-[#0f2d4a] rounded-2xl overflow-hidden cursor-grab active:cursor-grabbing"
+            className={`w-full bg-[#071e38] border border-[#0f2d4a] rounded-2xl overflow-hidden${n > 1 ? " cursor-grab active:cursor-grabbing" : ""}`}
             style={{ boxShadow: "0 0 60px rgba(59,130,246,0.12)" }}
           >
             {/* All project cards rendered in the same grid cell — only opacity animates,
                 so the container height never collapses and sections below never shift. */}
-            <div style={{ display: "grid" }}>
+            <div key={category} style={{ display: "grid" }}>
               {projects.map((p, i) => (
                 <motion.div
                   key={p.title}
@@ -274,7 +467,7 @@ export default function AIProjects() {
                             rel="noopener noreferrer"
                             className="flex items-center gap-2 text-sm text-gray-400 hover:text-white transition-colors bg-[#0f2d4a] hover:bg-[#163d60] rounded-full px-4 py-2"
                           >
-                            {label === "Android" ? (
+                            {label === "Android" || label === "Google Play" ? (
                               <AndroidIcon className="w-4 h-4" />
                             ) : type === "link" ? (
                               <ExternalLink className="w-4 h-4" />
@@ -292,8 +485,12 @@ export default function AIProjects() {
             </div>
           </motion.div>
         </div>
+      </div>
+      )}
 
-        {/* Navigation + thumbnail strip */}
+      <div className="max-w-2xl mx-auto px-4">
+        {/* Navigation + thumbnail strip — only needed with more than one project */}
+        {n > 1 && (
         <div className="flex items-center justify-between mt-5 gap-4">
 
           {/* Left arrow */}
@@ -329,6 +526,7 @@ export default function AIProjects() {
             <ChevronRight className="w-5 h-5" />
           </button>
         </div>
+        )}
 
       </div>
     </section>
