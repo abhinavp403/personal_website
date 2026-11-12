@@ -2,11 +2,15 @@
 
 import { useEffect, useState } from "react";
 import type { CSSProperties } from "react";
-import { Calendar, MapPin, Trophy } from "lucide-react";
+import { Doto } from "next/font/google";
+import { Trophy } from "lucide-react";
 import { motion } from "framer-motion";
 
 import type { GameEvent, TennisMatch } from "@/lib/sports";
 import type { CricketMatch } from "@/app/api/cricket/route";
+
+// Dot-matrix display face for the LED board numerals and team codes
+const doto = Doto({ subsets: ["latin"], weight: ["700", "900"] });
 
 // ── Sport config ───────────────────────────────────────────────────────────────
 
@@ -30,25 +34,19 @@ function leagueDisplay(game: { league: string; sport: string }): string | null {
   return game.league;
 }
 
-const SPORT_DOT: Record<string, string> = {
-  soccer:     "bg-green-400",
-  football:   "bg-indigo-400",
-  basketball: "bg-orange-400",
-  cricket:    "bg-blue-400",
-  formula1:   "bg-red-400",
-  tennis:     "bg-yellow-400",
+// Lamp colours (hex equivalents of the Tailwind -400 sport accents)
+const SPORT_HEX: Record<string, string> = {
+  soccer:     "#4ade80",
+  football:   "#a5b4fc",
+  basketball: "#fb923c",
+  cricket:    "#60a5fa",
+  formula1:   "#f87171",
+  tennis:     "#facc15",
 };
 
-const SPORT_TEXT: Record<string, string> = {
-  soccer:     "text-green-400",
-  football:   "text-indigo-400",
-  basketball: "text-orange-400",
-  cricket:    "text-blue-400",
-  formula1:   "text-red-400",
-  tennis:     "text-yellow-400",
-};
+const AMBER = "#facc15";
 
-// ── Team colours (for card glow) ──────────────────────────────────────────────
+// ── Team colours (for the LED team codes) ─────────────────────────────────────
 
 type TeamColor = { primary: string; secondary?: string };
 
@@ -100,16 +98,6 @@ const TEAM_COLOR_MAP: Record<string, TeamColor> = {
   "djokovic": { primary: "#C6363C", secondary: "#0C4076" }, // Serbia
 };
 
-// Teams the user follows — these win colour priority when playing away
-const MY_TEAMS = [
-  "manchester united", "barcelona", "inter miami",
-  "argentina", "france", "spain", "brazil", "england", "germany",
-  "patriots", "eagles",
-  "boston celtics", "philadelphia 76ers",
-  "mumbai indians", "royal challengers",
-  "sinner", "alcaraz", "djokovic",
-];
-
 function getTeamColor(name: string): TeamColor | null {
   const lower = name.toLowerCase();
   for (const [key, val] of Object.entries(TEAM_COLOR_MAP)) {
@@ -118,47 +106,18 @@ function getTeamColor(name: string): TeamColor | null {
   return null;
 }
 
-function getCardTeamColor(game: GameEvent): TeamColor | null {
-  const homeLower = game.homeTeam.toLowerCase();
-  const awayLower = game.awayTeam.toLowerCase();
-  const awayIsMine = MY_TEAMS.some((t) => awayLower.includes(t));
-  const homeIsMine = MY_TEAMS.some((t) => homeLower.includes(t));
-  // Prefer "my team" colour regardless of home/away
-  if (awayIsMine) return getTeamColor(game.awayTeam) ?? getTeamColor(game.homeTeam);
-  if (homeIsMine) return getTeamColor(game.homeTeam) ?? getTeamColor(game.awayTeam);
-  return getTeamColor(game.homeTeam) ?? getTeamColor(game.awayTeam);
-}
-
 function hexToRgb(hex: string): [number, number, number] {
   const n = parseInt(hex.replace("#", ""), 16);
   return [(n >> 16) & 255, (n >> 8) & 255, n & 255];
 }
 
-function cardStyle(game: GameEvent): CSSProperties {
-  // F1 always uses Ferrari Rosso Corsa
-  if (game.sport === "formula1") {
-    return {
-      background:  "linear-gradient(160deg, rgba(212,0,0,0.22) 0%, rgba(212,0,0,0.10) 100%), #071e38",
-      borderColor: "rgba(212,0,0,0.30)",
-    };
-  }
-
-  const entry = getCardTeamColor(game);
-  if (!entry) return {};
-
-  const [r1, g1, b1] = hexToRgb(entry.primary);
-
-  if (entry.secondary) {
-    const [r2, g2, b2] = hexToRgb(entry.secondary);
-    return {
-      background:  `linear-gradient(160deg, rgba(${r1},${g1},${b1},0.45) 0%, rgba(${r2},${g2},${b2},0.30) 55%, rgba(${r2},${g2},${b2},0.15) 100%), #071e38`,
-      borderColor: `rgba(${r1},${g1},${b1},0.45)`,
-    };
-  }
-
+// Team colour lifted toward white so dark kits still read as lit LEDs on the black panel
+function ledStyle(team: string, fallback: string): CSSProperties {
+  const [r, g, b] = hexToRgb(getTeamColor(team)?.primary ?? fallback);
+  const lift = (v: number) => Math.round(v + (255 - v) * 0.45);
   return {
-    background:  `linear-gradient(160deg, rgba(${r1},${g1},${b1},0.28) 0%, rgba(${r1},${g1},${b1},0.12) 100%), #071e38`,
-    borderColor: `rgba(${r1},${g1},${b1},0.35)`,
+    color:      `rgb(${lift(r)},${lift(g)},${lift(b)})`,
+    textShadow: `0 0 22px rgba(${lift(r)},${lift(g)},${lift(b)},0.7)`,
   };
 }
 
@@ -227,9 +186,6 @@ function buildFallbackGames(): GameEvent[] {
 
 // ── Utils ──────────────────────────────────────────────────────────────────────
 
-function formatDate(iso: string) {
-  return new Date(iso).toLocaleDateString("en-US", { weekday: "short", month: "short", day: "numeric" });
-}
 function formatTime(iso: string) {
   return new Date(iso).toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit" });
 }
@@ -241,8 +197,15 @@ function daysUntil(iso: string) {
   if (days === 1) return "Tomorrow";
   return `In ${days} days`;
 }
-
-// ── Team circle helpers ────────────────────────────────────────────────────────
+function dayKey(d: Date | string) {
+  return new Date(d).toDateString();
+}
+function weekday(d: Date | string) {
+  return new Date(d).toLocaleDateString("en-US", { weekday: "short" }).toUpperCase();
+}
+function dayLabel(iso: string) {
+  return `${weekday(iso)} ${new Date(iso).getDate()}`;
+}
 
 function teamAbbrev(name: string): string {
   const words = name.replace(/\s+(CF|SC|FC)$/i, "").trim().split(/\s+/);
@@ -250,192 +213,194 @@ function teamAbbrev(name: string): string {
   return words.map((w) => w[0]).join("").slice(0, 3).toUpperCase();
 }
 
-const PALETTE = [
-  "#dc2626", "#ea580c", "#d97706", "#16a34a",
-  "#0284c7", "#7c3aed", "#db2777", "#0f766e",
-  "#b45309", "#4f46e5", "#be123c", "#15803d",
-];
-
-function teamColor(name: string): string {
-  let h = 0;
-  for (let i = 0; i < name.length; i++) h = (h * 31 + name.charCodeAt(i)) & 0xffffffff;
-  return PALETTE[Math.abs(h) % PALETTE.length];
+// Tennis players read better as a surname code (SIN, ALC) than as initials
+function boardCode(game: GameEvent, team: string): string {
+  if (game.sport === "tennis") {
+    const words = team.trim().split(/\s+/);
+    return words[words.length - 1].slice(0, 3).toUpperCase();
+  }
+  return teamAbbrev(team);
 }
 
-function TeamCircle({ team, logo, className }: { team: string; logo?: string; className?: string }) {
-  const [imgErr, setImgErr] = useState(false);
+function kicker(game: GameEvent): string {
+  return (leagueDisplay(game) ?? SPORT_LABEL[game.sport]).toUpperCase();
+}
 
-  if (logo && !imgErr) {
-    return (
-      <div className={`rounded-full flex-shrink-0 bg-[#0f2d4a] flex items-center justify-center overflow-hidden ${className ?? ""}`}>
-        <img
-          src={logo}
-          alt={team}
-          onError={() => setImgErr(true)}
-          className="w-full h-full object-contain p-1.5"
+const STRIP_DAYS = 12;
+const RAIL_COLS  = "grid grid-cols-[64px_28px_minmax(0,1fr)] sm:grid-cols-[124px_36px_minmax(0,1fr)]";
+
+// ── Day strip ──────────────────────────────────────────────────────────────────
+
+function DayStrip({ games, nextKey }: { games: GameEvent[]; nextKey?: string }) {
+  const start = new Date(); start.setHours(0, 0, 0, 0);
+  const days = Array.from({ length: STRIP_DAYS }, (_, i) => {
+    const date = new Date(start); date.setDate(start.getDate() + i);
+    const key  = dayKey(date);
+    const sports = [...new Set(games.filter((g) => dayKey(g.date) === key).map((g) => g.sport))].slice(0, 3);
+    return { key, date, sports, isToday: i === 0, isNext: key === nextKey };
+  });
+
+  return (
+    <div className="flex gap-2 overflow-x-auto px-4 sm:px-7 py-5 border-b-2 border-[#163d60]">
+      {days.map((d) => {
+        const lit = d.sports.length > 0;
+        return (
+          <div
+            key={d.key}
+            className="flex-1 min-w-[56px] h-[92px] rounded-xl border flex flex-col items-center justify-center gap-1"
+            style={{
+              borderColor: d.isNext ? AMBER : d.isToday ? "#60a5fa" : "#163d60",
+              background:  d.isNext ? "rgba(250,204,21,0.14)" : lit ? "#071e38" : "transparent",
+              color:       d.isNext ? AMBER : lit ? "#ffffff" : "#8fa3bf",
+            }}
+          >
+            <span className="font-mono text-[10px] font-bold tracking-widest">
+              {d.isToday ? "TODAY" : weekday(d.date)}
+            </span>
+            <span
+              className={`${doto.className} text-3xl font-black leading-none`}
+              style={d.isNext ? { textShadow: "0 0 12px rgba(250,204,21,0.6)" } : undefined}
+            >
+              {d.date.getDate()}
+            </span>
+            <span className="flex gap-1 h-2.5 items-center">
+              {d.sports.map((s) => (
+                <span
+                  key={s}
+                  className="w-2 h-2 rounded-full"
+                  style={{ background: SPORT_HEX[s], boxShadow: `0 0 8px ${SPORT_HEX[s]}` }}
+                />
+              ))}
+            </span>
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
+// ── Featured (next-up) block ───────────────────────────────────────────────────
+
+function FeaturedRow({ game }: { game: GameEvent }) {
+  const lamp = SPORT_HEX[game.sport];
+  const isF1 = game.sport === "formula1";
+
+  return (
+    <div className={`${RAIL_COLS} px-4 sm:px-7`}>
+      <div className="pt-7">
+        <div className="font-mono text-[10px] sm:text-[11px] font-bold tracking-widest" style={{ color: lamp }}>
+          {daysUntil(game.date).toUpperCase()}
+        </div>
+        <div className={`${doto.className} text-base sm:text-[28px] font-black text-white mt-0.5 whitespace-nowrap`}>{dayLabel(game.date)}</div>
+      </div>
+
+      <div className="relative" aria-hidden="true">
+        <div className="absolute left-1/2 -translate-x-1/2 top-10 bottom-0 w-0.5 bg-[#1f4a75]" />
+        <div
+          className="absolute left-1/2 -translate-x-1/2 top-8 w-5 h-5 rounded-full animate-pulse"
+          style={{ background: lamp, boxShadow: `0 0 14px ${lamp}` }}
         />
       </div>
-    );
-  }
 
-  return (
-    <div
-      className={`rounded-full flex items-center justify-center font-bold text-white flex-shrink-0 ${className ?? ""}`}
-      style={{ backgroundColor: teamColor(team) }}
-    >
-      {teamAbbrev(team)}
-    </div>
-  );
-}
-
-// ── Featured (next-up) card ────────────────────────────────────────────────────
-
-function FeaturedCard({ game }: { game: GameEvent }) {
-  const countdown = daysUntil(game.date).toUpperCase();
-  const teamStyle  = cardStyle(game);
-
-  if (game.sport === "formula1") {
-    return (
-      <div className="bg-[#071e38] border border-blue-500/30 rounded-2xl p-6 mb-4" style={teamStyle}>
-        <div className="flex justify-between items-start mb-6">
-          <Badge label={`NEXT UP · ${countdown}`} />
-          <span className="text-gray-500 text-sm">Formula 1</span>
+      <div className="pt-6 pb-6 min-w-0">
+        <div className="flex flex-wrap justify-between items-center gap-x-4 gap-y-1 font-mono text-[11px] sm:text-xs font-bold tracking-[0.2em]">
+          <span style={{ color: lamp }}>
+            NEXT UP · {[SPORT_LABEL[game.sport], leagueDisplay(game)].filter(Boolean).join(" · ").toUpperCase()}
+          </span>
+          <span className="text-[#b6c4d8]">
+            {[game.venue, formatTime(game.date)].filter(Boolean).join(" · ").toUpperCase()}
+          </span>
         </div>
-        <div className="flex items-center gap-5 mb-6">
-          <div className="w-16 h-16 bg-red-500/10 border border-red-500/20 rounded-xl flex items-center justify-center text-3xl flex-shrink-0">🏎️</div>
-          <div>
-            <p className="text-white font-bold text-3xl">{game.homeTeam}</p>
-            <p className="text-gray-400 text-base mt-0.5">{game.awayTeam}</p>
+
+        {isF1 ? (
+          <div className="mt-4">
+            <div
+              className={`${doto.className} text-4xl sm:text-6xl lg:text-7xl font-black leading-none uppercase`}
+              style={{ color: "#ff5a5a", textShadow: "0 0 22px rgba(255,60,60,0.75)" }}
+            >
+              {game.homeTeam}
+            </div>
+            <div className="font-mono text-xs sm:text-[13px] font-bold tracking-[0.2em] text-white mt-2 uppercase">{game.awayTeam}</div>
           </div>
-        </div>
-        <div className="flex flex-wrap items-center gap-6 pt-4 border-t border-[#0f2d4a] text-sm text-gray-400">
-          <div className="flex items-center gap-2"><Calendar className="w-4 h-4 flex-shrink-0" />{formatDate(game.date)} · {formatTime(game.date)}</div>
-          {game.venue && <div className="flex items-center gap-2"><MapPin className="w-4 h-4 flex-shrink-0" />{game.venue}</div>}
-        </div>
-      </div>
-    );
-  }
-
-  return (
-    <div className="bg-[#071e38] border border-blue-500/30 rounded-2xl p-6 mb-4" style={teamStyle}>
-      {/* Top row */}
-      <div className="flex justify-between items-start mb-8">
-        <Badge label={`NEXT UP · ${countdown}`} />
-        <span className="text-gray-500 text-sm text-right">
-          {[leagueDisplay(game), SPORT_LABEL[game.sport]].filter(Boolean).join(" · ")}
-        </span>
-      </div>
-
-      {/* Teams row */}
-      <div className="flex items-center justify-between gap-4 mb-8">
-        {/* Home */}
-        <div className="flex items-center gap-4 flex-1 min-w-0">
-          <div className="text-right flex-1 min-w-0">
-            <p className="text-white font-bold text-2xl leading-tight">{game.homeTeam}</p>
-          </div>
-          <TeamCircle team={game.homeTeam} logo={game.homeLogo} className="w-20 h-20 text-lg" />
-        </div>
-
-        {/* VS + time */}
-        <div className="text-center flex-shrink-0 px-2">
-          <p className="text-gray-500 text-sm font-semibold mb-1">VS</p>
-          <p className="text-white font-bold text-lg">{formatTime(game.date)}</p>
-        </div>
-
-        {/* Away */}
-        <div className="flex items-center gap-4 flex-1 min-w-0">
-          <TeamCircle team={game.awayTeam} logo={game.awayLogo} className="w-20 h-20 text-lg" />
-          <div className="flex-1 min-w-0">
-            <p className="text-white font-bold text-2xl leading-tight">{game.awayTeam}</p>
-          </div>
-        </div>
-      </div>
-
-      {/* Footer */}
-      <div className="flex flex-wrap items-center gap-6 pt-4 border-t border-[#0f2d4a] text-sm text-gray-400">
-        <div className="flex items-center gap-2"><Calendar className="w-4 h-4 flex-shrink-0" />{formatDate(game.date)}</div>
-        {game.venue && <div className="flex items-center gap-2"><MapPin className="w-4 h-4 flex-shrink-0" />{game.venue}</div>}
-      </div>
-    </div>
-  );
-}
-
-function Badge({ label }: { label: string }) {
-  return (
-    <div className="flex items-center gap-2 bg-blue-500/15 border border-blue-500/25 rounded-full px-3 py-1.5">
-      <span className="w-2 h-2 rounded-full bg-blue-400 animate-pulse flex-shrink-0" />
-      <span className="text-blue-400 text-xs font-bold tracking-wide">{label}</span>
-    </div>
-  );
-}
-
-// ── Small game card ────────────────────────────────────────────────────────────
-
-function GameCard({ game, i }: { game: GameEvent; i: number }) {
-  const style = cardStyle(game);
-
-  if (game.sport === "formula1") {
-    return (
-      <motion.div
-        className="rounded-2xl p-5 bg-[#071e38] border border-[#0f2d4a]"
-        style={style}
-        initial={{ opacity: 0, y: 20 }}
-        whileInView={{ opacity: 1, y: 0 }}
-        viewport={{ once: true, margin: "-40px" }}
-        transition={{ duration: 0.4, ease: "easeOut", delay: (i % 2) * 0.08 }}
-      >
-        <div className="flex justify-between items-center mb-5">
-          <span className={`text-xs font-bold tracking-widest ${SPORT_TEXT["formula1"]}`}>FORMULA 1</span>
-          <span className="text-gray-500 text-xs">{formatDate(game.date)} · {formatTime(game.date)}</span>
-        </div>
-        <div className="flex items-center gap-4 mb-5">
-          <div className="w-12 h-12 bg-red-500/10 border border-red-500/20 rounded-xl flex items-center justify-center text-2xl flex-shrink-0">🏎️</div>
-          <div>
-            <p className="text-white font-bold text-base">{game.homeTeam}</p>
-            <p className="text-gray-500 text-sm mt-0.5">{game.awayTeam} · 2026 Season</p>
-          </div>
-        </div>
-        {game.venue && (
-          <div className="flex items-center gap-2 text-gray-500 text-xs">
-            <MapPin className="w-3.5 h-3.5 flex-shrink-0" />{game.venue}
+        ) : (
+          <div className="grid grid-cols-[1fr_auto_1fr] items-center gap-3 sm:gap-5 mt-3">
+            <div className="min-w-0">
+              <div className={`${doto.className} text-5xl sm:text-8xl lg:text-[124px] font-black leading-[0.95]`} style={ledStyle(game.homeTeam, "#ff5a5a")}>
+                {boardCode(game, game.homeTeam)}
+              </div>
+              <div className="font-mono text-[10px] sm:text-[13px] font-bold tracking-[0.2em] text-white mt-1 uppercase">{game.homeTeam}</div>
+            </div>
+            <div
+              className={`${doto.className} text-2xl sm:text-5xl font-black leading-none text-center`}
+              style={{ color: AMBER, textShadow: "0 0 18px rgba(250,204,21,0.6)" }}
+            >
+              VS
+            </div>
+            <div className="min-w-0 text-right">
+              <div className={`${doto.className} text-5xl sm:text-8xl lg:text-[124px] font-black leading-[0.95]`} style={ledStyle(game.awayTeam, "#5aa2ff")}>
+                {boardCode(game, game.awayTeam)}
+              </div>
+              <div className="font-mono text-[10px] sm:text-[13px] font-bold tracking-[0.2em] text-white mt-1 uppercase">{game.awayTeam}</div>
+            </div>
           </div>
         )}
-      </motion.div>
-    );
-  }
+      </div>
+    </div>
+  );
+}
+
+// ── Board row ──────────────────────────────────────────────────────────────────
+
+function BoardRow({ game, i, showDay }: { game: GameEvent; i: number; showDay: boolean }) {
+  const lamp = SPORT_HEX[game.sport];
 
   return (
     <motion.div
-      className="rounded-2xl p-5 bg-[#071e38] border border-[#0f2d4a]"
-      style={style}
-      initial={{ opacity: 0, y: 20 }}
+      className={`${RAIL_COLS} px-4 sm:px-7`}
+      style={{ background: i % 2 === 0 ? "rgba(7,30,56,0.55)" : "transparent" }}
+      initial={{ opacity: 0, y: 16 }}
       whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true, margin: "-40px" }}
-      transition={{ duration: 0.4, ease: "easeOut", delay: (i % 2) * 0.08 }}
+      viewport={{ once: true, margin: "-30px" }}
+      transition={{ duration: 0.35, ease: "easeOut" }}
     >
-      {/* Sport + date */}
-      <div className="flex justify-between items-center mb-5">
-        <span className={`text-xs font-bold tracking-widest ${SPORT_TEXT[game.sport]}`}>
-          {SPORT_LABEL[game.sport].toUpperCase()}
+      <div className="pt-3.5">
+        {showDay && (
+          <>
+            <div className="font-mono text-[10px] sm:text-[11px] font-bold tracking-widest text-[#8fa3bf]">
+              {daysUntil(game.date).toUpperCase()}
+            </div>
+            <div className={`${doto.className} text-base sm:text-[22px] font-black text-white mt-0.5`}>{dayLabel(game.date)}</div>
+          </>
+        )}
+      </div>
+
+      <div className="relative" aria-hidden="true">
+        <div className="absolute left-1/2 -translate-x-1/2 inset-y-0 w-0.5 bg-[#1f4a75]" />
+        <div
+          className="absolute left-1/2 -translate-x-1/2 top-[27px] w-4 h-4 rounded-full"
+          style={{ background: lamp, boxShadow: `0 0 12px ${lamp}` }}
+        />
+      </div>
+
+      <div className="min-w-0 min-h-[70px] py-3 border-t border-[#0f2d4a] grid grid-cols-[auto_minmax(0,1fr)] md:grid-cols-[112px_190px_minmax(0,1fr)_200px] gap-x-4 gap-y-1 items-center">
+        <span
+          className={`${doto.className} text-lg sm:text-[22px] font-black whitespace-nowrap`}
+          style={{ color: AMBER, textShadow: "0 0 10px rgba(250,204,21,0.45)" }}
+        >
+          {formatTime(game.date)}
         </span>
-        <span className="text-gray-500 text-xs">{formatDate(game.date)} · {formatTime(game.date)}</span>
+        <span className="font-mono text-xs font-bold tracking-widest truncate" style={{ color: lamp }}>
+          {kicker(game)}
+        </span>
+        <span className="col-span-2 md:col-span-1 font-mono text-sm sm:text-base font-bold tracking-wide text-white uppercase">
+          {game.homeTeam} <span className="text-[#8fa3bf]">{game.sport === "formula1" ? "·" : "v"}</span> {game.awayTeam}
+        </span>
+        {game.venue && (
+          <span className="col-span-2 md:col-span-1 font-mono text-xs font-medium tracking-wider text-[#b6c4d8] uppercase md:text-right">
+            {game.venue}
+          </span>
+        )}
       </div>
-
-      {/* Teams */}
-      <div className="flex items-center gap-3 mb-5">
-        <TeamCircle team={game.homeTeam} logo={game.homeLogo} className="w-12 h-12 text-sm" />
-        <p className="text-white font-semibold text-base flex-1 leading-tight">{game.homeTeam}</p>
-        <span className="text-gray-500 text-xs font-semibold flex-shrink-0">VS</span>
-        <p className="text-white font-semibold text-base flex-1 text-right leading-tight">{game.awayTeam}</p>
-        <TeamCircle team={game.awayTeam} logo={game.awayLogo} className="w-12 h-12 text-sm" />
-      </div>
-
-      {/* Venue */}
-      {game.venue && (
-        <div className="flex items-center gap-2 text-gray-500 text-xs">
-          <MapPin className="w-3.5 h-3.5 flex-shrink-0" />{game.venue}
-        </div>
-      )}
     </motion.div>
   );
 }
@@ -471,46 +436,51 @@ export default function UpcomingGames() {
 
   return (
     <section id="games" className="py-20 px-4">
-      <div className="max-w-6xl mx-auto">
+      <div className="max-w-7xl mx-auto">
 
         {/* Header */}
-        <div className="flex items-center gap-3 mb-1">
-          <Trophy className="w-6 h-6 text-blue-400" />
-          <h3 className="text-white font-bold text-2xl">Upcoming Fixtures</h3>
-        </div>
-        {!loading && (
-          <p className="text-gray-500 text-sm mb-8 pl-9">{filtered.length} event{filtered.length !== 1 ? "s" : ""}</p>
-        )}
+        <div className="flex flex-wrap items-end justify-between gap-x-6 gap-y-4 mb-8">
+          <div>
+            <div className="flex items-center gap-3 mb-1">
+              <Trophy className="w-6 h-6 text-blue-400" />
+              <h3 className="text-white font-bold text-2xl">Upcoming Fixtures</h3>
+            </div>
+            <p className="text-gray-500 text-sm pl-9 min-h-5">
+              {!loading && `${filtered.length} event${filtered.length !== 1 ? "s" : ""} across the next ${STRIP_DAYS} days`}
+            </p>
+          </div>
 
-        {/* Filter tabs */}
-        <div className="flex gap-2 flex-wrap mb-8">
-          {sports.map((sport) => (
-            <button
-              key={sport}
-              onClick={() => setFilter(sport)}
-              className={`flex items-center gap-2 rounded-full px-4 py-2 text-sm font-semibold transition-all border ${
-                activeFilter === sport
-                  ? "bg-[#0f2d4a] text-white border-blue-500/40"
-                  : "bg-transparent text-gray-400 border-[#0f2d4a] hover:text-white"
-              }`}
-            >
-              {sport !== "all" && (
-                <span className={`w-2 h-2 rounded-full flex-shrink-0 ${SPORT_DOT[sport]}`} />
-              )}
-              {sport === "all" ? "All" : sport === "formula1" ? "F1" : SPORT_LABEL[sport] ?? sport}
-            </button>
-          ))}
+          {/* Sport legend — click a sport to filter, click it again to show all */}
+          <div className="flex flex-wrap gap-x-4 gap-y-2">
+            {sports.filter((s) => s !== "all").map((sport) => {
+              const dimmed = activeFilter !== "all" && activeFilter !== sport;
+              return (
+                <button
+                  key={sport}
+                  onClick={() => setFilter(activeFilter === sport ? "all" : sport)}
+                  aria-pressed={activeFilter === sport}
+                  className={`flex items-center gap-2 font-mono text-xs font-bold tracking-widest uppercase transition-opacity hover:opacity-100 ${
+                    dimmed ? "opacity-40" : "opacity-100"
+                  }`}
+                  style={{ color: SPORT_HEX[sport] }}
+                >
+                  <span
+                    className="w-2 h-2 rounded-full flex-shrink-0"
+                    style={{ background: SPORT_HEX[sport], boxShadow: `0 0 8px ${SPORT_HEX[sport]}` }}
+                  />
+                  {sport === "formula1" ? "F1" : SPORT_LABEL[sport] ?? sport}
+                </button>
+              );
+            })}
+          </div>
         </div>
 
         {/* Content */}
         {loading ? (
           <div className="space-y-4">
+            <div className="h-28 bg-[#071e38] rounded-2xl animate-pulse" />
             <div className="h-52 bg-[#071e38] rounded-2xl animate-pulse" />
-            <div className="grid grid-cols-2 gap-4">
-              {[1, 2, 3, 4].map((i) => (
-                <div key={i} className="h-36 bg-[#071e38] rounded-2xl animate-pulse" />
-              ))}
-            </div>
+            <div className="h-72 bg-[#071e38] rounded-2xl animate-pulse" />
           </div>
         ) : filtered.length === 0 ? (
           <div className="text-center py-16 text-gray-500">
@@ -518,16 +488,29 @@ export default function UpcomingGames() {
             <p>No upcoming fixtures found.</p>
           </div>
         ) : (
-          <>
-            {featured && <FeaturedCard game={featured} />}
-            {rest.length > 0 && (
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                {rest.map((game, i) => (
-                  <GameCard key={game.id} game={game} i={i} />
-                ))}
-              </div>
-            )}
-          </>
+          <div
+            className="rounded-2xl border-2 border-[#163d60] overflow-hidden"
+            style={{
+              backgroundColor: "#01070f",
+              backgroundImage: "radial-gradient(#0d2440 1px, transparent 1.6px)",
+              backgroundSize:  "8px 8px",
+              boxShadow:       "0 0 60px rgba(59,130,246,0.12)",
+            }}
+          >
+            <DayStrip games={filtered} nextKey={featured ? dayKey(featured.date) : undefined} />
+            {featured && <FeaturedRow game={featured} />}
+            {rest.map((game, i) => {
+              const prev = i === 0 ? featured : rest[i - 1];
+              return (
+                <BoardRow
+                  key={game.id}
+                  game={game}
+                  i={i}
+                  showDay={dayKey(game.date) !== dayKey(prev.date)}
+                />
+              );
+            })}
+          </div>
         )}
 
       </div>
