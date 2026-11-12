@@ -1,6 +1,6 @@
 "use client";
 
-import { ExternalLink, Link, Smartphone } from "lucide-react";
+import { ArrowUpRight, Link, Smartphone } from "lucide-react";
 import { motion } from "framer-motion";
 
 function GithubIcon({ className }: { className?: string }) {
@@ -25,7 +25,8 @@ const links = [
     description: "Code, projects & contributions",
     url: "https://github.com/abhinavp403",
     icon: GithubIcon,
-    color: "from-gray-700 to-gray-900",
+    tile: "bg-white text-[#020d1c]",
+    chip: "bg-[#020d1c] text-white",
     badge: "abhinavp403",
   },
   {
@@ -33,7 +34,8 @@ const links = [
     description: "Android apps I've published",
     url: "https://play.google.com/store/apps/developer?id=Abhinav+Prakash",
     icon: Smartphone,
-    color: "from-green-700 to-emerald-900",
+    tile: "bg-green-400 text-[#020d1c]",
+    chip: "bg-[#020d1c] text-white",
     badge: "Apps",
   },
   {
@@ -41,7 +43,8 @@ const links = [
     description: "Professional profile & experience",
     url: "https://www.linkedin.com/in/abhinav-prakash-05/",
     icon: LinkedinIcon,
-    color: "from-blue-700 to-blue-900",
+    tile: "bg-blue-600 text-white",
+    chip: "bg-white text-[#020d1c]",
     badge: "Connect",
   },
 ];
@@ -49,7 +52,7 @@ const links = [
 export default function LinkWebsites() {
   return (
     <section id="connect" className="py-20 px-4">
-      <div className="max-w-6xl mx-auto">
+      <div className="max-w-7xl mx-auto">
 
         {/* Header */}
         <div className="flex items-center gap-3 mb-10">
@@ -58,35 +61,30 @@ export default function LinkWebsites() {
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-5">
-          {links.map(({ label, description, url, icon: Icon, color, badge }, i) => (
+          {links.map(({ label, description, url, icon: Icon, tile, chip, badge }, i) => (
             <motion.a
               key={label}
               href={url}
               target="_blank"
               rel="noopener noreferrer"
-              className="group relative bg-[#071e38] border border-[#0f2d4a] rounded-2xl p-6 hover:border-blue-500/50 transition-all duration-300 overflow-hidden"
+              className={`group flex flex-col justify-between gap-8 min-h-[230px] rounded-3xl p-6 transition-transform duration-300 hover:-translate-y-1 ${tile}`}
               initial={{ opacity: 0, y: 30 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true, margin: "-50px" }}
               transition={{ duration: 0.45, ease: "easeOut", delay: i * 0.1 }}
             >
-              {/* Gradient background on hover */}
-              <div className={`absolute inset-0 bg-gradient-to-br ${color} opacity-0 group-hover:opacity-10 transition-opacity duration-300`} />
+              <div className="flex items-start justify-between">
+                <Icon className="w-12 h-12" />
+                <span className={`w-11 h-11 rounded-full flex items-center justify-center transition-transform duration-300 group-hover:rotate-45 ${chip}`}>
+                  <ArrowUpRight className="w-5 h-5" />
+                </span>
+              </div>
 
-              <div className="relative flex flex-col gap-4">
-                <div className="flex items-center justify-between">
-                  <div className="w-12 h-12 bg-[#0f2d4a] rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
-                    <Icon className="w-6 h-6 text-white" />
-                  </div>
-                  <ExternalLink className="w-4 h-4 text-gray-600 group-hover:text-blue-400 transition-colors" />
-                </div>
-
-                <div>
-                  <div className="flex items-center gap-2 mb-1">
-                    <span className="text-white font-semibold">{label}</span>
-                    <span className="text-xs bg-[#0f2d4a] text-blue-300 rounded-full px-2 py-0.5">{badge}</span>
-                  </div>
-                  <p className="text-gray-400 text-sm">{description}</p>
+              <div>
+                <p className="text-3xl font-extrabold tracking-tight">{label}</p>
+                <div className="flex flex-wrap items-center justify-between gap-2 mt-1.5">
+                  <span className="text-sm font-medium">{description}</span>
+                  <span className={`font-mono text-xs font-bold rounded-full px-2.5 py-1 ${chip}`}>{badge}</span>
                 </div>
               </div>
             </motion.a>
