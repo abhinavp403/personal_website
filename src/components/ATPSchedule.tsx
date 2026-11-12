@@ -1,13 +1,14 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { CalendarDays, MapPin } from "lucide-react";
+import { CalendarDays } from "lucide-react";
 import { motion } from "framer-motion";
 import type { ATPTournament } from "@/app/api/atp-schedule/route";
 
 // ── Helpers ────────────────────────────────────────────────────────────────────
 
 const MONTH_NAMES = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+const DOW_LETTERS = ["S", "M", "T", "W", "T", "F", "S"];
 
 function formatDateRange(start: string, end: string): string {
   const s = new Date(start);
@@ -68,15 +69,7 @@ function groupTournaments(list: ATPTournament[]): TournamentGroup[] {
   );
 }
 
-// ── Badges ─────────────────────────────────────────────────────────────────────
-
-const TIER_STYLES: Record<ATPTournament["tier"], string> = {
-  "tour-finals": "text-emerald-300 bg-emerald-500/15 border border-emerald-500/30",
-  "grand-slam":  "text-yellow-300  bg-yellow-500/15  border border-yellow-500/30",
-  "masters-1000":"text-purple-300  bg-purple-500/10  border border-purple-500/25",
-  "atp-500":     "text-blue-300    bg-blue-500/10    border border-blue-500/20",
-  "atp-250":     "text-gray-400    bg-gray-500/10    border border-gray-500/20",
-};
+// ── Labels ─────────────────────────────────────────────────────────────────────
 
 const TIER_LABELS: Record<ATPTournament["tier"], { atp: string; wta: string }> = {
   "tour-finals": { atp: "ATP Finals",   wta: "WTA Finals"  },
@@ -86,13 +79,6 @@ const TIER_LABELS: Record<ATPTournament["tier"], { atp: string; wta: string }> =
   "atp-250":     { atp: "ATP 250",      wta: "WTA 250"     },
 };
 
-const SURFACE_STYLES: Record<ATPTournament["surface"], string> = {
-  clay:         "text-orange-300 bg-orange-500/10 border border-orange-500/20",
-  grass:        "text-green-300  bg-green-500/10  border border-green-500/20",
-  hard:         "text-sky-300    bg-sky-500/10    border border-sky-500/20",
-  "hard-indoor":"text-cyan-300   bg-cyan-500/10   border border-cyan-500/20",
-};
-
 const SURFACE_LABELS: Record<ATPTournament["surface"], string> = {
   clay:         "Clay",
   grass:        "Grass",
@@ -100,132 +86,128 @@ const SURFACE_LABELS: Record<ATPTournament["surface"], string> = {
   "hard-indoor":"Indoor Hard",
 };
 
-// ── Backdrop image mapping ─────────────────────────────────────────────────────
+// ── Timeline bar styling ───────────────────────────────────────────────────────
 
-const BACKDROP_MAP: Partial<Record<ATPTournament["surface"], Partial<Record<ATPTournament["tier"], string>>>> = {
-  clay: {
-    "grand-slam":   "/clay_gs.jpg",
-    "masters-1000": "/clay_1000.jpg",
-    "atp-500":      "/clay_500.jpg",
-    "atp-250":      "/clay_250.jpg",
-    "tour-finals":  "/clay_1000.jpg",
-  },
-  grass: {
-    "grand-slam":   "/grass_gs.jpg",
-    "masters-1000": "/grass_gs.jpg",   // no grass M1000 exists; fallback to GS image
-    "atp-500":      "/grass_500.avif",
-    "atp-250":      "/grass_250.jpg",
-    "tour-finals":  "/grass_500.avif",
-  },
-  hard: {
-    "grand-slam":   "/hard_gs.jpg",
-    "masters-1000": "/hard_1000.jpg",
-    "atp-500":      "/hard_500.jpg",
-    "atp-250":      "/hard_250.jpeg",
-    "tour-finals":  "/hard_1000.jpg",
-  },
-  "hard-indoor": {
-    "grand-slam":   "/indoor_hard_1000.jpg", // no indoor grand slams; fallback
-    "masters-1000": "/indoor_hard_1000.jpg",
-    "atp-500":      "/indoor_hard_500.jpg",
-    "atp-250":      "/indoor_hard_250.jpg",
-    "tour-finals":  "/indoor_hard_1000.jpg",
-  },
+const ATP_BLUE = "#60a5fa";
+const WTA_PINK = "#f472b6";
+const TODAY    = "#facc15";
+
+// Bigger events get thicker bars
+const TIER_BAR_HEIGHT: Record<ATPTournament["tier"], number> = {
+  "tour-finals":  54,
+  "grand-slam":   54,
+  "masters-1000": 42,
+  "atp-500":      36,
+  "atp-250":      30,
 };
 
-function getBackdrop(surface: ATPTournament["surface"], tier: ATPTournament["tier"]): string | null {
-  return BACKDROP_MAP[surface]?.[tier] ?? null;
+function barBackground(g: TournamentGroup): string {
+  if (g.atp && g.wta) return `linear-gradient(180deg, ${ATP_BLUE} 0%, ${ATP_BLUE} 50%, ${WTA_PINK} 50%, ${WTA_PINK} 100%)`;
+  return g.wta ? WTA_PINK : ATP_BLUE;
 }
 
-// ── Tournament card ────────────────────────────────────────────────────────────
+function tierLabel(g: TournamentGroup): string {
+  const labels: string[] = [];
+  if (g.atp) labels.push(TIER_LABELS[g.atp.tier].atp);
+  if (g.wta && (!g.atp || TIER_LABELS[g.wta.tier].wta !== TIER_LABELS[g.atp.tier].atp)) {
+    labels.push(TIER_LABELS[g.wta.tier].wta);
+  }
+  return labels.join(" / ");
+}
 
-function TournamentCard({ g, i }: { g: TournamentGroup; i: number }) {
+function statusLabel(g: TournamentGroup): string {
+  if (g.status === "live") return "Live";
+  if (g.status === "past") return "Done";
+  const today = new Date(); today.setHours(0, 0, 0, 0);
+  const start = new Date(g.startDate); start.setHours(0, 0, 0, 0);
+  const days = Math.round((start.getTime() - today.getTime()) / 86400000);
+  if (days <= 0) return "Today";
+  if (days === 1) return "Tomorrow";
+  return `In ${days} days`;
+}
+
+const ROW_COLS = "md:grid md:grid-cols-[260px_minmax(0,1fr)]";
+
+// Vertical "today" marker, drawn per row so the segments join into one line
+function TodayLine({ today, daysInMonth }: { today: number; daysInMonth: number }) {
+  return (
+    <div
+      aria-hidden="true"
+      className="absolute inset-y-0 w-0.5 -ml-px"
+      style={{
+        left:       `${((today - 0.5) / daysInMonth) * 100}%`,
+        background: TODAY,
+        boxShadow:  "0 0 12px rgba(250,204,21,0.7)",
+      }}
+    />
+  );
+}
+
+// ── Timeline row ───────────────────────────────────────────────────────────────
+
+function TimelineRow({
+  g, year, month, daysInMonth, today,
+}: {
+  g: TournamentGroup; year: number; month: number; daysInMonth: number; today: number;
+}) {
   const isLive = g.status === "live";
   const isPast = g.status === "past";
-  const isBig  = g.major || g.atp?.tier === "tour-finals" || g.wta?.tier === "tour-finals";
 
-  // Pick the "primary" entry for tier badge (ATP if present, else WTA)
+  // Clamp the bar to this month — a tournament may have started in the previous one
+  const start    = new Date(g.startDate);
+  const end      = new Date(g.endDate);
+  const startDay = start.getFullYear() === year && start.getMonth() === month ? start.getDate() : 1;
+  const endDay   = end.getFullYear() === year && end.getMonth() === month ? end.getDate() : daysInMonth;
+  const span     = endDay - startDay + 1;
+
   const primary = g.atp ?? g.wta!;
-  const backdrop = getBackdrop(g.surface, primary.tier);
+  const height  = Math.max(...[g.atp, g.wta].filter(Boolean).map((t) => TIER_BAR_HEIGHT[t!.tier]));
+  const dates   = formatDateRange(g.startDate, g.endDate);
 
   return (
     <motion.div
       initial={{ opacity: 0, y: 16 }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, margin: "-30px" }}
-      transition={{ duration: 0.35, ease: "easeOut", delay: (i % 3) * 0.06 }}
-      className={`relative flex flex-col justify-between rounded-2xl p-5 min-h-[200px] border transition-all duration-200 overflow-hidden ${
-        isLive
-          ? "border-blue-500/50 shadow-[0_0_20px_rgba(59,130,246,0.15)]"
-          : "border-[#0f2d4a] hover:border-[#1a3d5c]"
-      } ${isPast ? "opacity-45" : ""}`}
-      style={
-        backdrop
-          ? {
-              backgroundImage: `linear-gradient(rgba(2,13,28,0.78), rgba(7,30,56,0.82)), url(${backdrop})`,
-              backgroundSize: "cover",
-              backgroundPosition: "center",
-            }
-          : { backgroundColor: "#071e38" }
-      }
+      transition={{ duration: 0.35, ease: "easeOut" }}
+      className={`${ROW_COLS} border-b border-[#0f2d4a]/60 last:border-b-0`}
     >
-      {/* Live pulse */}
-      {isLive && (
-        <div className="absolute top-3 right-3 flex items-center gap-1.5">
-          <span className="w-1.5 h-1.5 rounded-full bg-blue-400 animate-pulse" />
-          <span className="text-blue-400 text-[10px] font-bold tracking-widest">LIVE</span>
-        </div>
-      )}
-
-      {/* Grand Slam star */}
-      {g.major && (
-        <div className="absolute top-3 right-3 text-yellow-400 text-sm">★</div>
-      )}
-
-      {/* Top: badges + name */}
-      <div>
-        <div className="flex flex-wrap gap-1.5 mb-3">
-          {g.atp && (
-            <span className="text-xs font-bold rounded-full px-2.5 py-0.5 text-blue-300 bg-blue-500/15 border border-blue-500/25">
-              ATP
-            </span>
-          )}
-          {g.wta && (
-            <span className="text-xs font-bold rounded-full px-2.5 py-0.5 text-pink-300 bg-pink-500/15 border border-pink-500/25">
-              WTA
-            </span>
-          )}
-          {g.atp && (
-            <span className={`text-xs font-semibold rounded-full px-2.5 py-0.5 ${TIER_STYLES[g.atp.tier]}`}>
-              {TIER_LABELS[g.atp.tier].atp}
-            </span>
-          )}
-          {g.wta && (!g.atp || g.wta.tier !== g.atp.tier) && (
-            <span className={`text-xs font-semibold rounded-full px-2.5 py-0.5 ${TIER_STYLES[g.wta.tier]}`}>
-              {TIER_LABELS[g.wta.tier].wta}
-            </span>
-          )}
-          <span className={`text-xs font-semibold rounded-full px-2.5 py-0.5 ${SURFACE_STYLES[g.surface]}`}>
-            {SURFACE_LABELS[g.surface]}
-          </span>
-        </div>
-
-        <p className={`font-bold leading-snug ${isBig ? "text-xl" : "text-lg"} text-white`}>
+      {/* Label */}
+      <div className={`pt-4 md:py-4 md:pr-4 ${isPast ? "opacity-75" : ""}`}>
+        <p className={`text-white font-bold leading-tight ${g.major || primary.tier === "tour-finals" ? "text-lg" : "text-base"}`}>
           {g.name}
         </p>
+        <p className="text-gray-400 text-xs mt-1">
+          <span className={isLive ? "text-blue-400 font-bold" : "text-gray-300 font-semibold"}>{statusLabel(g)}</span>
+          {" · "}
+          {[tierLabel(g), SURFACE_LABELS[g.surface], g.venue].filter(Boolean).join(" · ")}
+        </p>
+        <p className="md:hidden text-gray-400 text-xs font-mono mt-1">{dates}</p>
       </div>
 
-      {/* Bottom: dates + venue */}
-      <div className="mt-3">
-        <p className="text-gray-400 text-[13px] font-mono mb-1">
-          {formatDateRange(g.startDate, g.endDate)}
-        </p>
-        {g.venue && (
-          <div className="flex items-center gap-1 text-gray-500 text-[13px]">
-            <MapPin className="w-3 h-3 flex-shrink-0" />
-            {g.venue}
-          </div>
-        )}
+      {/* Track */}
+      <div
+        className="relative grid items-center min-h-[58px] md:min-h-[82px]"
+        style={{ gridTemplateColumns: `repeat(${daysInMonth}, minmax(0, 1fr))` }}
+      >
+        <TodayLine today={today} daysInMonth={daysInMonth} />
+        <div
+          className={`relative rounded-full flex items-center justify-between gap-2 px-3.5 overflow-hidden whitespace-nowrap text-[#020d1c] ${isPast ? "opacity-75" : ""}`}
+          style={{
+            gridColumn: `${startDay} / ${endDay + 1}`,
+            height,
+            background: barBackground(g),
+            boxShadow:  isLive ? "0 0 24px rgba(255,255,255,0.25)" : undefined,
+          }}
+        >
+          {span >= 4 && <span className="hidden md:inline text-xs font-bold font-mono">{dates}</span>}
+          {isLive && span >= 2 && (
+            <span className="ml-auto flex items-center gap-1.5 text-[11px] font-bold font-mono tracking-wide">
+              <span className="w-2 h-2 rounded-full bg-[#020d1c] animate-pulse" />
+              {span >= 6 && <span className="hidden md:inline">LIVE</span>}
+            </span>
+          )}
+        </div>
       </div>
     </motion.div>
   );
@@ -241,7 +223,13 @@ export default function ATPSchedule() {
   const [tournaments, setTournaments] = useState<ATPTournament[]>([]);
   const [loading, setLoading]         = useState(true);
   const [filter, setFilter]           = useState<TourFilter>("all");
-  const currentMonth = new Date().getMonth();
+
+  const now          = new Date();
+  const currentYear  = now.getFullYear();
+  const currentMonth = now.getMonth();
+  const today        = now.getDate();
+  const daysInMonth  = new Date(currentYear, currentMonth + 1, 0).getDate();
+  const firstDow     = new Date(currentYear, currentMonth, 1).getDay();
 
   useEffect(() => {
     fetch("/api/atp-schedule")
@@ -254,15 +242,16 @@ export default function ATPSchedule() {
   const thisMonth = tournaments.filter(
     (t) =>
       getMonth(t.endDate) === currentMonth &&
-      new Date(t.endDate).getFullYear() === new Date().getFullYear()
+      new Date(t.endDate).getFullYear() === currentYear
   );
 
-  const filtered = filter === "all" ? thisMonth : thisMonth.filter((t) => t.tour === filter);
+  const filtered  = filter === "all" ? thisMonth : thisMonth.filter((t) => t.tour === filter);
   const displayed = groupTournaments(filtered);
+  const liveCount = displayed.filter((g) => g.status === "live").length;
 
   return (
     <section id="atp-schedule" className="py-20 px-4">
-      <div className="max-w-6xl mx-auto">
+      <div className="max-w-7xl mx-auto">
 
         {/* Header */}
         <div className="flex flex-wrap items-center justify-between gap-4 mb-8">
@@ -270,7 +259,10 @@ export default function ATPSchedule() {
             <CalendarDays className="w-6 h-6 text-yellow-400" />
             <div>
               <h3 className="text-white font-bold text-2xl">ATP / WTA Tour 2026</h3>
-              <p className="text-gray-500 text-sm mt-0.5">{MONTH_NAMES[currentMonth]} tournaments</p>
+              <p className="text-gray-500 text-sm mt-0.5">
+                {MONTH_NAMES[currentMonth]} tournaments
+                {!loading && liveCount > 0 && ` · ${liveCount} live right now`}
+              </p>
             </div>
           </div>
 
@@ -295,20 +287,60 @@ export default function ATPSchedule() {
         </div>
 
         {/* Loading skeleton */}
-        {loading && (
-          <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
-            {Array.from({ length: 4 }).map((_, i) => (
-              <div key={i} className="h-36 bg-[#071e38] rounded-2xl animate-pulse" />
-            ))}
-          </div>
-        )}
+        {loading && <div className="h-96 bg-[#071e38] rounded-2xl animate-pulse" />}
 
-        {/* Tournament cards */}
+        {/* Month timeline */}
         {!loading && (
-          <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
-            {displayed.map((g, i) => (
-              <TournamentCard key={g.key} g={g} i={i} />
-            ))}
+          <div>
+
+            {/* Day ruler */}
+            <div className={`${ROW_COLS} items-end border-b border-[#0f2d4a]`}>
+              <div className="hidden md:block pb-3 font-mono text-xs font-bold tracking-[0.25em] text-gray-400 uppercase">
+                {now.toLocaleString("en-US", { month: "long" })}
+              </div>
+              <div
+                className="relative grid pb-3"
+                style={{ gridTemplateColumns: `repeat(${daysInMonth}, minmax(0, 1fr))` }}
+              >
+                {Array.from({ length: daysInMonth }, (_, idx) => {
+                  const n       = idx + 1;
+                  const dow     = (firstDow + idx) % 7;
+                  const isToday = n === today;
+                  // On phones only a few day numbers fit
+                  const keyDay  = isToday || ((n === 1 || n % 5 === 0) && Math.abs(n - today) > 2);
+                  return (
+                    <div key={n} className="text-center">
+                      <div className={`hidden md:block font-mono text-[10px] font-medium text-gray-300`}>
+                        {DOW_LETTERS[dow]}
+                      </div>
+                      <div
+                        className={`font-mono text-[10px] md:text-[13px] font-bold rounded-full mt-1 py-0.5 ${
+                          keyDay ? "" : "invisible md:visible"
+                        } ${isToday ? "text-[#020d1c]" : "text-white"}`}
+                        style={isToday ? { background: TODAY } : undefined}
+                      >
+                        {n}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+
+            {displayed.length === 0 ? (
+              <p className="text-center text-gray-500 py-12">No tournaments this month.</p>
+            ) : (
+              displayed.map((g) => (
+                <TimelineRow
+                  key={g.key}
+                  g={g}
+                  year={currentYear}
+                  month={currentMonth}
+                  daysInMonth={daysInMonth}
+                  today={today}
+                />
+              ))
+            )}
           </div>
         )}
 
