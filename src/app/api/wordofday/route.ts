@@ -13,12 +13,12 @@ export interface WordOfDay {
   url: string;
 }
 
-// ── In-memory date cache — re-fetches once per calendar day ──────────────────
-let memCache: { date: string; data: WordOfDay } | null = null;
-
-function todayUTC(): string {
-  return new Date().toISOString().slice(0, 10); // "YYYY-MM-DD"
-}
+// ── In-memory cache with a short TTL ─────────────────────────────────────────
+// dictionary.com publishes the new word at US Eastern midnight, ~5h after UTC
+// midnight. Caching per UTC day pinned the previous word for the whole day, so
+// re-check upstream hourly instead.
+const CACHE_TTL_MS = 60 * 60 * 1000;
+let memCache: { fetchedAt: number; data: WordOfDay } | null = null;
 
 function extract(html: string, classname: string, closingTag = "div"): string {
   const re = new RegExp(`class=["']${classname}["'][^>]*>([\\s\\S]*?)<\\/${closingTag}>`, "s");
@@ -28,8 +28,8 @@ function extract(html: string, classname: string, closingTag = "div"): string {
 }
 
 export async function GET() {
-  // Serve from memory if we already fetched today's word
-  if (memCache && memCache.date === todayUTC()) {
+  // Serve from memory if fetched within the last hour
+  if (memCache && Date.now() - memCache.fetchedAt < CACHE_TTL_MS) {
     return NextResponse.json(memCache.data);
   }
 
@@ -42,8 +42,10 @@ export async function GET() {
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     const html = await res.text();
 
-    // Grab only the first wotd-entry-wrapper block (today's word)
-    const blockMatch = html.match(/<div class="wotd-entry-wrapper">([\s\S]*?)<\/div>\s*<\/div>\s*<\/div>\s*<\/div>/);
+    // Grab only the first wotd-entry-wrapper block (today's word). Today's entry
+    // carries an extra class ("wotd-entry-wrapper wotd-entry-current"), so allow
+    // additional classes — an exact match skips it and picks yesterday's word.
+    const blockMatch = html.match(/<div class="wotd-entry-wrapper[^"]*">([\s\S]*?)<\/div>\s*<\/div>\s*<\/div>\s*<\/div>/);
     const block = blockMatch ? blockMatch[0] : html;
 
     // Extract href for the word URL
@@ -66,7 +68,7 @@ export async function GET() {
     if (!word) throw new Error("Could not parse word");
 
     const result: WordOfDay = { word, phonetics, partOfSpeech, definition, example, explanation, date, url: wordUrl };
-    memCache = { date: todayUTC(), data: result };
+    memCache = { fetchedAt: Date.now(), data: result };
 
     return NextResponse.json(result);
   } catch (e) {
