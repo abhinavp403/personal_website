@@ -22,7 +22,7 @@ export default function Home() {
   return (
     <main className="bg-[#020d1c]">
       <SiteNav />
-      <Hero1 />
+      <div id="about" className="lg:pl-36"><Hero1 /></div>
 
       {/* All sections below hero share a single FallingPattern background */}
       <div className="relative">
@@ -39,7 +39,8 @@ export default function Home() {
         </div>
 
         {/* Content sits above the pattern */}
-        <div className="relative z-10">
+        {/* lg:pl clears the fixed left nav rail */}
+        <div className="relative z-10 lg:pl-36">
           <AIProjects />
           <Divider />
           <Interests />
