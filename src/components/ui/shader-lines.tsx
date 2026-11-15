@@ -145,6 +145,9 @@ export function ShaderAnimation() {
 
     onWindowResize()
     window.addEventListener("resize", onWindowResize, false)
+    // Also follow the container itself, so the canvas refills it when the
+    // layout changes without a window resize (otherwise it keeps a stale width)
+    new ResizeObserver(onWindowResize).observe(container)
 
     const animate = () => {
       sceneRef.current.animationId = requestAnimationFrame(animate)
@@ -158,7 +161,7 @@ export function ShaderAnimation() {
   return (
     <div
       ref={containerRef}
-      className="w-full h-full absolute"
+      className="absolute inset-0"
     />
   )
 }

@@ -22,7 +22,8 @@ export default function Home() {
   return (
     <main className="bg-[#020d1c]">
       <SiteNav />
-      <div id="about" className="lg:pl-36"><Hero1 /></div>
+      {/* Hero background runs full width; Hero1 itself pads its content clear of the nav rail */}
+      <div id="about"><Hero1 /></div>
 
       {/* All sections below hero share a single FallingPattern background */}
       <div className="relative">
