@@ -1,6 +1,7 @@
 "use client";
 
-import { ArrowUpRight, Link, Smartphone } from "lucide-react";
+import { ArrowUpRight, Smartphone } from "lucide-react";
+import SectionHeading from "@/components/SectionHeading";
 import { motion } from "framer-motion";
 
 function GithubIcon({ className }: { className?: string }) {
@@ -55,9 +56,8 @@ export default function LinkWebsites() {
       <div className="max-w-7xl mx-auto">
 
         {/* Header */}
-        <div className="flex items-center gap-3 mb-10">
-          <Link className="w-6 h-6 text-blue-400" />
-          <h3 className="text-white font-bold text-2xl">Let&apos;s Connect</h3>
+        <div className="mb-10">
+          <SectionHeading eyebrow="Get in touch" title="Let's Connect" />
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-5">

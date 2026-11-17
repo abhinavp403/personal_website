@@ -68,8 +68,8 @@
   --popover: #ffffff;
   --primary: #3b82f6;
   --sidebar: #dddfe2;
-  --font-mono: JetBrains Mono, monospace;
-  --font-sans: Inter, sans-serif;
+  --font-mono: var(--font-jetbrains-mono), "JetBrains Mono", monospace;
+  --font-sans: var(--font-inter), Inter, sans-serif;
   --secondary: #f3f4f6;
   --background: #e8ebed;
   --font-serif: Source Serif 4, serif;

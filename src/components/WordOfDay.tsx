@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { Cormorant_Garamond } from "next/font/google";
-import { BookOpen } from "lucide-react";
+import SectionHeading from "@/components/SectionHeading";
 import { motion } from "framer-motion";
 import type { WordOfDay } from "@/app/api/wordofday/route";
 
@@ -46,11 +46,8 @@ export default function WordOfDay() {
       <div className="max-w-7xl mx-auto">
 
         {/* Header */}
-        <div className="flex flex-wrap items-center justify-between gap-3 mb-6">
-          <div className="flex items-center gap-3">
-            <BookOpen className="w-6 h-6 text-blue-400" />
-            <h3 className="text-white font-bold text-2xl">Word of the Day</h3>
-          </div>
+        <div className="flex flex-wrap items-end justify-between gap-3 mb-6">
+          <SectionHeading eyebrow="Daily drill" title="Word of the Day" />
           {word?.date && (
             <span className="text-gray-400 text-xs font-semibold tracking-[0.25em] uppercase">{word.date}</span>
           )}

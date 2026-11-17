@@ -1,7 +1,8 @@
 "use client";
 
 import React, { useEffect, useRef, useState } from "react";
-import { Clapperboard, Film, Tv, Star } from "lucide-react";
+import { Film, Tv, Star } from "lucide-react";
+import SectionHeading from "@/components/SectionHeading";
 import { motion } from "framer-motion";
 
 function SpotifyIcon({ className }: { className?: string }) {
@@ -254,9 +255,8 @@ export default function Interests() {
       <div className="max-w-7xl mx-auto">
 
         {/* Header */}
-        <div className="flex items-center gap-3 mb-10">
-          <Clapperboard className="w-6 h-6 text-blue-400" />
-          <h3 className="text-white font-bold text-2xl">Entertainment &amp; Music</h3>
+        <div className="mb-10">
+          <SectionHeading eyebrow="Off the pitch" title="Entertainment & Music" />
         </div>
 
         {/* Movies + Shows — always visible as empty cards until train arrives */}

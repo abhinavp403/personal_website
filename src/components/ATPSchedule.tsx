@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { CalendarDays } from "lucide-react";
+import SectionHeading from "@/components/SectionHeading";
 import { motion } from "framer-motion";
 import type { ATPTournament } from "@/app/api/atp-schedule/route";
 
@@ -254,16 +254,13 @@ export default function ATPSchedule() {
       <div className="max-w-7xl mx-auto">
 
         {/* Header */}
-        <div className="flex flex-wrap items-center justify-between gap-4 mb-8">
-          <div className="flex items-center gap-3">
-            <CalendarDays className="w-6 h-6 text-yellow-400" />
-            <div>
-              <h3 className="text-white font-bold text-2xl">ATP / WTA Tour 2026</h3>
-              <p className="text-gray-500 text-sm mt-0.5">
-                {MONTH_NAMES[currentMonth]} tournaments
-                {!loading && liveCount > 0 && ` · ${liveCount} live right now`}
-              </p>
-            </div>
+        <div className="flex flex-wrap items-end justify-between gap-4 mb-8">
+          <div>
+            <SectionHeading eyebrow="On tour" title={`ATP / WTA Tour ${currentYear}`} />
+            <p className="text-gray-400 text-sm mt-2">
+              {MONTH_NAMES[currentMonth]} tournaments
+              {!loading && liveCount > 0 && ` · ${liveCount} live right now`}
+            </p>
           </div>
 
           {/* Filter pills */}

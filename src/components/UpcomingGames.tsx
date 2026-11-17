@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import type { CSSProperties } from "react";
 import { Doto } from "next/font/google";
 import { Trophy } from "lucide-react";
+import SectionHeading from "@/components/SectionHeading";
 import { motion } from "framer-motion";
 
 import type { GameEvent, TennisMatch } from "@/lib/sports";
@@ -441,11 +442,8 @@ export default function UpcomingGames() {
         {/* Header */}
         <div className="flex flex-wrap items-end justify-between gap-x-6 gap-y-4 mb-8">
           <div>
-            <div className="flex items-center gap-3 mb-1">
-              <Trophy className="w-6 h-6 text-blue-400" />
-              <h3 className="text-white font-bold text-2xl">Upcoming Fixtures</h3>
-            </div>
-            <p className="text-gray-500 text-sm pl-9 min-h-5">
+            <SectionHeading eyebrow="Matchday" title="Upcoming Fixtures" />
+            <p className="text-gray-400 text-sm mt-2 min-h-5">
               {!loading && `${filtered.length} event${filtered.length !== 1 ? "s" : ""} across the next ${STRIP_DAYS} days`}
             </p>
           </div>
