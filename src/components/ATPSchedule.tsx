@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { ChevronDown } from "lucide-react";
 import SectionHeading from "@/components/SectionHeading";
 import { motion } from "framer-motion";
 import type { ATPTournament } from "@/app/api/atp-schedule/route";
@@ -64,8 +65,12 @@ function groupTournaments(list: ATPTournament[]): TournamentGroup[] {
       });
     }
   }
+  // Live first, then upcoming, then finished — each by start date
+  const rank = { live: 0, upcoming: 1, past: 2 };
   return [...map.values()].sort(
-    (a, b) => new Date(a.startDate).getTime() - new Date(b.startDate).getTime()
+    (a, b) =>
+      rank[a.status] - rank[b.status] ||
+      new Date(a.startDate).getTime() - new Date(b.startDate).getTime()
   );
 }
 
@@ -223,6 +228,7 @@ export default function ATPSchedule() {
   const [tournaments, setTournaments] = useState<ATPTournament[]>([]);
   const [loading, setLoading]         = useState(true);
   const [filter, setFilter]           = useState<TourFilter>("all");
+  const [showPast, setShowPast]       = useState(false);
 
   const now          = new Date();
   const currentYear  = now.getFullYear();
@@ -248,6 +254,12 @@ export default function ATPSchedule() {
   const filtered  = filter === "all" ? thisMonth : thisMonth.filter((t) => t.tour === filter);
   const displayed = groupTournaments(filtered);
   const liveCount = displayed.filter((g) => g.status === "live").length;
+
+  // Finished tournaments fold behind a toggle, unless they are all there is to show
+  const current   = displayed.filter((g) => g.status !== "past");
+  const finished  = displayed.filter((g) => g.status === "past");
+  const foldPast  = current.length > 0 && finished.length > 0;
+  const rows      = foldPast && !showPast ? current : displayed;
 
   return (
     <section id="atp-schedule" className="py-20 px-4">
@@ -327,7 +339,7 @@ export default function ATPSchedule() {
             {displayed.length === 0 ? (
               <p className="text-center text-gray-500 py-12">No tournaments this month.</p>
             ) : (
-              displayed.map((g) => (
+              rows.map((g) => (
                 <TimelineRow
                   key={g.key}
                   g={g}
@@ -337,6 +349,18 @@ export default function ATPSchedule() {
                   today={today}
                 />
               ))
+            )}
+
+            {foldPast && (
+              <button
+                type="button"
+                onClick={() => setShowPast((v) => !v)}
+                aria-expanded={showPast}
+                className="mt-4 flex items-center gap-2 font-mono text-xs font-bold tracking-[0.2em] uppercase text-gray-300 hover:text-white border border-[#0f2d4a] hover:border-blue-500/40 bg-[#071e38] rounded-full px-4 py-2 transition-colors"
+              >
+                <ChevronDown className={`w-4 h-4 transition-transform ${showPast ? "rotate-180" : ""}`} />
+                {showPast ? "Hide finished" : `Show ${finished.length} finished`}
+              </button>
             )}
           </div>
         )}
