@@ -4,6 +4,7 @@ import * as React from "react";
 import { Barlow_Condensed } from "next/font/google";
 import { motion } from "framer-motion";
 import { ShaderAnimation } from "@/components/ui/shader-lines";
+import { GithubIcon, LinkedinIcon } from "@/components/LinkWebsites";
 
 // Condensed display face for the trading-card type
 const barlow = Barlow_Condensed({
@@ -128,6 +129,34 @@ const Hero1 = () => {
             <p className="text-gray-300 text-[15px] leading-relaxed">
               Known for a natural curiosity: collects random facts, experiments through passion projects and keeps pushing creative boundaries.
             </p>
+
+            {/* Next steps — the full link cards live in Let's Connect at the bottom */}
+            <div className="flex flex-wrap items-center gap-3">
+              <a
+                href="#projects"
+                className="font-mono text-xs font-bold tracking-[0.2em] uppercase bg-blue-600 hover:bg-blue-500 text-white rounded-full px-5 py-3 transition-colors"
+              >
+                View projects
+              </a>
+              <a
+                href="https://github.com/abhinavp403"
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="GitHub"
+                className="w-11 h-11 rounded-full border border-[#1a3d5c] hover:border-blue-400 text-gray-300 hover:text-white flex items-center justify-center transition-colors"
+              >
+                <GithubIcon className="w-5 h-5" />
+              </a>
+              <a
+                href="https://www.linkedin.com/in/abhinav-prakash-05/"
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="LinkedIn"
+                className="w-11 h-11 rounded-full border border-[#1a3d5c] hover:border-blue-400 text-gray-300 hover:text-white flex items-center justify-center transition-colors"
+              >
+                <LinkedinIcon className="w-5 h-5" />
+              </a>
+            </div>
           </motion.div>
 
         </div>

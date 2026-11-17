@@ -2,166 +2,144 @@
 
 import { useEffect, useRef } from "react"
 
-declare global {
-  interface Window {
-    THREE: any
+// Full-screen quad; all the drawing happens in the fragment shader
+const VERTEX_SHADER = `
+  attribute vec2 position;
+  void main() {
+    gl_Position = vec4(position, 0.0, 1.0);
   }
-}
+`
 
-export function ShaderAnimation() {
-  const containerRef = useRef<HTMLDivElement>(null)
-  const sceneRef = useRef<{
-    camera: any
-    scene: any
-    renderer: any
-    uniforms: any
-    animationId: number | null
-  }>({
-    camera: null,
-    scene: null,
-    renderer: null,
-    uniforms: null,
-    animationId: null,
-  })
+const FRAGMENT_SHADER = `
+  #define TWO_PI 6.2831853072
+  #define PI 3.14159265359
 
-  useEffect(() => {
-    // Load Three.js dynamically
-    const script = document.createElement("script")
-    script.src = "https://cdnjs.cloudflare.com/ajax/libs/three.js/89/three.min.js"
-    script.onload = () => {
-      if (containerRef.current && window.THREE) {
-        initThreeJS()
+  precision highp float;
+  uniform vec2 resolution;
+  uniform float time;
+
+  float random (in float x) {
+      return fract(sin(x)*1e4);
+  }
+  float random (vec2 st) {
+      return fract(sin(dot(st.xy,
+                           vec2(12.9898,78.233)))*
+          43758.5453123);
+  }
+
+  void main(void) {
+    vec2 uv = (gl_FragCoord.xy * 2.0 - resolution.xy) / min(resolution.x, resolution.y);
+
+    vec2 fMosaicScal = vec2(4.0, 2.0);
+    vec2 vScreenSize = vec2(256,256);
+    uv.x = floor(uv.x * vScreenSize.x / fMosaicScal.x) / (vScreenSize.x / fMosaicScal.x);
+    uv.y = floor(uv.y * vScreenSize.y / fMosaicScal.y) / (vScreenSize.y / fMosaicScal.y);
+
+    float t = time*0.06+random(uv.x)*0.4;
+    float lineWidth = 0.0008;
+
+    vec3 color = vec3(0.0);
+    for(int j = 0; j < 3; j++){
+      for(int i=0; i < 5; i++){
+        color[j] += lineWidth*float(i*i) / abs(fract(t - 0.01*float(j)+float(i)*0.01)*1.0 - length(uv));
       }
     }
-    document.head.appendChild(script)
+
+    gl_FragColor = vec4(color[2],color[1],color[0],1.0);
+  }
+`
+
+function compile(gl: WebGLRenderingContext, type: number, source: string): WebGLShader | null {
+  const shader = gl.createShader(type)
+  if (!shader) return null
+  gl.shaderSource(shader, source)
+  gl.compileShader(shader)
+  return gl.getShaderParameter(shader, gl.COMPILE_STATUS) ? shader : null
+}
+
+// Animated line shader behind the hero. Plain WebGL — no library download.
+export function ShaderAnimation() {
+  const canvasRef = useRef<HTMLCanvasElement>(null)
+
+  useEffect(() => {
+    const canvas = canvasRef.current
+    const gl = canvas?.getContext("webgl")
+    if (!canvas || !gl) return
+
+    const vertex   = compile(gl, gl.VERTEX_SHADER, VERTEX_SHADER)
+    const fragment = compile(gl, gl.FRAGMENT_SHADER, FRAGMENT_SHADER)
+    const program  = gl.createProgram()
+    if (!vertex || !fragment || !program) return
+    gl.attachShader(program, vertex)
+    gl.attachShader(program, fragment)
+    gl.linkProgram(program)
+    if (!gl.getProgramParameter(program, gl.LINK_STATUS)) return
+    gl.useProgram(program)
+
+    const buffer = gl.createBuffer()
+    gl.bindBuffer(gl.ARRAY_BUFFER, buffer)
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, -1, 1, -1, -1, 1, 1, 1]), gl.STATIC_DRAW)
+    const position = gl.getAttribLocation(program, "position")
+    gl.enableVertexAttribArray(position)
+    gl.vertexAttribPointer(position, 2, gl.FLOAT, false, 0, 0)
+
+    const timeUniform       = gl.getUniformLocation(program, "time")
+    const resolutionUniform = gl.getUniformLocation(program, "resolution")
+
+    // People who ask for reduced motion get one still frame instead of the loop
+    const still = window.matchMedia("(prefers-reduced-motion: reduce)").matches
+    let time    = 1.0
+    let frame   = 0
+    let visible = true
+
+    const draw = () => {
+      gl.uniform1f(timeUniform, time)
+      gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4)
+    }
+
+    const loop = () => {
+      time += 0.05
+      draw()
+      frame = requestAnimationFrame(loop)
+    }
+
+    const start = () => { if (!still && visible && !frame) frame = requestAnimationFrame(loop) }
+    const stop  = () => { if (frame) cancelAnimationFrame(frame); frame = 0 }
+
+    // Follow the canvas's own box, so it refills when the layout changes without a window resize
+    const resize = () => {
+      const rect = canvas.getBoundingClientRect()
+      const dpr  = window.devicePixelRatio || 1
+      canvas.width  = Math.round(rect.width * dpr)
+      canvas.height = Math.round(rect.height * dpr)
+      gl.viewport(0, 0, canvas.width, canvas.height)
+      gl.uniform2f(resolutionUniform, canvas.width, canvas.height)
+      draw()
+    }
+    const resized = new ResizeObserver(resize)
+    resized.observe(canvas)
+
+    // Stop drawing while the hero is scrolled off screen
+    const seen = new IntersectionObserver(([entry]) => {
+      visible = entry.isIntersecting
+      if (visible) start()
+      else stop()
+    })
+    seen.observe(canvas)
+
+    resize()
+    start()
 
     return () => {
-      if (sceneRef.current.animationId) {
-        cancelAnimationFrame(sceneRef.current.animationId)
-      }
-      if (sceneRef.current.renderer) {
-        sceneRef.current.renderer.dispose()
-      }
-      if (document.head.contains(script)) {
-        document.head.removeChild(script)
-      }
+      stop()
+      resized.disconnect()
+      seen.disconnect()
+      gl.deleteBuffer(buffer)
+      gl.deleteProgram(program)
+      gl.deleteShader(vertex)
+      gl.deleteShader(fragment)
     }
   }, [])
 
-  const initThreeJS = () => {
-    if (!containerRef.current || !window.THREE) return
-
-    const THREE = window.THREE
-    const container = containerRef.current
-
-    container.innerHTML = ""
-
-    const camera = new THREE.Camera()
-    camera.position.z = 1
-
-    const scene = new THREE.Scene()
-
-    const geometry = new THREE.PlaneBufferGeometry(2, 2)
-
-    const uniforms = {
-      time: { type: "f", value: 1.0 },
-      resolution: { type: "v2", value: new THREE.Vector2() },
-    }
-
-    const vertexShader = `
-      void main() {
-        gl_Position = vec4( position, 1.0 );
-      }
-    `
-
-    const fragmentShader = `
-      #define TWO_PI 6.2831853072
-      #define PI 3.14159265359
-
-      precision highp float;
-      uniform vec2 resolution;
-      uniform float time;
-
-      float random (in float x) {
-          return fract(sin(x)*1e4);
-      }
-      float random (vec2 st) {
-          return fract(sin(dot(st.xy,
-                               vec2(12.9898,78.233)))*
-              43758.5453123);
-      }
-
-      varying vec2 vUv;
-
-      void main(void) {
-        vec2 uv = (gl_FragCoord.xy * 2.0 - resolution.xy) / min(resolution.x, resolution.y);
-
-        vec2 fMosaicScal = vec2(4.0, 2.0);
-        vec2 vScreenSize = vec2(256,256);
-        uv.x = floor(uv.x * vScreenSize.x / fMosaicScal.x) / (vScreenSize.x / fMosaicScal.x);
-        uv.y = floor(uv.y * vScreenSize.y / fMosaicScal.y) / (vScreenSize.y / fMosaicScal.y);
-
-        float t = time*0.06+random(uv.x)*0.4;
-        float lineWidth = 0.0008;
-
-        vec3 color = vec3(0.0);
-        for(int j = 0; j < 3; j++){
-          for(int i=0; i < 5; i++){
-            color[j] += lineWidth*float(i*i) / abs(fract(t - 0.01*float(j)+float(i)*0.01)*1.0 - length(uv));
-          }
-        }
-
-        gl_FragColor = vec4(color[2],color[1],color[0],1.0);
-      }
-    `
-
-    const material = new THREE.ShaderMaterial({
-      uniforms: uniforms,
-      vertexShader: vertexShader,
-      fragmentShader: fragmentShader,
-    })
-
-    const mesh = new THREE.Mesh(geometry, material)
-    scene.add(mesh)
-
-    const renderer = new THREE.WebGLRenderer()
-    renderer.setPixelRatio(window.devicePixelRatio)
-    container.appendChild(renderer.domElement)
-
-    sceneRef.current = {
-      camera,
-      scene,
-      renderer,
-      uniforms,
-      animationId: null,
-    }
-
-    const onWindowResize = () => {
-      const rect = container.getBoundingClientRect()
-      renderer.setSize(rect.width, rect.height)
-      uniforms.resolution.value.x = renderer.domElement.width
-      uniforms.resolution.value.y = renderer.domElement.height
-    }
-
-    onWindowResize()
-    window.addEventListener("resize", onWindowResize, false)
-    // Also follow the container itself, so the canvas refills it when the
-    // layout changes without a window resize (otherwise it keeps a stale width)
-    new ResizeObserver(onWindowResize).observe(container)
-
-    const animate = () => {
-      sceneRef.current.animationId = requestAnimationFrame(animate)
-      uniforms.time.value += 0.05
-      renderer.render(scene, camera)
-    }
-
-    animate()
-  }
-
-  return (
-    <div
-      ref={containerRef}
-      className="absolute inset-0"
-    />
-  )
+  return <canvas ref={canvasRef} aria-hidden="true" className="absolute inset-0 w-full h-full" />
 }
