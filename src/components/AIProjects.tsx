@@ -1,7 +1,9 @@
 "use client";
 
-import { useState } from "react";
-import { ChevronLeft, ChevronRight, Code2, Download, ExternalLink, GitBranch, Globe, Smartphone, Terminal } from "lucide-react";
+import { useEffect, useRef, useState, type CSSProperties, type ReactNode } from "react";
+import Image from "next/image";
+import { ChevronLeft, ChevronRight, Download, ExternalLink, GitBranch, Globe, Smartphone, Terminal } from "lucide-react";
+import SectionHeading from "@/components/SectionHeading";
 import { motion, AnimatePresence } from "framer-motion";
 
 interface DownloadLink {
@@ -16,8 +18,13 @@ interface Project {
   description: string;
   gifUrl?: string;
   videoUrl?: string;
+  heroVideo?: string; // looping clip shown large in the video-hero layout
+  heroPoster?: string; // still shown while heroVideo loads
   screenshots?: string[]; // portrait phone screenshots, shown in the isometric phone showcase
   screenshotLabels?: string[]; // one short caption per screenshot
+  features?: string[]; // numbered highlights; falls back to screenshotLabels
+  screenshotBgs?: string[]; // top-edge colour of each screenshot, used behind the phone's camera strip
+  layout?: "isometric" | "spotlight" | "staircase" | "collage" | "concert-stage" | "video-hero" | "map-hero"; // full-width showcase layout; web projects without one use the card
   githubUrl: string;
   downloads?: DownloadLink[];
   tags: string[];
@@ -27,7 +34,11 @@ const webProjects: Project[] = [
   {
     title: "FIFA World Cup 26",
     description: "A real-time dashboard for the FIFA World Cup 2026 — live group standings, a dynamic knockout bracket, deep match analytics, per-player stat sheets, head-to-head team comparison, squad rosters, and host-city information.",
-    videoUrl: "/fifa-world-cup-26.mov",
+    heroVideo: "/fifa-web-match-zoom.mp4",
+    heroPoster: "/fifa-web-match-zoom-poster.webp",
+    screenshots: ["/fifa-web-overview.webp", "/fifa-web-stats.webp"],
+    layout: "video-hero",
+    features: ["Live Standings", "Knockout Bracket", "Match Analytics", "Team Comparison"],
     githubUrl: "https://github.com/abhinavp403/fifa-world-cup-26",
     downloads: [
       { label: "Live Site", url: "https://fifa-world-cup-26-nu.vercel.app", type: "link" },
@@ -37,7 +48,9 @@ const webProjects: Project[] = [
   {
     title: "Tennis Calendar",
     description: "An interactive calendar that visualizes the full ATP and WTA seasons month by month — highlighting tournament finals with badges, revealing match results and details on hover, and providing quick-access summaries, player stats, and rankings.",
-    videoUrl: "/tennis-calendar.mp4",
+    screenshots: ["/tennis-calendar-web-calendar.webp", "/tennis-calendar-web-rankings.webp", "/tennis-calendar-web-champions.webp", "/tennis-calendar-web-race.webp"],
+    screenshotLabels: ["Calendar", "Rankings", "Champions Wall", "Race to the Finals"],
+    layout: "collage",
     githubUrl: "https://github.com/abhinavp403/tennis-calendar",
     downloads: [
       { label: "Live Site", url: "https://tennis-calendar-ivory.vercel.app", type: "link" },
@@ -51,7 +64,10 @@ const webProjects: Project[] = [
     title: "Concert Tracklist Finder",
     description: "An app where you paste a YouTube concert link, and it automatically finds the timestamped tracklist from the comments. Each song can be linked to your Spotify and SoundCloud accounts, so you can access it in a single tap. It also saves previously searched links, letting you rewatch your favorite sets on YouTube anytime instantly.",
     gifUrl: "/concert-tracklist.gif",
-    videoUrl: "/concert-tracklist.mp4",
+    // order matters for the concert-stage layout: saved sets, tracklist, Spotify, SoundCloud
+    screenshots: ["/concert-tracklist-web-history.webp", "/concert-tracklist-web-tracklist.webp", "/concert-tracklist-web-spotify.webp", "/concert-tracklist-web-soundcloud.webp"],
+    layout: "concert-stage",
+    features: ["Auto Tracklist", "Opens in Spotify", "Opens in SoundCloud", "Saved Sets"],
     githubUrl: "https://github.com/abhinavp403/concert-tracklist-finder",
     downloads: [
       { label: "Mac", url: "https://github.com/abhinavp403/concert-tracklist-finder/releases/download/v1.0.0/Concert.Tracklist.Finder-1.0.0-arm64.dmg" },
@@ -61,8 +77,11 @@ const webProjects: Project[] = [
   },
   {
     title: "World Map",
-    description: "An interactive desktop app for exploring the world — browse about 200 countries on a zoomable map with hover tooltips showing flag, name, and capital. Toggle between a map view and a collapsible country list organized by continent, filter and search in real time, and hear the correct pronunciation of any country or capital via text-to-speech.",
-    videoUrl: "/world-map.mov",
+    description: "An interactive desktop app for exploring the world — browse about 200 countries on a zoomable map with tooltips for each flag, name, and capital, or switch to a searchable list grouped by continent. Hear any country or capital pronounced aloud, then test yourself with quizzes on capitals, countries, and flags.",
+    // order matters for the map-hero layout: map, country list, quiz
+    screenshots: ["/world-map-web-map.webp", "/world-map-web-list.webp", "/world-map-web-quiz.webp"],
+    layout: "map-hero",
+    features: ["Zoomable Map", "Country List", "Pronunciation", "Quizzes"],
     githubUrl: "https://github.com/abhinavp403/world-map-list",
     downloads: [
       { label: "Mac", url: "https://github.com/abhinavp403/world-map-list/releases/download/v1.1.0/World.Map-1.1.0.dmg" },
@@ -81,6 +100,19 @@ const mobileProjects: Project[] = [
     githubUrl: "https://github.com/abhinavp403/tennis-calendar-mobile-app",
     downloads: [
       { label: "Google Play", url: "https://play.google.com/store/apps/details?id=dev.abhinav.tenniscalendar", type: "link" },
+    ],
+    tags: ["Kotlin", "Jetpack Compose"],
+  },
+  {
+    title: "Artist Pin",
+    description: "A map of every concert you've been to — cities and venues pinned where they happened, the artists you saw there and when, and the photos from each night. Add a show by searching artists and venues or pasting a DICE ticket link, and see your stats by year, venue and country.",
+    screenshots: ["/artist-pin-mobile-3.png", "/artist-pin-mobile-1.png", "/artist-pin-mobile-2.png", "/artist-pin-mobile-4.png"],
+    screenshotLabels: ["Add Show", "View it on Maps", "Search Artists", "Explore Stats"],
+    screenshotBgs: ["#0d0e10", "#1b2729", "#0d0e10", "#0c0e10"],
+    layout: "staircase",
+    githubUrl: "https://github.com/abhinavp403/artist-pin-tracker",
+    downloads: [
+      { label: "Google Play", url: "https://play.google.com/store/apps/details?id=dev.abhinav.artistpin", type: "link" },
     ],
     tags: ["Kotlin", "Jetpack Compose"],
   },
@@ -186,35 +218,60 @@ function getTagStyle(tag: string) {
 // scales with the viewport without JavaScript.
 const u = (n: number) => `calc(${n} * var(--u))`;
 
-function PhoneFrame({ src, alt }: { src: string; alt: string }) {
+function PhoneFrame({
+  src,
+  alt,
+  width = 300,
+  flat = false,
+  glow = false,
+  screenBg = "#0b1020",
+}: {
+  src: string;
+  alt: string;
+  width?: number; // in --u units
+  flat?: boolean; // upright phone with a drop shadow instead of the isometric slab edge
+  glow?: boolean;
+  screenBg?: string;
+}) {
+  const k = width / 300;
+  const s = (n: number) => u(Math.round(n * k * 100) / 100);
   const edge = [
     ["#2b3342", 2], ["#252c3a", 4], ["#1f2532", 6], ["#191f2a", 8], ["#141922", 10], ["#0f131b", 12],
-  ].map(([color, d]) => `${u(-(d as number))} ${u(d as number)} 0 ${color}`);
+  ].map(([color, d]) => `${s(-(d as number))} ${s(d as number)} 0 ${color}`);
+  const shadow = flat
+    ? [`0 ${s(50)} ${s(90)} ${s(-24)} rgba(0,0,0,0.9)`, ...(glow ? [`0 0 ${s(120)} rgba(59,130,246,0.35)`] : [])]
+    : [...edge, `${s(-60)} ${s(60)} ${s(70)} rgba(0,0,0,0.7)`];
   return (
     <div
       className="relative flex-none box-border bg-[#0d1118]"
       style={{
-        width: u(300),
-        padding: u(7),
-        borderRadius: u(44),
-        boxShadow: [
-          "inset 0 0 0 1px rgba(255,255,255,0.24)",
-          ...edge,
-          `${u(-60)} ${u(60)} ${u(70)} rgba(0,0,0,0.7)`,
-        ].join(", "),
+        width: s(300),
+        padding: s(7),
+        borderRadius: s(44),
+        boxShadow: ["inset 0 0 0 1px rgba(255,255,255,0.24)", ...shadow].join(", "),
       }}
     >
-      <div className="relative overflow-hidden bg-[#0b1020]" style={{ borderRadius: u(37) }}>
-        <div style={{ height: u(21) }} />
+      {flat && (
+        <>
+          <div aria-hidden className="absolute bg-[#2a313d]" style={{ right: s(-3), top: "24%", width: s(3), height: "9%", borderRadius: `0 ${s(3)} ${s(3)} 0` }} />
+          <div aria-hidden className="absolute bg-[#2a313d]" style={{ right: s(-3), top: "37%", width: s(3), height: "16%", borderRadius: `0 ${s(3)} ${s(3)} 0` }} />
+        </>
+      )}
+      <div className="relative overflow-hidden" style={{ borderRadius: s(37), background: screenBg }}>
+        <div style={{ height: s(21) }} />
         <div
           aria-hidden
           className="absolute left-1/2 rounded-full bg-[#02040a]"
-          style={{ top: u(6), width: u(10), height: u(10), marginLeft: u(-5) }}
+          style={{ top: s(6), width: s(10), height: s(10), marginLeft: s(-5) }}
         />
-        <img
+        <Image
           src={src}
           alt={alt}
-          className="block w-full object-cover pointer-events-none"
+          width={540}
+          height={1133}
+          quality={90}
+          sizes="(min-width: 1280px) 22vw, 45vw"
+          className="block w-full h-auto object-cover pointer-events-none"
           style={{ aspectRatio: "540 / 1133" }}
           draggable={false}
         />
@@ -223,9 +280,652 @@ function PhoneFrame({ src, alt }: { src: string; alt: string }) {
   );
 }
 
-function MobileShowcase({ project: p }: { project: Project }) {
+function ShowcaseTags({ project: p }: { project: Project }) {
+  return (
+    <div className="flex flex-wrap gap-2">
+      {p.tags.map((tag) => (
+        <span key={tag} className={`flex items-center gap-1.5 text-xs rounded-full px-3 py-1 ${getTagStyle(tag)}`}>
+          {renderTagIcon(tag)}
+          {tag}
+        </span>
+      ))}
+    </div>
+  );
+}
+
+function ShowcaseLinks({
+  project: p,
+  primaryFirst = false,
+  inline = false, // put every download in the main row as a button, with no "Also on" line
+}: {
+  project: Project;
+  primaryFirst?: boolean;
+  inline?: boolean;
+}) {
+  const [primary, ...rest] = p.downloads ?? [];
+  const iconFor = ({ label, type }: DownloadLink) =>
+    label === "Android" || label === "Google Play" ? (
+      <AndroidIcon className="w-4 h-4" />
+    ) : type === "link" ? (
+      <ExternalLink className="w-4 h-4" />
+    ) : (
+      <Download className="w-4 h-4" />
+    );
+  const github = (
+    <a
+      key="github"
+      href={p.githubUrl}
+      target="_blank"
+      rel="noopener noreferrer"
+      className="flex items-center gap-2 text-sm text-gray-400 hover:text-white transition-colors bg-[#0f2d4a] hover:bg-[#163d60] rounded-full px-4 py-2.5"
+    >
+      <GitBranch className="w-4 h-4" />
+      GitHub
+    </a>
+  );
+  // The first download is the main action; any others are quieter outlined pills.
+  const main = primary && (
+    <a
+      key={primary.label}
+      href={primary.url}
+      download={primary.filename}
+      target="_blank"
+      rel="noopener noreferrer"
+      className="flex items-center gap-2 text-sm font-medium text-white transition-colors bg-blue-600 hover:bg-blue-500 rounded-full px-4 py-2.5"
+    >
+      {iconFor(primary)}
+      {primary.label}
+    </a>
+  );
+  const extras = inline
+    ? rest.map((d) => (
+        <a
+          key={d.label}
+          href={d.url}
+          download={d.filename}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="flex items-center gap-2 text-sm text-gray-400 hover:text-white transition-colors bg-[#0f2d4a] hover:bg-[#163d60] rounded-full px-4 py-2.5"
+        >
+          {iconFor(d)}
+          {d.label}
+        </a>
+      ))
+    : [];
+  return (
+    <div className="flex flex-col gap-2.5">
+      <div className="flex flex-wrap gap-3">{primaryFirst ? [main, ...extras, github] : [github, main, ...extras]}</div>
+      {!inline && rest.length > 0 && (
+        <div className="flex flex-wrap items-center gap-2">
+          <span className="font-mono text-[10px] uppercase tracking-[0.14em] text-gray-500 mr-0.5">Also on</span>
+          {rest.map((d) => (
+            <a
+              key={d.label}
+              href={d.url}
+              download={d.filename}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center gap-1.5 text-[13px] text-gray-400 hover:text-white transition-colors border border-[#12365a] hover:border-blue-500/40 rounded-full px-3 py-1.5"
+            >
+              {d.label}
+            </a>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+/* Spotlight layout: every screenshot stands upright in a row, with the active one
+   enlarged and the rest dimmed; title on the left, numbered feature list on the
+   right. When every screenshot has a label, the list doubles as a picker. */
+function SpotlightShowcase({ project: p }: { project: Project }) {
   const shots = p.screenshots ?? [];
   const labels = p.screenshotLabels ?? [];
+  const bgs = p.screenshotBgs ?? [];
+  const ghost = p.title.toUpperCase();
+  const ghostSize = Math.min(250, Math.round(1300 / (ghost.length * 0.62)));
+  const count = shots.length;
+  const [active, setActive] = useState(count > 1 ? 1 : 0);
+  const pickable = labels.length === count && count > 1;
+  // Phones stand in a row in screenshot order, overlapping slightly; the active
+  // one is larger, brighter and on top. Positions are in --u units from the centre.
+  const BIG = 300, SMALL = 190, OVERLAP = 46;
+  const rowWidth = BIG + (count - 1) * SMALL - (count - 1) * OVERLAP;
+  const leftOf = (i: number) => {
+    let x = -rowWidth / 2;
+    for (let j = 0; j < i; j++) x += (j === active ? BIG : SMALL) - OVERLAP;
+    return x;
+  };
+  return (
+    <div className="w-full max-w-[1440px] mx-auto [container-type:inline-size]">
+      <div className="relative flex flex-col gap-8 [--u:calc(100cqw/760)] xl:block xl:[--u:calc(100cqw/1440)] xl:h-[calc(790*var(--u))]">
+
+        {/* Title + description — bottom-left on xl, above the phones otherwise */}
+        <div className="relative z-10 mx-auto w-full max-w-2xl px-4 flex flex-col gap-4 xl:absolute xl:mx-0 xl:max-w-none xl:px-0 xl:left-[calc(56*var(--u))] xl:bottom-[calc(100*var(--u))] xl:w-[calc(290*var(--u))]">
+          <div className="flex items-center gap-2.5 font-mono text-[11px] uppercase tracking-[0.16em] text-blue-400">
+            <span aria-hidden className="w-5 h-px bg-blue-400" />
+            Android app
+          </div>
+          <h3 className="text-white font-extrabold tracking-tight leading-none text-4xl xl:text-[calc(52*var(--u))]">
+            {p.title.split(" ").map((word) => (
+              <span key={word} className="xl:block">{word} </span>
+            ))}
+          </h3>
+          <p className="text-gray-400 text-sm leading-relaxed xl:text-[calc(14.5*var(--u))]">{p.description}</p>
+        </div>
+
+        {/* Phones */}
+        <div className="relative h-[calc(745*var(--u))] overflow-hidden xl:absolute xl:inset-0 xl:h-auto">
+          <div
+            aria-hidden
+            className="absolute rounded-full -translate-x-1/2 -translate-y-1/2 left-1/2 top-[calc(372*var(--u))] w-[calc(720*var(--u))] h-[calc(720*var(--u))]"
+            style={{ background: "radial-gradient(closest-side, rgba(37,99,235,0.42), rgba(37,99,235,0))" }}
+          />
+          <div
+            aria-hidden
+            className="absolute inset-x-0 text-center whitespace-nowrap font-extrabold leading-none tracking-tighter text-transparent select-none"
+            style={{ top: u(372 - ghostSize / 2), fontSize: u(ghostSize), WebkitTextStroke: "1px rgba(96,165,250,0.2)" }}
+          >
+            {ghost}
+          </div>
+          <div aria-hidden className="absolute rounded-full border border-blue-400/20 -translate-x-1/2 -translate-y-1/2 left-1/2 top-[calc(372*var(--u))] w-[calc(620*var(--u))] h-[calc(620*var(--u))]" />
+          <div aria-hidden className="absolute rounded-full border border-blue-400/10 -translate-x-1/2 -translate-y-1/2 left-1/2 top-[calc(372*var(--u))] w-[calc(940*var(--u))] h-[calc(940*var(--u))]" />
+
+          {shots.map((src, i) => {
+            const isActive = i === active;
+            return (
+              <button
+                key={src}
+                type="button"
+                onClick={() => setActive(i)}
+                aria-label={`Show ${labels[i] ?? "screenshot"}`}
+                aria-pressed={isActive}
+                className={`absolute transition-[filter] duration-200 ${
+                  isActive ? "cursor-default" : "cursor-pointer brightness-[0.6] hover:brightness-[0.85]"
+                }`}
+                style={{
+                  // phones nearer the active one sit on top of those further away
+                  zIndex: count - Math.abs(i - active),
+                  left: `calc(50% + ${leftOf(i)} * var(--u))`,
+                  top: u(isActive ? 55 : 171),
+                }}
+              >
+                <PhoneFrame
+                  src={src}
+                  alt={`${p.title} — ${labels[i] ?? "screenshot"} screen`}
+                  width={isActive ? BIG : SMALL}
+                  flat
+                  glow={isActive}
+                  screenBg={bgs[i]}
+                />
+              </button>
+            );
+          })}
+        </div>
+
+        {/* Feature list, tags and links — bottom-right on xl, below the phones otherwise */}
+        <div className="relative z-10 mx-auto w-full max-w-2xl px-4 flex flex-col gap-5 xl:absolute xl:mx-0 xl:max-w-none xl:px-0 xl:right-[calc(56*var(--u))] xl:bottom-[calc(100*var(--u))] xl:w-[calc(290*var(--u))]">
+          {labels.length > 0 && (
+            <div className="flex flex-col border-b border-[#12365a]">
+              {labels.map((label, i) =>
+                pickable ? (
+                  <button
+                    key={label}
+                    type="button"
+                    onClick={() => setActive(i)}
+                    aria-pressed={i === active}
+                    className="group flex items-baseline gap-3.5 py-3 border-t border-[#12365a] text-left cursor-pointer"
+                  >
+                    <span className="font-mono text-[11px] text-blue-400">{String(i + 1).padStart(2, "0")}</span>
+                    <span className={`font-semibold text-sm transition-colors duration-200 ${i === active ? "text-white" : "text-gray-500 group-hover:text-gray-300"}`}>{label}</span>
+                    {i === active && <span aria-hidden className="ml-auto self-center w-1.5 h-1.5 rounded-full bg-blue-400" />}
+                  </button>
+                ) : (
+                  <div key={label} className="flex items-baseline gap-3.5 py-3 border-t border-[#12365a]">
+                    <span className="font-mono text-[11px] text-blue-400">{String(i + 1).padStart(2, "0")}</span>
+                    <span className="text-white font-semibold text-sm">{label}</span>
+                  </div>
+                )
+              )}
+            </div>
+          )}
+          <ShowcaseTags project={p} />
+          <ShowcaseLinks project={p} primaryFirst />
+        </div>
+
+      </div>
+    </div>
+  );
+}
+
+/* Shared frame for the layouts that keep all text in a left column (on xl) and the
+   screenshots on the right. Children are positioned from --sx in --u units. */
+/* Numbered 2-column feature list shared by the web showcases */
+function FeatureList({ project: p, className = "" }: { project: Project; className?: string }) {
+  const items = p.features ?? p.screenshotLabels ?? [];
+  if (items.length === 0) return null;
+  return (
+    <div className={`grid grid-cols-2 gap-x-5 border-b border-[#12365a] text-left ${className}`}>
+      {items.map((label, i) => (
+        <div key={label} className="flex items-baseline gap-2.5 py-2.5 border-t border-[#12365a]">
+          <span className="font-mono text-[11px] text-blue-400">{String(i + 1).padStart(2, "0")}</span>
+          <span className="text-white font-semibold text-[13px]">{label}</span>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function SideTextShowcase({ project: p, eyebrow, children }: { project: Project; eyebrow: string; children: ReactNode }) {
+  const words = p.title.split(" ");
+  const longWord = words.some((w) => w.length > 6); // long words need a smaller title to fit the column
+  return (
+    <div className="w-full max-w-[1440px] mx-auto [container-type:inline-size]">
+      {/* --sx is where the screenshots start: centred below xl, fixed to the design grid on xl */}
+      <div className="relative flex flex-col gap-8 [--u:calc(100cqw/900)] [--sx:calc(50%_-_969.5*var(--u))] xl:block xl:[--u:calc(100cqw/1440)] xl:[--sx:0px] xl:h-[calc(800*var(--u))]">
+
+        {/* Left column on xl; below that its two halves sit above and below the screenshots */}
+        <div className="contents xl:absolute xl:z-10 xl:flex xl:flex-col xl:gap-5 xl:left-[calc(72*var(--u))] xl:top-[calc(36*var(--u))] xl:w-[calc(400*var(--u))]">
+          <div className="order-1 relative z-10 mx-auto w-full max-w-2xl px-4 flex flex-col gap-4 xl:mx-0 xl:max-w-none xl:px-0">
+            <div className="flex items-center gap-2.5 font-mono text-[11px] uppercase tracking-[0.16em] text-blue-400">
+              <span aria-hidden className="w-5 h-px bg-blue-400" />
+              {eyebrow}
+            </div>
+            <h3 className={`text-white font-extrabold tracking-tighter leading-none text-4xl xl:leading-[0.95] ${longWord ? "xl:text-[calc(72*var(--u))]" : "xl:text-[calc(84*var(--u))]"}`}>
+              {words.map((word) => (
+                <span key={word} className="xl:block">{word} </span>
+              ))}
+            </h3>
+            <p className="text-gray-400 text-sm leading-relaxed xl:text-[calc(15*var(--u))]">{p.description}</p>
+          </div>
+
+          <div className="order-3 relative z-10 mx-auto w-full max-w-2xl px-4 flex flex-col gap-4 xl:mx-0 xl:max-w-none xl:px-0">
+            <FeatureList project={p} />
+            <ShowcaseTags project={p} />
+            <ShowcaseLinks project={p} primaryFirst inline={p.layout === "collage"} />
+          </div>
+        </div>
+
+        {/* Screenshots */}
+        <div className="order-2 relative h-[calc(800*var(--u))] overflow-hidden xl:absolute xl:inset-0 xl:h-auto">
+          <div
+            aria-hidden
+            className="absolute rounded-full w-[calc(1000*var(--u))] h-[calc(1000*var(--u))] top-[calc(-100*var(--u))]"
+            style={{
+              left: `calc(var(--sx) + ${u(460)})`,
+              background: "radial-gradient(closest-side, rgba(37,99,235,0.42), rgba(37,99,235,0))",
+            }}
+          />
+          {children}
+        </div>
+
+      </div>
+    </div>
+  );
+}
+
+/* Staircase layout: every phone at the same size, stepping down from left to right
+   with each one slightly overlapping the last. */
+function StaircaseShowcase({ project: p, eyebrow }: { project: Project; eyebrow: string }) {
+  const shots = p.screenshots ?? [];
+  const labels = p.screenshotLabels ?? [];
+  const bgs = p.screenshotBgs ?? [];
+  const W = 244, STEP_X = 205, STEP_Y = 80, X0 = 540, Y0 = 30;
+  return (
+    <SideTextShowcase project={p} eyebrow={eyebrow}>
+      {shots.map((src, i) => (
+        <div
+          key={src}
+          className="absolute"
+          style={{ left: `calc(var(--sx) + ${u(X0 + i * STEP_X)})`, top: u(Y0 + i * STEP_Y), zIndex: i + 1 }}
+        >
+          <PhoneFrame
+            src={src}
+            alt={`${p.title} — ${labels[i] ?? "screenshot"} screen`}
+            width={W}
+            flat
+            glow={i === 1}
+            screenBg={bgs[i]}
+          />
+        </div>
+      ))}
+    </SideTextShowcase>
+  );
+}
+
+/* A screenshot in a thin black bezel (no device), placed from --sx in --u units. */
+/* Looping clip that only downloads and plays while it is on screen. Visitors who ask
+   for reduced motion keep the poster image instead. */
+function LazyVideo({
+  src, poster, label, className, style,
+}: {
+  src: string; poster?: string; label: string; className?: string; style?: CSSProperties;
+}) {
+  const ref = useRef<HTMLVideoElement>(null);
+
+  useEffect(() => {
+    const video = ref.current;
+    if (!video || window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) video.play().catch(() => {});
+        else video.pause();
+      },
+      { threshold: 0.25 },
+    );
+    observer.observe(video);
+    return () => observer.disconnect();
+  }, []);
+
+  return (
+    <video
+      ref={ref}
+      src={src}
+      poster={poster}
+      aria-label={label}
+      preload="none"
+      loop
+      muted
+      playsInline
+      className={className}
+      style={style}
+    />
+  );
+}
+
+function ScreenFrame({
+  src, alt, x, y, w, z = 1, pad = 8, ring = "rgba(0,0,0,0.9)", glow = false, className = "", rotate = 0, video, aspect,
+}: {
+  src: string; alt: string; x: number; y: number; w: number;
+  z?: number; pad?: number; ring?: string; glow?: boolean; className?: string;
+  rotate?: number; // degrees
+  video?: string; // when set, plays this clip (muted, looping) with `src` as its poster
+  aspect?: string; // CSS aspect-ratio of the media, to reserve its height before it loads
+}) {
+  return (
+    <div
+      className={`absolute bg-[#050608] ${className}`}
+      style={{
+        left: `calc(var(--sx) + ${u(x)})`,
+        top: `calc(var(--sy, 0px) + ${u(y)})`,
+        width: u(w),
+        padding: u(pad),
+        borderRadius: u(pad * 2),
+        zIndex: z,
+        transform: rotate ? `rotate(${rotate}deg)` : undefined,
+        boxShadow: [
+          "inset 0 0 0 1px rgba(255,255,255,0.14)",
+          "inset 0 1px 0 rgba(255,255,255,0.22)",
+          `0 0 0 1px ${ring}`,
+          `${u(-20)} ${u(40)} ${u(80)} ${u(-24)} rgba(0,0,0,0.95)`,
+          ...(glow ? [`0 0 ${u(110)} rgba(59,130,246,0.28)`] : []),
+        ].join(", "),
+      }}
+    >
+      {video ? (
+        <LazyVideo
+          src={video}
+          poster={src}
+          label={alt}
+          className="block w-full object-cover pointer-events-none"
+          style={{ borderRadius: u(pad + 1), aspectRatio: aspect }}
+        />
+      ) : (
+        <Image
+          src={src}
+          alt={alt}
+          // Real size is unknown here: the frame's CSS width and `aspect` (or the file's own ratio) set it
+          width={0}
+          height={0}
+          quality={90}
+          sizes={`(min-width: 1280px) ${Math.ceil(w / 14.4)}vw, ${Math.min(100, Math.ceil(w / 8))}vw`}
+          className="block w-full h-auto object-cover pointer-events-none"
+          style={{ borderRadius: u(pad + 1), aspectRatio: aspect }}
+          draggable={false}
+        />
+      )}
+    </div>
+  );
+}
+
+/* Collage layout, for web apps: screenshots in thin black bezels (no device), layered
+   so each overlaps the one behind. Slots are tuned for one landscape screenshot
+   followed by three portrait panels; x, y and w are in --u units. */
+const COLLAGE_SLOTS = [
+  { x: 580, y: 30, w: 560 },
+  { x: 1100, y: 60, w: 250 },
+  { x: 690, y: 300, w: 400 },
+  { x: 1050, y: 400, w: 300 },
+];
+
+function CollageShowcase({ project: p, eyebrow }: { project: Project; eyebrow: string }) {
+  const shots = (p.screenshots ?? []).slice(0, COLLAGE_SLOTS.length);
+  const labels = p.screenshotLabels ?? [];
+  return (
+    <SideTextShowcase project={p} eyebrow={eyebrow}>
+      {shots.map((src, i) => {
+        const { x, y, w } = COLLAGE_SLOTS[i];
+        return (
+          <ScreenFrame
+            key={src}
+            src={src}
+            alt={`${p.title} — ${labels[i] ?? "screenshot"}`}
+            x={x}
+            y={y}
+            w={w}
+            z={i + 1}
+            glow={i === 2}
+          />
+        );
+      })}
+    </SideTextShowcase>
+  );
+}
+
+/* A curved arrow drawn in its own small box; coordinates inside `d`, `head` and `dot`
+   are in the box's own units, and the box scales with --u. */
+function FlowArrow({
+  x, y, w, h, d, head, dot, color, dashed = false, className = "",
+}: {
+  x: number; y: number; w: number; h: number; d: string; head: string;
+  dot?: [number, number]; color: string; dashed?: boolean; className?: string;
+}) {
+  return (
+    <svg
+      aria-hidden
+      viewBox={`0 0 ${w} ${h}`}
+      className={`absolute overflow-visible ${className}`}
+      style={{ left: `calc(var(--sx) + ${u(x)})`, top: u(y), width: u(w), height: u(h), zIndex: 4 }}
+    >
+      <path d={d} fill="none" stroke={color} strokeWidth={2.5} strokeLinecap="round" strokeDasharray={dashed ? "2 7" : undefined} />
+      <path d={head} fill={color} />
+      {dot && <circle cx={dot[0]} cy={dot[1]} r={4} fill={color} />}
+    </svg>
+  );
+}
+
+/* Concert Tracklist Finder's layout: the tracklist large in the middle, saved sets on
+   its left, and arrows from its Spotify/SoundCloud icon column to a screenshot of each
+   service on the right. Text runs in a band along the bottom on xl. Expects screenshots
+   in the order saved sets, tracklist, Spotify, SoundCloud. */
+function ConcertStageShowcase({ project: p, eyebrow }: { project: Project; eyebrow: string }) {
+  const [history, tracklist, spotify, soundcloud] = p.screenshots ?? [];
+  const SPOTIFY = "#1ed760";
+  const SOUNDCLOUD = "#ff7733";
+  const at = (x: number) => `calc(var(--sx) + ${u(x)})`;
+  const caption = "absolute font-mono uppercase tracking-[0.14em] text-[max(8px,calc(11*var(--u)))]";
+  const block = "relative z-10 mx-auto w-full max-w-2xl px-4 flex flex-col gap-4 xl:absolute xl:mx-0 xl:max-w-none xl:px-0";
+  return (
+    <div className="w-full max-w-[1440px] mx-auto [container-type:inline-size]">
+      {/* Below xl the saved-sets screen is hidden and the rest is centred and enlarged */}
+      <div className="relative flex flex-col gap-6 [--u:calc(100cqw/950)] [--sx:calc(50%_-_925*var(--u))] xl:block xl:[--u:calc(100cqw/1440)] xl:[--sx:0px] xl:h-[calc(840*var(--u))]">
+
+        <div className={`order-1 ${block} xl:left-[calc(72*var(--u))] xl:top-[calc(666*var(--u))] xl:w-[calc(690*var(--u))]`}>
+          <div className="flex items-center gap-2.5 font-mono text-[11px] uppercase tracking-[0.16em] text-blue-400">
+            <span aria-hidden className="w-5 h-px bg-blue-400" />
+            {eyebrow}
+          </div>
+          <h3 className="text-white font-extrabold tracking-tighter leading-none text-4xl xl:whitespace-nowrap xl:text-[calc(48*var(--u))]">
+            {p.title}
+          </h3>
+        </div>
+
+        <div className={`order-2 ${block} xl:left-[calc(780*var(--u))] xl:top-[calc(682*var(--u))] xl:w-[calc(588*var(--u))]`}>
+          <p className="text-gray-400 text-sm leading-relaxed xl:text-[calc(14.5*var(--u))]">{p.description}</p>
+          <ShowcaseTags project={p} />
+        </div>
+
+        {/* Feature bullets fill the gap under the saved-sets screen, above the title on xl */}
+        <div className={`order-2 ${block} xl:left-[calc(72*var(--u))] xl:top-[calc(535*var(--u))] xl:w-[calc(400*var(--u))]`}>
+          <FeatureList project={p} />
+        </div>
+
+        <div className="order-3 relative h-[calc(660*var(--u))] overflow-hidden xl:absolute xl:inset-0 xl:h-auto">
+          <div
+            aria-hidden
+            className="absolute rounded-full w-[calc(1000*var(--u))] h-[calc(1000*var(--u))] top-[calc(-190*var(--u))]"
+            style={{ left: at(220), background: "radial-gradient(closest-side, rgba(37,99,235,0.45), rgba(37,99,235,0))" }}
+          />
+
+          {history && (
+            <ScreenFrame src={history} alt={`${p.title} — saved sets`} x={80} y={110} w={334} className="hidden xl:block" />
+          )}
+
+          {tracklist && (
+            <ScreenFrame src={tracklist} alt={`${p.title} — tracklist with Spotify and SoundCloud icons on every song`} x={490} y={30} w={440} z={2} pad={9} glow />
+          )}
+          {/* outline around the tracklist's Spotify / SoundCloud icon column */}
+          <div
+            aria-hidden
+            className="absolute border-[1.5px] border-white/90"
+            style={{ left: at(875), top: u(257), width: u(35), height: u(292), borderRadius: u(10), zIndex: 3, boxShadow: `0 0 0 ${u(4)} rgba(96,165,250,0.2)` }}
+          />
+
+          {spotify && <ScreenFrame src={spotify} alt="The song opened in Spotify" x={1060} y={60} w={290} ring="rgba(29,185,84,0.55)" />}
+          <div className={caption} style={{ left: at(1060), top: u(400), color: SPOTIFY }}>Opens in Spotify</div>
+          <FlowArrow x={900} y={205} w={175} h={115} d="M10 95 C 85 95, 70 20, 146 20" head="M158 20 l-13 -7 v14 z" dot={[10, 95]} color={SPOTIFY} />
+
+          {soundcloud && <ScreenFrame src={soundcloud} alt="The song opened in SoundCloud" x={1030} y={444} w={350} ring="rgba(255,119,51,0.6)" />}
+          <div className={caption} style={{ left: at(1030), top: u(632), color: "#ff8a4c" }}>Opens in SoundCloud</div>
+          <FlowArrow x={900} y={460} w={145} h={90} d="M10 20 C 70 20, 55 68, 116 68" head="M128 68 l-13 -7 v14 z" dot={[10, 20]} color={SOUNDCLOUD} />
+        </div>
+
+        <div className={`order-4 ${block} xl:left-[calc(72*var(--u))] xl:top-[calc(756*var(--u))]`}>
+          <ShowcaseLinks project={p} primaryFirst inline />
+        </div>
+
+      </div>
+    </div>
+  );
+}
+
+/* Video-hero layout: a looping clip large in the centre with the first two screenshots
+   tilted behind it on either side; text centred on top on xl. */
+function VideoHeroShowcase({ project: p, eyebrow }: { project: Project; eyebrow: string }) {
+  const [left, right] = p.screenshots ?? [];
+  return (
+    <div className="w-full max-w-[1440px] mx-auto [container-type:inline-size]">
+      {/* Below xl the clip is centred and enlarged (--sx), and moved up under the text (--sy) */}
+      <div className="relative flex flex-col gap-8 [--u:calc(100cqw/1000)] [--sx:calc(50%_-_720*var(--u))] [--sy:calc(-300*var(--u))] xl:block xl:[--u:calc(100cqw/1440)] xl:[--sx:0px] xl:[--sy:0px] xl:h-[calc(840*var(--u))]">
+
+        <div className="relative z-10 mx-auto w-full max-w-2xl px-4 flex flex-col gap-4 xl:absolute xl:mx-0 xl:max-w-none xl:px-0 xl:items-center xl:text-center xl:left-[calc(170*var(--u))] xl:top-[calc(24*var(--u))] xl:w-[calc(1100*var(--u))]">
+          <div className="font-mono text-[11px] uppercase tracking-[0.2em] text-blue-400">{eyebrow}</div>
+          <h3 className="text-white font-extrabold tracking-tighter leading-none text-4xl xl:whitespace-nowrap xl:text-[calc(72*var(--u))]">
+            {p.title}
+          </h3>
+          <div className="flex flex-col gap-4 w-full xl:flex-row xl:items-center xl:gap-[calc(48*var(--u))]">
+            <p className="text-gray-400 text-sm leading-relaxed xl:text-[calc(15.5*var(--u))] xl:text-left xl:flex-1">{p.description}</p>
+            <FeatureList project={p} className="w-full xl:w-[calc(440*var(--u))] xl:shrink-0" />
+          </div>
+          <div className="flex flex-wrap items-center gap-3 xl:justify-center">
+            <ShowcaseTags project={p} />
+            <ShowcaseLinks project={p} primaryFirst inline />
+          </div>
+        </div>
+
+        <div className="relative h-[calc(560*var(--u))] overflow-hidden xl:absolute xl:inset-x-0 xl:bottom-0 xl:top-[calc(-20*var(--u))] xl:h-auto">
+          <div
+            aria-hidden
+            className="absolute rounded-full w-[calc(1100*var(--u))] h-[calc(1100*var(--u))]"
+            style={{
+              left: `calc(var(--sx) + ${u(170)})`,
+              top: `calc(var(--sy) + ${u(200)})`,
+              background: "radial-gradient(closest-side, rgba(37,99,235,0.5), rgba(37,99,235,0))",
+            }}
+          />
+          {left && <ScreenFrame src={left} alt={`${p.title} — tournament overview`} x={40} y={400} w={441} rotate={-4} aspect="1700 / 1012" />}
+          {right && <ScreenFrame src={right} alt={`${p.title} — team comparison and player leaders`} x={959} y={410} w={441} rotate={4} aspect="1700 / 971" />}
+          {p.heroVideo && (
+            <ScreenFrame
+              src={p.heroPoster ?? ""}
+              video={p.heroVideo}
+              alt={`${p.title} — match analytics, screen recording`}
+              x={350}
+              y={320}
+              w={741}
+              z={2}
+              pad={9}
+              glow
+              aspect="1192 / 796"
+            />
+          )}
+        </div>
+
+      </div>
+    </div>
+  );
+}
+
+/* Map-hero layout: the first screenshot large on the left with the next two as small
+   tilted panels overlapping its bottom edge; all text in a column on the right on xl. */
+function MapHeroShowcase({ project: p, eyebrow }: { project: Project; eyebrow: string }) {
+  const [hero, second, third] = p.screenshots ?? [];
+  return (
+    <div className="w-full max-w-[1440px] mx-auto [container-type:inline-size]">
+      <div className="relative flex flex-col gap-8 [--u:calc(100cqw/920)] [--sx:calc(50%_-_500*var(--u))] xl:block xl:[--u:calc(100cqw/1440)] xl:[--sx:0px] xl:h-[calc(830*var(--u))]">
+
+        <div className="relative z-10 mx-auto w-full max-w-2xl px-4 flex flex-col gap-4 xl:absolute xl:mx-0 xl:max-w-none xl:px-0 xl:gap-5 xl:left-[calc(988*var(--u))] xl:top-[calc(46*var(--u))] xl:w-[calc(380*var(--u))]">
+          <div className="flex items-center gap-2.5 font-mono text-[11px] uppercase tracking-[0.16em] text-blue-400">
+            <span aria-hidden className="w-5 h-px bg-blue-400" />
+            {eyebrow}
+          </div>
+          <h3 className="text-white font-extrabold tracking-tighter leading-none text-4xl xl:leading-[0.95] xl:text-[calc(84*var(--u))]">
+            {p.title.split(" ").map((word) => (
+              <span key={word} className="xl:block">{word} </span>
+            ))}
+          </h3>
+          <p className="text-gray-400 text-sm leading-relaxed xl:text-[calc(14.5*var(--u))]">{p.description}</p>
+          <FeatureList project={p} />
+          <ShowcaseTags project={p} />
+          <ShowcaseLinks project={p} primaryFirst inline />
+        </div>
+
+        <div className="relative h-[calc(830*var(--u))] overflow-hidden xl:absolute xl:inset-0 xl:h-auto">
+          <div
+            aria-hidden
+            className="absolute rounded-full w-[calc(1100*var(--u))] h-[calc(1100*var(--u))] top-[calc(-210*var(--u))]"
+            style={{ left: `calc(var(--sx) + ${u(-70)})`, background: "radial-gradient(closest-side, rgba(37,99,235,0.45), rgba(37,99,235,0))" }}
+          />
+          {hero && <ScreenFrame src={hero} alt={`${p.title} — map coloured by continent`} x={60} y={30} w={840} pad={9} glow aspect="1700 / 1070" />}
+          {second && <ScreenFrame src={second} alt={`${p.title} — country list grouped by continent`} x={40} y={440} w={500} z={2} rotate={-3} aspect="1700 / 1068" />}
+          {third && <ScreenFrame src={third} alt={`${p.title} — quiz menu`} x={440} y={480} w={500} z={3} rotate={2} aspect="1700 / 1068" />}
+        </div>
+
+      </div>
+    </div>
+  );
+}
+
+function MobileShowcase({ project: p, eyebrow = "Android app" }: { project: Project; eyebrow?: string }) {
+  const shots = p.screenshots ?? [];
+  const labels = p.screenshotLabels ?? [];
+  if (p.layout === "spotlight") return <SpotlightShowcase project={p} />;
+  if (p.layout === "staircase") return <StaircaseShowcase project={p} eyebrow={eyebrow} />;
+  if (p.layout === "collage") return <CollageShowcase project={p} eyebrow={eyebrow} />;
+  if (p.layout === "concert-stage") return <ConcertStageShowcase project={p} eyebrow={eyebrow} />;
+  if (p.layout === "video-hero") return <VideoHeroShowcase project={p} eyebrow={eyebrow} />;
+  if (p.layout === "map-hero") return <MapHeroShowcase project={p} eyebrow={eyebrow} />;
   return (
     <div className="w-full max-w-[1440px] mx-auto [container-type:inline-size]">
       <div className="relative flex flex-col gap-8 [--u:calc(100cqw/1000)] xl:block xl:[--u:calc(100cqw/1440)] xl:h-[calc(790*var(--u))]">
@@ -254,7 +954,7 @@ function MobileShowcase({ project: p }: { project: Project }) {
             style={{ width: u(1020), gap: u(60), transform: "rotateX(45deg) rotateZ(-20deg) scale(0.93)" }}
           >
             {shots.map((src, i) => (
-              <PhoneFrame key={src} src={src} alt={`${p.title} — ${labels[i] ?? "screenshot"} screen`} />
+              <PhoneFrame key={src} src={src} alt={`${p.title} — ${labels[i] ?? "screenshot"} screen`} screenBg={p.screenshotBgs?.[i]} />
             ))}
           </div>
         </div>
@@ -270,41 +970,8 @@ function MobileShowcase({ project: p }: { project: Project }) {
               ))}
             </div>
           )}
-          <div className="flex flex-wrap gap-2">
-            {p.tags.map((tag) => (
-              <span key={tag} className={`flex items-center gap-1.5 text-xs rounded-full px-3 py-1 ${getTagStyle(tag)}`}>
-                {renderTagIcon(tag)}
-                {tag}
-              </span>
-            ))}
-          </div>
-          <div className="flex flex-wrap gap-3">
-            <a
-              href={p.githubUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex items-center gap-2 text-sm text-gray-400 hover:text-white transition-colors bg-[#0f2d4a] hover:bg-[#163d60] rounded-full px-5 py-2.5"
-            >
-              <GitBranch className="w-4 h-4" />
-              GitHub
-            </a>
-            {p.downloads?.map(({ label, url }) => (
-              <a
-                key={label}
-                href={url}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex items-center gap-2 text-sm font-medium text-white transition-colors bg-blue-600 hover:bg-blue-500 rounded-full px-5 py-2.5"
-              >
-                {label === "Android" || label === "Google Play" ? (
-                  <AndroidIcon className="w-4 h-4" />
-                ) : (
-                  <ExternalLink className="w-4 h-4" />
-                )}
-                {label}
-              </a>
-            ))}
-          </div>
+          <ShowcaseTags project={p} />
+          <ShowcaseLinks project={p} />
         </div>
 
       </div>
@@ -325,19 +992,38 @@ export default function AIProjects() {
     setCurrent(0);
   };
 
+  // Mobile apps, and web apps that have a layout, use the full-width showcase.
+  const showcased = category === "mobile" || !!projects[current].layout;
+
   const navigate = (dir: number) => {
     setCurrent((c) => (c + dir + n) % n);
   };
 
   return (
     <section id="projects" className="py-20">
-      <div className="max-w-2xl mx-auto px-4">
+      {/* Header lines up with the left edge of every other section */}
+      <div className="px-4"><div className="max-w-7xl mx-auto">
 
         {/* Header row — title left, counter right */}
-        <div className="flex items-center justify-between mb-6">
-          <div className="flex items-center gap-3">
-            <Code2 className="w-6 h-6 text-blue-400" />
-            <h3 className="text-white font-bold text-2xl">Check out my Projects</h3>
+        <div className="flex items-end justify-between gap-4 mb-6">
+          <div className="flex flex-wrap items-end gap-x-5 gap-y-3">
+            <SectionHeading eyebrow="Built & shipped" title="Check out my Projects" />
+            <div className="flex gap-1 bg-[#071e38] border border-[#0f2d4a] rounded-full p-1">
+              {CATEGORIES.map(({ id, label, icon: Icon }) => (
+                <button
+                  key={id}
+                  onClick={() => selectCategory(id)}
+                  className={`flex items-center gap-1.5 text-xs font-semibold px-4 py-1.5 rounded-full transition-all duration-200 ${
+                    category === id
+                      ? "bg-blue-500/20 text-white border border-blue-500/40"
+                      : "text-gray-400 hover:text-white border border-transparent"
+                  }`}
+                >
+                  <Icon className="w-3.5 h-3.5" />
+                  {label}
+                </button>
+              ))}
+            </div>
           </div>
 
           {/* 01 / 02 counter */}
@@ -359,31 +1045,23 @@ export default function AIProjects() {
           </div>
         </div>
 
-        {/* Web / Mobile toggle */}
-        <div className="flex mb-6">
-          <div className="flex gap-1 bg-[#071e38] border border-[#0f2d4a] rounded-full p-1">
-            {CATEGORIES.map(({ id, label, icon: Icon }) => (
-              <button
-                key={id}
-                onClick={() => selectCategory(id)}
-                className={`flex items-center gap-1.5 text-xs font-semibold px-4 py-1.5 rounded-full transition-all duration-200 ${
-                  category === id
-                    ? "bg-blue-500/20 text-white border border-blue-500/40"
-                    : "text-gray-400 hover:text-white border border-transparent"
-                }`}
-              >
-                <Icon className="w-3.5 h-3.5" />
-                {label}
-              </button>
-            ))}
-          </div>
-        </div>
 
-      </div>
 
-      {/* Mobile apps break out of the narrow column into a full-width showcase */}
-      {category === "mobile" ? (
-        <MobileShowcase project={projects[current]} />
+      </div></div>
+
+      {/* Showcased projects break out of the narrow column into a full-width layout */}
+      {showcased ? (
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={projects[current].title}
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -12 }}
+            transition={{ duration: 0.25 }}
+          >
+            <MobileShowcase project={projects[current]} eyebrow={category === "web" ? "Web app" : "Android app"} />
+          </motion.div>
+        </AnimatePresence>
       ) : (
       <div className="max-w-2xl mx-auto px-4">
         {/* Card */}
@@ -422,6 +1100,8 @@ export default function AIProjects() {
                         className="w-full h-full object-cover block pointer-events-none"
                       />
                     ) : (
+                      // Animated GIF: the image optimiser would only pass it through
+                      // eslint-disable-next-line @next/next/no-img-element
                       <img
                         src={p.gifUrl}
                         alt={p.title}
@@ -495,7 +1175,7 @@ export default function AIProjects() {
       </div>
       )}
 
-      <div className="max-w-2xl mx-auto px-4">
+      <div className="max-w-4xl mx-auto px-4">
         {/* Navigation + thumbnail strip — only needed with more than one project */}
         {n > 1 && (
         <div className="flex items-center justify-between mt-5 gap-4">
@@ -509,12 +1189,16 @@ export default function AIProjects() {
           </button>
 
           {/* Project name strip */}
-          <div className="flex gap-3 flex-1 justify-center">
+          {/* Below lg the full strip does not fit, so only the current project is named */}
+          <p className="lg:hidden flex-1 min-w-0 truncate text-center text-sm font-semibold text-blue-400">
+            {projects[current].title}
+          </p>
+          <div className="hidden lg:flex gap-3 flex-1 justify-center">
             {projects.map((p, i) => (
               <button
                 key={p.title}
                 onClick={() => setCurrent(i)}
-                className={`text-sm font-semibold px-4 py-2 rounded-full transition-all duration-300 ${
+                className={`flex-shrink-0 whitespace-nowrap text-sm font-semibold px-4 py-2 rounded-full transition-all duration-300 ${
                   i === current
                     ? "bg-blue-500/20 text-blue-400 border border-blue-500/40"
                     : "text-gray-500 hover:text-gray-300 border border-transparent"
