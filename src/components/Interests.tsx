@@ -133,13 +133,34 @@ function MediaColumn({
   reverse?: boolean; // animate from the last poster to the first
   className?: string;
 }) {
+  // On phones the two columns stack, so the shared marker sits far below the
+  // first one. There each column also starts as soon as it is on screen itself.
+  const columnRef = useRef<HTMLDivElement>(null);
+  const [seen, setSeen] = useState(false);
+  useEffect(() => {
+    const el = columnRef.current;
+    if (!el) return;
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting && window.matchMedia("(max-width: 639px)").matches) {
+          setSeen(true);
+          observer.disconnect();
+        }
+      },
+      { threshold: 0.15 },
+    );
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, []);
+  const go = triggered || seen;
+
   const firstRow  = items.slice(0, 3);
   const secondRow = items.slice(3, 5);
   const count     = firstRow.length + secondRow.length;
   const delayFor  = (index: number) => (reverse ? count - 1 - index : index) * 1;
 
   return (
-    <div className={`flex-1 ${className}`}>
+    <div ref={columnRef} className={`flex-1 ${className}`}>
       <div className="flex items-center gap-2 mb-6">
         {icon}
         <h3 className="text-white font-bold text-lg">{title}</h3>
@@ -153,7 +174,7 @@ function MediaColumn({
             item={item}
             delay={delayFor(i)}
             xFrom={xFrom}
-            triggered={triggered}
+            triggered={go}
           />
         ))}
       </div>
@@ -166,7 +187,7 @@ function MediaColumn({
               item={item}
               delay={delayFor(3 + i)}
               xFrom={xFrom}
-              triggered={triggered}
+              triggered={go}
             />
           </div>
         ))}
