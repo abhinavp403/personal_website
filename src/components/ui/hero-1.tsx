@@ -1,6 +1,7 @@
 "use client";
 
 import * as React from "react";
+import Image from "next/image";
 import { Barlow_Condensed } from "next/font/google";
 import { motion } from "framer-motion";
 import { ShaderAnimation } from "@/components/ui/shader-lines";
@@ -79,11 +80,16 @@ const Hero1 = () => {
                     {new Date().getFullYear()} SEASON
                   </span>
                 </div>
-                <img
-                  src="/profile.jpg"
-                  alt="Abhinav Prakash"
-                  className="flex-1 min-h-0 w-full object-cover object-top"
-                />
+                <div className="relative flex-1 min-h-0">
+                  <Image
+                    src="/profile.jpg"
+                    alt="Abhinav Prakash"
+                    fill
+                    preload
+                    sizes="(min-width: 640px) 356px, 276px"
+                    className="object-cover object-top"
+                  />
+                </div>
                 <div className="bg-blue-600 px-4 pt-3 pb-4">
                   <p className={`${barlow.className} italic font-extrabold uppercase text-4xl sm:text-[46px] leading-[0.95]`}>
                     Abhinav Prakash

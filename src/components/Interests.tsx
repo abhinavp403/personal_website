@@ -98,9 +98,13 @@ function AnimatedPosterCard({
       className="group cursor-pointer"
     >
       <div className="relative rounded-xl overflow-hidden mb-2 aspect-[2/3] bg-[#0f2d4a]">
+        {/* Poster URLs come from Firestore and can be on any host, which next/image would reject */}
+        {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
           src={item.posterUrl}
           alt={item.title}
+          loading="lazy"
+          decoding="async"
           className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
         />
         <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent" />
@@ -334,9 +338,13 @@ export default function Interests() {
                       className="flex-1 flex flex-col items-center gap-2 group"
                     >
                       <div className="w-full aspect-square rounded-full overflow-hidden ring-2 ring-transparent group-hover:ring-[#1DB954] transition-all duration-300">
+                        {/* Spotify serves these from several CDN hosts, already sized */}
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
                         <img
                           src={artist.imageUrl}
                           alt={artist.name}
+                          loading="lazy"
+                          decoding="async"
                           className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                         />
                       </div>
