@@ -6,6 +6,7 @@ import LinkWebsites from "@/components/LinkWebsites";
 import UpcomingGames from "@/components/UpcomingGames";
 import ATPSchedule from "@/components/ATPSchedule";
 import WordOfDay from "@/components/WordOfDay";
+import SportQuestion from "@/components/SportQuestion";
 import SiteNav from "@/components/SiteNav";
 
 function Divider() {
@@ -51,6 +52,8 @@ export default function Home() {
           <ATPSchedule />
           <Divider />
           <WordOfDay />
+          <Divider />
+          <SportQuestion />
           <Divider />
           <LinkWebsites />
         </div>

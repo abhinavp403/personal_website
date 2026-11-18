@@ -16,6 +16,8 @@ A personal website built with Next.js, Tailwind CSS, and Firebase. Live at [apwe
 
 **Word of the Day** — Displays a daily word with its definition (retrieved from Dictionary.com API).
 
+**Sport Question of the Day** — One multiple-choice sport question a day from The Trivia API, with an optional hint. Picking an answer reveals the right one and a short explanation, and the choice is remembered if you reload.
+
 **Links** — Quick-access links to my social profiles and other pages.
 
 ## Tech Stack
@@ -24,7 +26,7 @@ A personal website built with Next.js, Tailwind CSS, and Firebase. Live at [apwe
 - **Styling:** Tailwind CSS v4
 - **Animations:** Framer Motion
 - **Database:** Firebase Firestore (movies/shows data)
-- **APIs:** ESPN (sports fixtures + tennis schedule), Spotify, Dictionary API
+- **APIs:** ESPN (sports fixtures + tennis schedule), Spotify, Dictionary API, The Trivia API (Sport Question of the Day, CC BY-NC 4.0)
 - **Language:** TypeScript
 
 ## Deployment

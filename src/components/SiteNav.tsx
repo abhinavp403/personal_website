@@ -10,6 +10,7 @@ const NAV_LINKS = [
   { label: "Upcoming Fixtures",    href: "#games"         },
   { label: "Tennis Schedule",       href: "#atp-schedule"  },
   { label: "Word of the Day",      href: "#word-of-the-day" },
+  { label: "Sport Question",       href: "#sport-quiz"      },
   { label: "Let's Connect",        href: "#connect"       },
 ];
 
