@@ -51,20 +51,10 @@ on **2026-07-06**; treat them as the baseline until re-verified.
 is yours. This gate must stay clean.
 
 ### `npm run lint` (runs bare `eslint`)
-**FAILS as of 2026-07-06 with pre-existing debt: 14 problems (8 errors, 6 warnings).**
-Do NOT blame your change for these, and do NOT "fix" them as a drive-by (that's
-a scope change — ask the owner). The gate is: **no NEW problems beyond this baseline.**
-
-Baseline as recorded 2026-07-06:
-
-| File | Problems |
-|---|---|
-| `src/components/ui/shader-lines.tsx` | 6 errors: 5× `@typescript-eslint/no-explicit-any` (lines 7,14,15,16,17), 1× `initThreeJS` accessed before declared (line 33, react-hooks/immutability) |
-| `src/components/GeoGame.tsx` | 1 error: setState synchronously in effect (line 91); 1 warning: unused `Globe` import (line 4) |
-| `src/components/Interests.tsx` | 1 error: setState synchronously in effect (line 233); 2 warnings: `no-img-element` (lines 103, 339) |
-| `src/components/AIProjects.tsx` | 1 warning: `no-img-element` (line 216) |
-| `src/components/UpcomingGames.tsx` | 1 warning: `no-img-element` (line 271) |
-| `src/components/ui/hero-1.tsx` | 1 warning: `no-img-element` (line 58) |
+**As of 2026-11-16: clean — 0 errors, 0 warnings.** Local images go through
+`next/image`; the three remaining `<img>` tags (Firestore posters, Spotify artist
+photos, the old GIF branch) carry an `eslint-disable` comment saying why.
+The gate is: **lint stays clean.**
 
 Practical check: run lint, diff the problem list against this table. New file or
 new line in the output → investigate; identical list → baseline, pass.
@@ -75,7 +65,7 @@ static generation: `Failed to set Next.js data cache ... items over 2MB can not
 be cached` for the ESPN NFL scoreboard fetch. This is benign — do not chase it.
 
 Build route table (2026-07-06): `/` static; `/api/cricket` revalidate 30m,
-`/api/fact` 1w, `/api/games` 1h; `/api/atp-schedule`, `/api/spotify`,
+`/api/games` 1h; `/api/atp-schedule`, `/api/spotify`,
 `/api/spotify/callback`, `/api/tennis`, `/api/wordofday` are dynamic (ƒ).
 A change that flips a route between static/dynamic unexpectedly is worth flagging.
 
@@ -89,18 +79,18 @@ A change that flips a route between static/dynamic unexpectedly is worth flaggin
 | Visual / component | Dev server up → inspect the affected section's rendered DOM/styles → check **desktop (~1280px) AND mobile (~375px)** viewports → confirm no layout shift or scrollbar introduced (Interests uses `overflow-x-hidden` for a reason — off-screen animated posters) → screenshot for the **owner to review. Not done until the owner has seen it.** |
 | API route | `curl` it locally (see §5), verify the response **shape** and the **freshness-sensitive field** (a date, `status`, `configured`) — then load the page and confirm the **consuming component** renders the data (not its fallback). |
 | Keyword-list / classification (tennis surface & tier keywords in `src/app/api/atp-schedule/route.ts`, team colours / MY_TEAMS in `UpcomingGames.tsx`) | **Before/after audit of the full output**, not just the case you targeted — substring matching means one keyword can reclassify unrelated tournaments/teams. Capture the route's full classified list before the change, diff after. See the `website-api-probing-toolkit` skill for the probing commands. Also check `website-failure-archaeology` — surface/tier keywords have burned sessions before. |
-| Dependency change | `npm run build` passes + whole-page smoke: load `/`, confirm all six sections render (§4) and the browser console is clean of new errors. |
+| Dependency change | `npm run build` passes + whole-page smoke: load `/`, confirm all eight sections render (§4) and the browser console is clean of new errors. |
 
 ## 4. Section-by-section golden checklist
 
-Page order in `src/app/page.tsx`: SiteNav → Hero → **AIProjects → Interests →
-UpcomingGames → ATPSchedule → WordOfDay → LinkWebsites** → footer.
-Nav anchors (`SiteNav.tsx`): `#projects`, `#interests`, `#games`, `#atp-schedule`, `#connect`.
-(`FactOfWeek.tsx` and `GeoGame.tsx` exist but are NOT rendered on the page — don't "verify" them.)
+Page order in `src/app/page.tsx` (2026-11-18): SiteNav → Hero → **AIProjects → Interests →
+UpcomingGames → ATPSchedule → WordOfDay → SportQuestion → LinkWebsites** → footer.
+Nav anchors (`SiteNav.tsx`): `#about`, `#projects`, `#interests`, `#games`, `#atp-schedule`,
+`#word-of-the-day`, `#sport-quiz`, `#connect` — a dot rail on large screens, a menu button on smaller ones.
 
 ### Projects (`#projects`, `src/components/AIProjects.tsx`)
 - [ ] All **4** projects navigable: FIFA World Cup 26, Tennis Calendar, Concert Tracklist Finder, World Map.
-- [ ] Videos (`autoPlay`, `muted`, files like `/fifa-world-cup-26.mov`, `/tennis-calendar.mp4`) actually play.
+- [ ] The FIFA clip (`/fifa-web-match-zoom.mp4`, muted, loads and plays only while on screen) actually plays. An embedded preview pane running in the background pauses silent video to save power — check in a real, focused browser tab.
 - [ ] No layout shift when switching between slides (media heights must match).
 
 ### Entertainment & Music (`#interests`, `src/components/Interests.tsx`)
@@ -122,7 +112,7 @@ README/page divergence is known. Don't "fix" one to match the other unasked.
 
 ### Tennis Schedule (`#atp-schedule`, `src/components/ATPSchedule.tsx`)
 - [ ] Shows **current-month** tournaments only; ATP and WTA events with the same name merge into one card with both badges.
-- [ ] **Card backdrop matches surface**: `BACKDROP_MAP[surface][tier]` (e.g. clay + grand-slam → `/clay_gs.jpg`, grass + atp-500 → `/grass_500.avif`). The backdrop image and the surface pill (Clay/Grass/Hard/Indoor Hard) must agree — mismatch means the surface keyword classification in `/api/atp-schedule/route.ts` is wrong.
+- [ ] **Timeline rows** (2026-11-15): live tournaments first, then upcoming; finished ones sit behind a "Show N finished" button. The surface label in each row (Clay/Grass/Hard/Indoor Hard) must be right — a wrong one means the surface keyword classification in `/api/atp-schedule/route.ts` is wrong.
 - [ ] **All / ATP / WTA** filter pills work (WTA pill goes pink when active).
 - [ ] Live tournaments get a blue glow + LIVE pulse; past ones render at 45% opacity; Grand Slams get a ★.
 
@@ -157,9 +147,6 @@ curl -s localhost:3000/api/spotify | jq '{configured, error, artists: (.artists|
 
 # 6. wordofday — WordOfDay object at TOP level (not wrapped) ; eyeball: .word non-empty, .date == today (UTC)
 curl -s localhost:3000/api/wordofday | jq '{word, date, partOfSpeech}'
-
-# 7. fact — {fact} ; eyeball: non-empty; exact string "Did you know? Honey never spoils." is the hardcoded catch-fallback => upstream fetch failed
-curl -s localhost:3000/api/fact | jq '.fact'
 ```
 
 (`/api/spotify/callback` is the OAuth redirect handler — not part of the smoke
@@ -186,7 +173,6 @@ All facts above verified against the working tree on **2026-07-06**
 - Gate results / lint baseline: `npx tsc --noEmit`, `npm run lint`, `npm run build` — update §2 if the problem list or exit codes change.
 - Section order & anchors: read `src/app/page.tsx` and `src/components/SiteNav.tsx`.
 - Tab-hiding + completed-game filter: `grep -n "games.some" src/components/UpcomingGames.tsx` and `grep -n "completed" src/lib/sports.ts`.
-- Backdrop/surface mapping: `grep -n "BACKDROP_MAP" -A 8 src/components/ATPSchedule.tsx`.
 - Route list & shapes: `ls src/app/api */route.ts` and each route's `NextResponse.json(...)` lines.
 - Fallback traps: `buildFallbackGames` in UpcomingGames.tsx, `fallbackData` in Interests.tsx.
 

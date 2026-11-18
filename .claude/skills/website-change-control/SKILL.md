@@ -222,11 +222,11 @@ From `0caa6b7` onward (all subsequent commits — 49 of 71 as of 2026-07-06), pr
   `git add -f` an env file, and never paste secret values into committed code.
 - **Committing files over 50 MB.** GitHub warns at 50 MB and blocks at 100 MB.
   **Incident:** `public/fifa-world-cup-26.mov` (added in `bbc7036`, 2026-06-23)
-  is over the 50 MB warning line and triggered GitHub's large-file warning on
-  push — full record and the owner's keep decision are in
-  `website-failure-archaeology` entry 9. Before committing any media, check its
-  size; compress video (the other demo videos are 2–3 MB `.mp4` files) or ask the
-  owner how to host it.
+  was over the 50 MB warning line and triggered GitHub's large-file warning on
+  push; it was deleted from the tree on 2026-11-15 but remains in history — full
+  record in `website-failure-archaeology` entry 9. Before committing any media,
+  check its size; compress video (the one remaining clip,
+  `fifa-web-match-zoom.mp4`, is 1.6 MB) or ask the owner how to host it.
 - **Mutating history** (`git reset` on pushed commits, `git rebase` on `main`,
   amending pushed commits).
 - **Deploying without being asked.** `git push heroku main` is a production
@@ -267,7 +267,7 @@ Re-verify anything you plan to state:
 - Old prefixed style existed: `git log --oneline | grep -E '^[a-f0-9]+ (feat|fix|chore):' | head`
 - Trailer convention: `git log --format='%(trailers:key=Co-Authored-By)' -10 | sort -u`
 - Env files ignored: `grep -n 'env' .gitignore`
-- Oversized video: `ls -la public/fifa-world-cup-26.mov`
+- No oversized media: `ls -laS public | head -5` (largest file should be a few MB at most)
 - Dev-server launch config: `cat .claude/launch.json`
 - Deploy entrypoints: `cat Procfile && grep -A5 '"scripts"' package.json`
 - Remotes (origin + heroku): `git remote -v`

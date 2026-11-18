@@ -39,23 +39,24 @@ writing framework code.
 
 It is a **single page**: `src/app/page.tsx`. Section components stack
 vertically, separated by a `Divider`, all sharing one `FallingPattern`
-background below the hero. **Actual render order in page.tsx (2026-07-06):**
+background below the hero. **Actual render order in page.tsx (2026-11-18):**
 
-1. `SiteNav`
-2. `Hero1` (from `ui/hero-1`)
-3. `AIProjects` — projects carousel
-4. `Interests` — movies/shows (Firestore) + Spotify top artists/tracks
-5. `UpcomingGames` — sports fixtures (games + cricket + tennis APIs)
-6. `ATPSchedule` — tennis tournament calendar
-7. `WordOfDay`
-8. `LinkWebsites`
-9. Footer (inline in page.tsx)
+1. `MotionPrefs` (wraps everything: page-wide reduced-motion setting) and
+   `BackdropColorCycle` (renders nothing; drives the shared colour)
+2. `SiteNav`
+3. `Hero1` (from `ui/hero-1`) — player card + scouting report
+4. `AIProjects` — Web/Mobile project showcases
+5. `Interests` — movies/shows (Firestore) + Spotify top artists/tracks
+6. `UpcomingGames` — sports fixtures (games + cricket + tennis APIs)
+7. `ATPSchedule` — tennis tournament month timeline
+8. `WordOfDay`
+9. `SportQuestion` — daily sport quiz (`/api/sport-question`)
+10. `LinkWebsites`
+11. Footer (inline in page.tsx)
 
-**Orphans:** `src/components/GeoGame.tsx` and `src/components/FactOfWeek.tsx`
-exist but are NOT imported by page.tsx (verified 2026-07-06 via grep — they
-appear only in their own files). `src/app/api/fact/route.ts` exists to serve
-FactOfWeek and is currently unreferenced by any rendered component. Do not
-assume they are dead forever; do not silently delete without owner approval.
+**Orphans:** none (2026-11-15). The former orphans `GeoGame.tsx`,
+`FactOfWeek.tsx` and `src/app/api/fact/route.ts` were deleted at owner
+direction; recover them from git history if they are ever wanted again.
 
 **Data flow:** every section is a `"use client"` component that fetches on
 mount (`useEffect`) from a same-origin `/api/*` route. The seven routes under
@@ -237,9 +238,10 @@ Each entry: Decision / Why / What breaks if violated.
 - **Firestore security rules live outside the repo** (Firebase console).
   Nothing here versions or reviews them; changing them requires owner
   involvement (see `website-change-control`).
-- **Large media in public/ bloats the repo:** `fifa-world-cup-26.mov` is
-  56MB and `world-map.mov` 24MB (verified 2026-07-06). Every clone and
-  Heroku deploy carries them. Don't add more large binaries.
+- **Large media in public/ bloats the repo:** two `.mov` files (56MB and
+  24MB) used to live here; they were deleted from the tree on 2026-11-15 but
+  remain in git history, so every clone still carries them. Don't add more
+  large binaries.
 
 ## 5. Boundaries — where code goes
 
@@ -263,7 +265,7 @@ on a volatile fact, re-verify:
 - Section order: read `src/app/page.tsx` (the JSX inside `<div className="relative z-10">`).
 - Cache values: `grep -rn "revalidate\|force-dynamic\|no-store" src/app/api src/lib`.
 - Client-fetch pattern: `grep -l '"use client"' src/components/*.tsx` and `grep -n "fetch(\"/api" src/components/*.tsx`.
-- Orphaned components: `grep -rn "GeoGame\|FactOfWeek" src/app src/components`.
+- Orphaned components: for each file in `src/components`, `grep -rn "<name>" src/app src/components` should hit outside its own file.
 - Secrets stay server-side: `grep -rn "process.env" src/components src/lib` (expect only `NEXT_PUBLIC_FIREBASE_*` in firebase.ts).
 - Carousel overlap: `grep -n "gridArea" src/components/AIProjects.tsx`; commit `git show 6b67764 --stat`.
 - Keyword lists / no-surface-field claim: read `src/app/api/atp-schedule/route.ts` top-to-bottom.

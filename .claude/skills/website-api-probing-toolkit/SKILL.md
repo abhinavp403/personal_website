@@ -195,11 +195,11 @@ bash .claude/skills/website-api-probing-toolkit/scripts/probe-route-shapes.sh
 # Route shape probe — http://localhost:3000 — 2026-07-06
 /api/atp-schedule   -> ["tournaments"]
 /api/cricket        -> ["configured","matches"]
-/api/fact           -> ["fact"]
 /api/games          -> ["games"]
 /api/spotify        -> ["artists","configured","tracks"]
 /api/tennis         -> ["matches"]
 /api/wordofday      -> ["date","definition","example","explanation","partOfSpeech","phonetics","url","word"]
+/api/sport-question -> ["question"]   (question is null when upstream fails with nothing cached)
 ```
 
 Without a dev server the script exits with
@@ -210,8 +210,7 @@ cricket return their fallback shape when keys are missing — record that too;
 ## 7. External endpoint inventory (verified via source grep, 2026-07-06)
 
 Data endpoints the server code actually fetches (`grep -rE 'https://' src/`;
-excludes static assets — Unsplash/IPL logo images, GitHub release links,
-three.js CDN):
+excludes static assets — Unsplash/IPL logo images, GitHub release links):
 
 | Endpoint | Used by | Auth | Probe one-liner |
 |---|---|---|---|
@@ -222,7 +221,7 @@ three.js CDN):
 | `accounts.spotify.com/api/token` | `src/app/api/spotify/route.ts` | Basic (client id/secret) + refresh token | recipe 5, step 1 |
 | `api.spotify.com/v1/me/top/{artists,tracks}` | `src/app/api/spotify/route.ts` | Bearer access token | recipe 5, step 2 |
 | `www.dictionary.com/word-of-the-day` | `src/app/api/wordofday/route.ts` | none (HTML scrape, not JSON) | `curl -s "https://www.dictionary.com/word-of-the-day" \| grep -c 'word-of-the-day'` |
-| `uselessfacts.jsph.pl/api/v2/facts/random?language=en` | `src/app/api/fact/route.ts` | none | `curl -s "https://uselessfacts.jsph.pl/api/v2/facts/random?language=en" \| jq '.text'` |
+| `the-trivia-api.com/v2/questions?categories=sport&types=text_choice&limit=20` | `src/app/api/sport-question/route.ts` | none (CC BY-NC 4.0, attribution shown in the section; 20 requests per 5s) | `curl -s "https://the-trivia-api.com/v2/questions?categories=sport&limit=1" \| jq '.[0].question.text'` |
 
 Firebase (client SDK, `NEXT_PUBLIC_FIREBASE_*`) runs in the browser, not via
 server fetch — not probe-able with curl from here.

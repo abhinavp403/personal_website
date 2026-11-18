@@ -265,10 +265,13 @@ Quick index by file:
   on disk 2026-07-06), over GitHub's 50 MB recommendation. The push
   succeeded with a warning. Removal was considered; **owner chose to keep
   it.**
-- **Status: open item.** If pushes start failing or the repo/slug bloats,
-  compress or move to external hosting (and note: rewriting it out of
-  history later requires a force-push). Do not delete without owner
-  direction.
+- **Update 2026-11-15:** deleted from the working tree at owner direction,
+  together with `world-map.mov`, the two old demo `.mp4`s and the tennis
+  backdrop images — nothing rendered them any more. `public/` went from
+  110 MB to 6.8 MB.
+- **Status: resolved in the working tree; residual in history.** The blob is
+  still in git history, so clones stay large. Rewriting it out requires a
+  force-push — do not do that without owner direction.
 
 ### 10. Duplicate deploy folder confusion (resolved, lesson stands)
 
@@ -305,7 +308,7 @@ Re-verify before trusting a volatile fact:
 - Surface/125 keywords: `grep -n 'GRASS_KEYWORDS\|CLAY_KEYWORDS\|WTA_125_KEYWORDS' src/app/api/atp-schedule/route.ts`
 - Cricket final state: `grep -n 'endsWith("Z")' src/app/api/cricket/route.ts` and confirm `formatTime` in `src/components/UpcomingGames.tsx` has no timezone override
 - Interests still at 40f86e4: `git diff 40f86e4 HEAD -- src/components/Interests.tsx` (expect empty)
-- Video size: `ls -l public/fifa-world-cup-26.mov`
+- Large video gone from the tree: `ls public/*.mov` (expect no matches)
 - Deploy remote: `git remote -v` (expect `heroku` → apwebsite)
 
 When a new investigation, revert, or rejected fix lands, add an entry here in

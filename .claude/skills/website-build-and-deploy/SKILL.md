@@ -73,7 +73,7 @@ Missing keys do NOT crash the build; sections degrade at runtime.
 | `NEXT_PUBLIC_FIREBASE_*` (any of 6) | `src/lib/firebase.ts` → `src/components/Interests.tsx` (Firestore reads of `interests/current/movies` and `.../shows`) | Movies & shows lists in the Interests section come up empty |
 | `SPOTIFY_CLIENT_ID`, `SPOTIFY_CLIENT_SECRET`, `SPOTIFY_REFRESH_TOKEN` | `src/app/api/spotify/route.ts` (+ callback route uses ID/secret) | Spotify top artists/tracks in Interests section empty |
 | `CRICAPI_KEY` | `src/app/api/cricket/route.ts` → `src/components/UpcomingGames.tsx` | Cricket fixtures empty in Upcoming Games |
-| (none needed) | `/api/fact`, `/api/wordofday`, `/api/games`, `/api/tennis`, `/api/atp-schedule` | These hit public APIs (ESPN etc.) with no keys — they work without any env vars |
+| (none needed) | `/api/wordofday`, `/api/games`, `/api/tennis`, `/api/atp-schedule` | These hit public APIs (ESPN etc.) with no keys — they work without any env vars |
 
 ## 3. Dev server
 
@@ -132,16 +132,19 @@ npm run build      # next build — same command Heroku runs
 
 ## 6. Static assets (public/)
 
-`public/` holds demo videos and tennis tournament backdrops referenced by
-absolute paths (e.g. `/tennis-calendar.mp4`, `/clay_1000.jpg`). Verify with
-`ls -lh public/`. Notable contents (2026-07-06): surface backdrops
-(`clay_*`, `grass_*`, `hard_*`, `indoor_hard_*`), demo videos
-(`tennis-calendar.mp4` 1.9M, `concert-tracklist.mp4` 3.0M), `profile.jpg`.
+`public/` holds the project screenshots and one demo clip, referenced by
+absolute paths (e.g. `/fifa-web-overview.webp`, `/fifa-web-match-zoom.mp4`).
+Verify with `ls -lh public/`. Notable contents (2026-11-15, 6.8 MB in total):
+per-project screenshots (`fifa-web-*`, `tennis-calendar-web-*`,
+`concert-tracklist-web-*`, `world-map-web-*`, `artist-pin-mobile-*`),
+`fifa-web-match-zoom.mp4` (1.6M), `profile.jpg`, `readme_screenshot.png`.
+The tennis surface backdrops and the old demo videos were deleted on
+2026-11-15 because nothing rendered them.
 
-**Size trap**: GitHub warns on files over 50MB. Incident on record:
-`fifa-world-cup-26.mov` is **56MB** (over the warning line) and
-`world-map.mov` is 24MB. Prefer compressed `.mp4` over `.mov` for new demo
-videos — the existing mp4s are 1.9–3.0MB and look fine.
+**Size trap**: GitHub warns on files over 50MB. Incident on record: a 56MB
+`fifa-world-cup-26.mov` once lived here (see `website-failure-archaeology`
+entry 9). Prefer compressed `.mp4` over `.mov` for new demo videos — the
+current clip is 26 seconds at 1.6MB and looks fine.
 
 ## 7. Known traps
 

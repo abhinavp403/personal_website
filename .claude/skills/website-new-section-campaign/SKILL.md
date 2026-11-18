@@ -245,11 +245,12 @@ destructures, field by field.
    { label: "My Section", href: "#my-section" },   // href must equal the section id
    ```
 
-   Scroll-to and active-highlight come free from the existing IntersectionObserver —
+   Scroll-to and active-highlight come free from SiteNav's scroll tracking (the
+   active section is the last one whose top has crossed the middle of the screen) —
    IF the `href` matches an element id on the page. No other nav code changes.
 
 **Gate 4:** in the browser — nav link appears, clicking it smooth-scrolls to the
-section, and the pill highlights when the section is in view. If the highlight never
+section, and its rail dot (or the phone menu label) lights up when the section is in view. If the highlight never
 activates, the section `id` and the nav `href` disagree, or the section renders zero
 height (empty state missing — back to Phase 3).
 
@@ -264,11 +265,11 @@ npx tsc --noEmit      # expected: clean
 npm run lint          # expected: NO NEW problems beyond the pre-existing baseline
 ```
 
-The lint baseline is recorded in **website-validation-and-qa §2** (14 problems as of
-2026-07-06 — recount before judging; the gate is "no NEW errors", NOT "lint-clean"). Do not "helpfully" fix
+The lint baseline is recorded in **website-validation-and-qa §2** (clean as of 2026-11-16 —
+the gate is "lint stays clean"). Do not "helpfully" fix
 baseline lint in this change — that's a separate, separately-approved commit.
 
-- **Desktop AND mobile viewport** — the nav pill row and card grids are the usual
+- **Desktop AND mobile viewport** — the phone nav menu and card grids are the usual
   mobile casualties.
 - **Every EXISTING section still renders** — Projects, Entertainment & Music, Upcoming
   Fixtures, Tennis Schedule, Word of the Day, Links. A page.tsx edit can break
@@ -306,7 +307,7 @@ Each of these was actually tried or is structurally forbidden. Verified via
 | Trust ESPN date ranges to exclude finished events | They don't; completed events come back inside the range | `86bf9fe` (added `status.type.completed` filter, `src/lib/sports.ts:98-99`) |
 | City-name keywords for branded tournament names | "Terra Wortmann Open", "HSBC Championships" carry no city; classification silently wrong | `104d400` (grass/clay surface fix — see website-failure-archaeology entry 3) |
 | Full-season data dump when current-window is house style | Owner already rejected a full-2026 table — it was REVERTED | `feef5ad` (revert of TournamentTable.tsx, −225 lines) |
-| Large media in `public/` (>50MB files) | Bloats the Heroku slug and the repo forever | `bbc7036` (56MB `fifa-world-cup-26.mov`) triggered GitHub's large-file warning — see website-failure-archaeology entry 9; don't compound it |
+| Large media in `public/` (>50MB files) | Bloats the Heroku slug and the repo forever | `bbc7036` (56MB `fifa-world-cup-26.mov`, since deleted from the tree but still in history) triggered GitHub's large-file warning — see website-failure-archaeology entry 9; don't repeat it |
 | Committing/pushing without explicit instruction | Standing house rule, memorialized in user memory | website-change-control |
 
 ---

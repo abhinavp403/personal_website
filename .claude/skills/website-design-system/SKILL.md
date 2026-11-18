@@ -11,7 +11,7 @@ The theme is a **dark navy-blue monochrome with a blue accent**. Everything sits
 
 ## 1. Color system
 
-Note: components hardcode hex values in Tailwind arbitrary classes (`bg-[#071e38]`) rather than using the CSS variables. The `.dark` block in `src/app/globals.css` defines the same palette as variables (`--card: #071e38`, `--border: #0f2d4a`, `--background: #020d1c`) for shadcn components, but **the idiomatic pattern in section components is the literal hex class**. Match the surrounding file.
+**Update 2026-11-18 — colours are now variables.** Since commit `10cb2fc` the surfaces below are written as `bg-[color:var(--tone-N)]` (and `bg-[var(--page-bg)]`), not hex. `BackdropColorCycle.tsx` steps a registered `--fp-color` through blue → violet → pink → amber → emerald every 20s, and `globals.css` derives `--page-bg` and `--tone-0`…`--tone-7` from it with `color-mix()`, so the whole page drifts with the backdrop. With the starting blue the tones reproduce the hex table below (tone-0 ≈ `#041122`, tone-2 `#071e38`, tone-4 `#0f2d4a`, tone-5 `#12365a`, tone-6 `#1a3d5c`, tone-7 `#1f4a75`, page-bg `#020d1c`), and browsers without `color-mix()` fall back to exactly those. **For new code, use the tone variables, not the hexes**; a component that must also look right without the cycle can give a fallback, e.g. `var(--tone-2,#071e38)` (see `SportQuestion.tsx`). The table is kept as the reference for what each tone is for.
 
 ### Core surfaces
 
@@ -73,26 +73,25 @@ Standard skeleton — copy-paste this for a new section:
 
 ```tsx
 <section id="my-section" className="py-20 px-4">
-  <div className="max-w-6xl mx-auto">
-    {/* Header row */}
-    <div className="flex items-center gap-3 mb-10">
-      <SomeLucideIcon className="w-6 h-6 text-blue-400" />
-      <h3 className="text-white font-bold text-2xl">Section Title</h3>
+  <div className="max-w-7xl mx-auto">
+    {/* Header: the shared heading (yellow mono eyebrow over a condensed uppercase h2) */}
+    <div className="mb-10">
+      <SectionHeading eyebrow="Short label" title="Section Title" />
     </div>
-    {/* Content: cards on the bg-[#071e38] / border-[#0f2d4a] / rounded-2xl trio */}
+    {/* Content: cards on the tone-2 surface / tone-4 border / rounded-2xl trio */}
   </div>
 </section>
 ```
 
-- **Outer**: `py-20 px-4` (WordOfDay is the one exception at `py-12`). `id` is required — SiteNav's IntersectionObserver targets it; add the section to `NAV_LINKS` in `src/components/SiteNav.tsx` if it should appear in nav.
-- **Container width**: `max-w-6xl mx-auto` for grid/multi-column sections (Interests, UpcomingGames, ATPSchedule, WordOfDay, LinkWebsites). `max-w-2xl` ONLY for AIProjects, because it is a single centered carousel card — narrow keeps the 3024/1964 preview readable. Default to `max-w-6xl`.
+- **Outer**: `py-20 px-4` (WordOfDay and SportQuestion use `py-12`). `id` is required — SiteNav finds sections by it (the active one is the last whose top has crossed the middle of the screen); add the section to `NAV_LINKS` in `src/components/SiteNav.tsx` if it should appear in nav.
+- **Container width** (2026-11-18): `max-w-7xl mx-auto` for every section, including the Projects header, so all headings line up (160px from the left at a 1440px window). The Projects showcases break out to their own full-width, container-query-scaled layouts below the header. The page `Divider` uses the same `max-w-7xl` width.
 - **Header**: lucide icon `w-6 h-6 text-blue-400` + `h3` `text-white font-bold text-2xl`, `gap-3`, margin below `mb-8`/`mb-10` (or `mb-1` + a `pl-9` subline, see UpcomingGames). Note all section headings are `<h3>` — follow that, don't "fix" the heading level.
 - **Optional subline**: `text-gray-500 text-sm` under the title (UpcomingGames count, ATPSchedule month).
 - **Wiring**: new sections mount in `src/app/page.tsx` inside the `relative z-10` content div, separated by `<Divider />`.
 
 ## 4. Typography scale in use
 
-Fonts: Geist Sans / Geist Mono via `next/font` variables (`src/app/layout.tsx`); `font-mono` used for the 01/02 counter (AIProjects) and tournament date ranges (`text-[13px] font-mono`, ATPSchedule).
+Fonts (2026-11-15): Inter (body) and JetBrains Mono (labels) via `next/font` variables in `src/app/layout.tsx`, wired to `--font-sans` / `--font-mono` in `globals.css`; Barlow Condensed for the hero card and every section title (`src/components/SectionHeading.tsx` — yellow mono eyebrow over a condensed uppercase `h2`); Doto for the fixtures LED board; Cormorant Garamond for Word of the Day. `font-mono` used for the 01/02 counter (AIProjects) and tournament date ranges (`text-[13px] font-mono`, ATPSchedule).
 
 | Role | Classes | Source |
 |---|---|---|
@@ -129,7 +128,7 @@ Rules of thumb from the code: entrances are **once-only** (`once: true`), durati
 - **TeamCircle fallback** (UpcomingGames): logo in a `rounded-full bg-[#0f2d4a]` circle with `object-contain p-1.5`; on `onError` switch state and render initials (`teamAbbrev`) on a deterministic hash-picked color from `PALETTE`. Any new remote-logo UI should reuse this fallback pattern.
 - **Posters / album art**: `object-cover` in fixed-aspect containers — posters `aspect-[2/3] rounded-xl bg-[#0f2d4a]` (Interests), album art as CSS `backgroundImage` cover with bottom-up black scrim.
 - **Project previews** (AIProjects): fixed `style={{ aspectRatio: "3024/1964" }}` container with `bg-[#040f1e]`, media `object-cover block pointer-events-none` (video: `autoPlay loop muted playsInline`). Fixed aspect keeps carousel height identical across slides.
-- **Backdrop naming in `public/`** (verified via ls, 2026-07-06): `{surface}_{tier}.{ext}` — `clay_gs.jpg`, `clay_1000.jpg`, `clay_500.jpg`, `clay_250.jpg`, `grass_gs.jpg`, `grass_500.avif`, `grass_250.jpg`, `hard_gs.jpg`, `hard_1000.jpg`, `hard_500.jpg`, `hard_250.jpeg`, `indoor_hard_{1000,500,250}.jpg`. Mapped in `BACKDROP_MAP` (ATPSchedule) with explicit fallbacks for nonexistent combos. Project media at top level: `fifa-world-cup-26.mov`, `tennis-calendar.mp4`, etc.
+- **Media naming in `public/`** (verified via ls, 2026-11-15): project screenshots are `{project}-{web|mobile}-{view}.{webp|png}` (e.g. `fifa-web-overview.webp`, `artist-pin-mobile-1.png`); the one demo clip is `fifa-web-match-zoom.mp4` with a matching `-poster.webp`. The old tennis surface backdrops (`clay_*`, `grass_*`, `hard_*`) and `BACKDROP_MAP` are gone — the Tennis Schedule is a timeline with no backdrop images.
 
 ## 7. Interaction states
 
@@ -160,9 +159,8 @@ Re-verify before trusting volatile facts:
 - Palette still in use: `grep -rl "071e38" src/` and `grep -rl "0f2d4a" src/` (expect ~10 files each incl. globals.css/page.tsx).
 - Hover/deep-panel hexes: `grep -rn "163d60\|040f1e\|1a3d5c" src/components/`.
 - Glow formula: `grep -rn "rgba(59,130,246" src/components/`.
-- Section skeleton: `grep -n 'py-20 px-4' src/components/*.tsx` and `grep -n "max-w-6xl\|max-w-2xl" src/components/*.tsx`.
+- Section skeleton: `grep -n 'py-20 px-4' src/components/*.tsx` and `grep -n "max-w-7xl" src/components/*.tsx`.
 - Motion defaults: `grep -n "once: true" src/components/*.tsx`.
-- Backdrop naming: `ls public/ | grep -E '^(clay|grass|hard|indoor)'`.
 - Sport/tag palettes: read `SPORT_DOT` in UpcomingGames.tsx and `getTagStyle` in AIProjects.tsx.
 
 If a grep count drops to zero or a cited component was rewritten, re-extract that section from code before relying on it.

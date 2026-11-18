@@ -357,10 +357,6 @@ id (ids are ordering keys), and falls back to hardcoded defaults in the
 component if both are empty or the fetch fails. Content updates happen by
 editing documents in the Firebase console — no code change needed.
 
-### Not sports, for completeness
-
-`api/fact` also exists under `src/app/api/` — unrelated to sports data; read
-the route directly if you need it.
 
 ---
 

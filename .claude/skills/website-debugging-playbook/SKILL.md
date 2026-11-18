@@ -76,7 +76,6 @@ curl -s http://localhost:3000/api/tennis       | jq '.matches | length'
 curl -s http://localhost:3000/api/atp-schedule | jq '.tournaments | length, ([.tournaments[] | select(.surface=="grass")] | length)'
 curl -s http://localhost:3000/api/spotify      | jq '{configured, error, artists: (.artists|length), tracks: (.tracks|length)}'
 curl -s http://localhost:3000/api/wordofday    | jq '{word, date}'
-curl -s http://localhost:3000/api/fact         | jq
 ```
 
 Interpretation:
