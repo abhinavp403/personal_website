@@ -13,9 +13,16 @@ const jetbrainsMono = JetBrains_Mono({
   subsets: ["latin"],
 });
 
+const title       = "Abhinav Prakash — Software Developer";
+const description = "Personal website of Abhinav Prakash, a software developer specializing in Android — projects, sport, music and a word of the day.";
+
 export const metadata: Metadata = {
-  title: "Abhinav P — Developer & Builder",
-  description: "Personal website of Abhinav P — AI projects, interests, sports, and more.",
+  // Base for the share-preview image URL; override with NEXT_PUBLIC_SITE_URL if the domain changes
+  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL ?? "https://apwebsite-5c4657230595.herokuapp.com"),
+  title,
+  description,
+  openGraph: { title, description, type: "website" },
+  twitter:   { card: "summary_large_image", title, description },
 };
 
 export default function RootLayout({

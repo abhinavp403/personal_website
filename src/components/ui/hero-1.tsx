@@ -94,9 +94,10 @@ const Hero1 = () => {
                   />
                 </div>
                 <div className="bg-blue-600 px-4 pt-3 pb-4">
-                  <p className={`${barlow.className} italic font-extrabold uppercase text-4xl sm:text-[46px] leading-[0.95]`}>
+                  {/* The page's main heading */}
+                  <h1 className={`${barlow.className} italic font-extrabold uppercase text-4xl sm:text-[46px] leading-[0.95]`}>
                     Abhinav Prakash
-                  </p>
+                  </h1>
                   <div className="flex justify-between font-mono text-[11px] font-bold tracking-[0.2em] mt-2">
                     <span>SOFTWARE DEVELOPER</span>
                     <span>ANDROID</span>
