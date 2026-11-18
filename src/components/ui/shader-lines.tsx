@@ -17,6 +17,7 @@ const FRAGMENT_SHADER = `
   precision highp float;
   uniform vec2 resolution;
   uniform float time;
+  uniform vec3 tint;
 
   float random (in float x) {
       return fract(sin(x)*1e4);
@@ -45,7 +46,9 @@ const FRAGMENT_SHADER = `
       }
     }
 
-    gl_FragColor = vec4(color[2],color[1],color[0],1.0);
+    // Lines stay near-white at their core and take the shared backdrop colour around it
+    vec3 lines = vec3(color[2],color[1],color[0]);
+    gl_FragColor = vec4(lines * mix(vec3(1.0), tint * 1.6, 0.85), 1.0);
   }
 `
 
@@ -85,6 +88,23 @@ export function ShaderAnimation() {
 
     const timeUniform       = gl.getUniformLocation(program, "time")
     const resolutionUniform = gl.getUniformLocation(program, "resolution")
+    const tintUniform       = gl.getUniformLocation(program, "tint")
+
+    // The tint is the page's shared backdrop colour (--fp-color, stepped by
+    // BackdropColorCycle). Its computed value is already mid-fade during a
+    // transition, so sampling it per frame gives the cross-fade for free.
+    const style = getComputedStyle(canvas)
+    let tintKey = ""
+    const readTint = () => {
+      const value = style.getPropertyValue("--fp-color")
+      if (value === tintKey) return false
+      const rgb = value.match(/[\d.]+/g)
+      if (!value.trim().startsWith("rgb") || !rgb || rgb.length < 3) return false
+      tintKey = value
+      gl.uniform3f(tintUniform, +rgb[0] / 255, +rgb[1] / 255, +rgb[2] / 255)
+      return true
+    }
+    gl.uniform3f(tintUniform, 59 / 255, 130 / 255, 246 / 255)
 
     // People who ask for reduced motion get one still frame instead of the loop
     const still = window.matchMedia("(prefers-reduced-motion: reduce)").matches
@@ -93,6 +113,7 @@ export function ShaderAnimation() {
     let visible = true
 
     const draw = () => {
+      readTint()
       gl.uniform1f(timeUniform, time)
       gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4)
     }
@@ -130,8 +151,12 @@ export function ShaderAnimation() {
     resize()
     start()
 
+    // The still frame never redraws on its own, so repaint it when the colour steps
+    const stillTimer = still ? setInterval(() => { if (readTint()) draw() }, 1000) : undefined
+
     return () => {
       stop()
+      if (stillTimer) clearInterval(stillTimer)
       resized.disconnect()
       seen.disconnect()
       gl.deleteBuffer(buffer)

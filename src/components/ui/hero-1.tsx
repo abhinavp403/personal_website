@@ -3,7 +3,7 @@
 import * as React from "react";
 import Image from "next/image";
 import { Barlow_Condensed } from "next/font/google";
-import { motion } from "framer-motion";
+import { motion, useReducedMotion } from "framer-motion";
 import { ShaderAnimation } from "@/components/ui/shader-lines";
 import { GithubIcon, LinkedinIcon } from "@/components/LinkWebsites";
 
@@ -27,11 +27,13 @@ const REPORT: { label: string; value: string; color: string }[] = [
 ];
 
 function TypingText() {
+  const still = useReducedMotion();
   const [roleIndex, setRoleIndex] = React.useState(0);
   const [displayed, setDisplayed] = React.useState("");
   const [deleting, setDeleting] = React.useState(false);
 
   React.useEffect(() => {
+    if (still) return;
     const current = ROLES[roleIndex];
     let timeout: ReturnType<typeof setTimeout>;
 
@@ -47,18 +49,19 @@ function TypingText() {
     }
 
     return () => clearTimeout(timeout);
-  }, [displayed, deleting, roleIndex]);
+  }, [displayed, deleting, roleIndex, still]);
 
-  return <>{displayed}</>;
+  // Reduced motion: show the first role without the typing loop
+  return <>{still ? ROLES[0] : displayed}</>;
 }
 
 const Hero1 = () => {
   return (
-    <div className="min-h-screen bg-[#020d1c] text-white flex flex-col relative overflow-x-hidden">
+    <div className="min-h-screen bg-[var(--page-bg)] text-white flex flex-col relative overflow-x-hidden">
       {/* Shader background */}
       <ShaderAnimation />
       {/* Dark overlay so text/cards stay readable */}
-      <div className="absolute inset-0 bg-[#020d1c]/70 z-[1]" />
+      <div className="absolute inset-0 bg-[var(--page-bg)]/70 z-[1]" />
 
       {/* Main content */}
       {/* lg:pl clears the fixed left nav rail while the background stays full-bleed */}
@@ -73,7 +76,7 @@ const Hero1 = () => {
             transition={{ duration: 0.7, ease: "easeOut" }}
           >
             <div className="w-[300px] sm:w-[380px] h-[480px] sm:h-[600px] rounded-[28px] bg-yellow-400 p-3 shadow-[0_30px_70px_rgba(0,0,0,0.6)]">
-              <div className="h-full rounded-[18px] bg-[#071e38] overflow-hidden flex flex-col">
+              <div className="h-full rounded-[18px] bg-[color:var(--tone-2)] overflow-hidden flex flex-col">
                 <div className="flex justify-between items-center px-4 py-3">
                   <span className={`${barlow.className} text-yellow-400 text-4xl font-extrabold leading-none`}>DEV</span>
                   <span className="font-mono text-[11px] font-bold tracking-[0.2em] text-gray-300">
@@ -123,9 +126,9 @@ const Hero1 = () => {
               Hi, I&apos;m <span className="font-semibold">Abhinav Prakash</span> — a software developer specializing in Android. I build thoughtful, user-centric tools for niche problems, and lately tools that put AI to practical use.
             </p>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-8 border-b border-[#1a3d5c]">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-8 border-b border-[color:var(--tone-6)]">
               {REPORT.map(({ label, value, color }) => (
-                <div key={label} className="flex justify-between items-center gap-3 min-h-[52px] border-t border-[#1a3d5c]">
+                <div key={label} className="flex justify-between items-center gap-3 min-h-[52px] border-t border-[color:var(--tone-6)]">
                   <span className="font-mono text-xs font-bold tracking-[0.2em] text-gray-400 uppercase">{label}</span>
                   <span className={`${barlow.className} ${color} text-2xl font-extrabold uppercase text-right`}>{value}</span>
                 </div>
@@ -149,7 +152,7 @@ const Hero1 = () => {
                 target="_blank"
                 rel="noopener noreferrer"
                 aria-label="GitHub"
-                className="w-11 h-11 rounded-full border border-[#1a3d5c] hover:border-blue-400 text-gray-300 hover:text-white flex items-center justify-center transition-colors"
+                className="w-11 h-11 rounded-full border border-[color:var(--tone-6)] hover:border-blue-400 text-gray-300 hover:text-white flex items-center justify-center transition-colors"
               >
                 <GithubIcon className="w-5 h-5" />
               </a>
@@ -158,7 +161,7 @@ const Hero1 = () => {
                 target="_blank"
                 rel="noopener noreferrer"
                 aria-label="LinkedIn"
-                className="w-11 h-11 rounded-full border border-[#1a3d5c] hover:border-blue-400 text-gray-300 hover:text-white flex items-center justify-center transition-colors"
+                className="w-11 h-11 rounded-full border border-[color:var(--tone-6)] hover:border-blue-400 text-gray-300 hover:text-white flex items-center justify-center transition-colors"
               >
                 <LinkedinIcon className="w-5 h-5" />
               </a>

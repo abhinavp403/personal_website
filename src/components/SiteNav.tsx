@@ -102,7 +102,7 @@ export default function SiteNav() {
           onClick={() => setMenuOpen((v) => !v)}
           aria-expanded={menuOpen}
           aria-controls="site-nav-menu"
-          className="flex items-center gap-2 h-11 pl-4 pr-3 rounded-full bg-[#071e38]/85 backdrop-blur-md border border-[#1a3d5c] text-white text-sm font-semibold"
+          className="flex items-center gap-2 h-11 pl-4 pr-3 rounded-full bg-[color:var(--tone-2)]/85 backdrop-blur-md border border-[color:var(--tone-6)] text-white text-sm font-semibold"
         >
           <span className="max-w-[55vw] truncate">{NAV_LINKS[activeIndex].label}</span>
           {menuOpen ? <X className="w-5 h-5 text-blue-400" /> : <Menu className="w-5 h-5 text-blue-400" />}
@@ -115,7 +115,7 @@ export default function SiteNav() {
             <div aria-hidden="true" className="fixed inset-0 -z-10" onClick={() => setMenuOpen(false)} />
             <div
               id="site-nav-menu"
-              className="mt-2 w-64 max-w-[calc(100vw-2rem)] rounded-2xl bg-[#071e38]/95 backdrop-blur-md border border-[#1a3d5c] p-2 flex flex-col shadow-[0_20px_50px_rgba(0,0,0,0.6)]"
+              className="mt-2 w-64 max-w-[calc(100vw-2rem)] rounded-2xl bg-[color:var(--tone-2)]/95 backdrop-blur-md border border-[color:var(--tone-6)] p-2 flex flex-col shadow-[0_20px_50px_rgba(0,0,0,0.6)]"
             >
               {NAV_LINKS.map(({ label, href }, i) => {
                 const isActive = i === activeIndex;
@@ -126,10 +126,10 @@ export default function SiteNav() {
                     onClick={(e) => scrollTo(e, href)}
                     aria-current={isActive ? "true" : undefined}
                     className={`flex items-center gap-3 min-h-11 px-3 rounded-xl text-sm transition-colors ${
-                      isActive ? "text-white font-bold bg-blue-500/20" : "text-gray-300 hover:text-white hover:bg-[#0f2d4a]"
+                      isActive ? "text-white font-bold bg-blue-500/20" : "text-gray-300 hover:text-white hover:bg-[color:var(--tone-4)]"
                     }`}
                   >
-                    <span className={`w-2 h-2 rounded-full ${isActive ? "bg-blue-400" : "bg-[#1a3d5c]"}`} />
+                    <span className={`w-2 h-2 rounded-full ${isActive ? "bg-blue-400" : "bg-[color:var(--tone-6)]"}`} />
                     {label}
                   </a>
                 );
@@ -143,7 +143,7 @@ export default function SiteNav() {
       <nav aria-label="Sections" className="hidden lg:block fixed left-6 top-1/2 -translate-y-1/2 z-50">
         <div className="relative flex flex-col">
           {/* Track + filled portion up to the active dot (rows are 44px; dots centre at 22px) */}
-          <div aria-hidden="true" className="absolute left-[11px] top-[22px] bottom-[22px] w-0.5 bg-[#0f2d4a]" />
+          <div aria-hidden="true" className="absolute left-[11px] top-[22px] bottom-[22px] w-0.5 bg-[color:var(--tone-4)]" />
           <div
             aria-hidden="true"
             className="absolute left-[11px] top-[22px] w-0.5 bg-blue-400 shadow-[0_0_8px_#60a5fa] transition-[height] duration-300"
@@ -168,16 +168,16 @@ export default function SiteNav() {
                         ? "w-4 h-4 bg-blue-400 border-blue-400 shadow-[0_0_12px_#60a5fa]"
                         : passed
                           ? "w-2.5 h-2.5 bg-blue-400 border-blue-400"
-                          : "w-2.5 h-2.5 bg-[#020d1c] border-[#1a3d5c] group-hover:border-blue-400"
+                          : "w-2.5 h-2.5 bg-[var(--page-bg)] border-[color:var(--tone-6)] group-hover:border-blue-400"
                     }`}
                   />
                 </span>
                 {/* Labels show on hover/focus; the active one also shows while scrolling, then steps aside so it never sits on content */}
                 <span
-                  className={`whitespace-pre-line leading-tight rounded-xl px-3 py-1 bg-[#071e38]/90 backdrop-blur-md border pointer-events-none transition-all duration-300 group-hover:opacity-100 group-hover:translate-x-0 group-focus-visible:opacity-100 group-focus-visible:translate-x-0 ${
+                  className={`whitespace-pre-line leading-tight rounded-xl px-3 py-1 bg-[color:var(--tone-2)]/90 backdrop-blur-md border pointer-events-none transition-all duration-300 group-hover:opacity-100 group-hover:translate-x-0 group-focus-visible:opacity-100 group-focus-visible:translate-x-0 ${
                     isActive
                       ? `text-white text-sm font-bold border-blue-500/40 ${scrolling ? "opacity-100 translate-x-0" : "opacity-0 -translate-x-1"}`
-                      : "opacity-0 -translate-x-1 text-gray-300 text-[13px] font-medium border-[#0f2d4a]"
+                      : "opacity-0 -translate-x-1 text-gray-300 text-[13px] font-medium border-[color:var(--tone-4)]"
                   }`}
                 >
                   {/* Break the long label onto two lines to keep the pill narrow */}

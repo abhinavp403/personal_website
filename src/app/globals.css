@@ -98,27 +98,27 @@
 }
 
 .dark {
-  --card: #071e38;
+  --card: var(--tone-2);
   --ring: #3b82f6;
-  --input: #0f2d4a;
-  --muted: #071828;
-  --accent: #0f2d4a;
-  --border: #0f2d4a;
+  --input: var(--tone-4);
+  --muted: var(--tone-1);
+  --accent: var(--tone-4);
+  --border: var(--tone-4);
   --chart-1: #3b82f6;
   --chart-2: #60a5fa;
   --chart-3: #2563eb;
   --chart-4: #1d4ed8;
   --chart-5: #1e40af;
-  --popover: #041122;
+  --popover: var(--tone-0);
   --primary: #3b82f6;
-  --sidebar: #071828;
-  --secondary: #071828;
-  --background: #020d1c;
+  --sidebar: var(--tone-1);
+  --secondary: var(--tone-1);
+  --background: var(--page-bg);
   --foreground: #e5e5e5;
   --destructive: #ef4444;
   --sidebar-ring: #3b82f6;
-  --sidebar-accent: #0f2d4a;
-  --sidebar-border: #0f2d4a;
+  --sidebar-accent: var(--tone-4);
+  --sidebar-border: var(--tone-4);
   --card-foreground: #e5e5e5;
   --sidebar-primary: #3b82f6;
   --muted-foreground: #a3a3a3;
@@ -132,6 +132,16 @@
   --sidebar-primary-foreground: #ffffff;
 }
 
+/* Visitors who ask for reduced motion: no CSS loops, pulses or smooth scrolling */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
 @layer base {
   * {
     @apply border-border outline-ring/50;
@@ -141,5 +151,43 @@
   }
   html {
     @apply font-sans;
+  }
+}
+
+/* FallingPattern streak colour. Registered as a <color> so it can be transitioned. */
+@property --fp-color {
+  syntax: "<color>";
+  inherits: true;
+  initial-value: #3b82f6;
+}
+
+/* Surface shades (cards, borders, rails), --tone-0 darkest to --tone-7 lightest. Each is
+   the same kind of mix as --page-bg, tuned so the starting blue reproduces the original
+   navy palette: tone-2 is about #071e38 (cards), tone-4 #0f2d4a (borders), tone-6 #1a3d5c. */
+/* Page background: a near-black shade of the current backdrop colour, so the whole
+   page drifts with it. With the starting blue this lands on the original #020d1c navy. */
+:root {
+  /* Fixed navy for browsers without color-mix() */
+  --page-bg: #020d1c;
+  --tone-0: #041122;
+  --tone-1: #071828;
+  --tone-2: #071e38;
+  --tone-3: #0d2440;
+  --tone-4: #0f2d4a;
+  --tone-5: #12365a;
+  --tone-6: #1a3d5c;
+  --tone-7: #1f4a75;
+}
+@supports (color: color-mix(in srgb, red, red)) {
+  :root {
+    --page-bg: color-mix(in srgb, var(--fp-color) 11%, #000);
+    --tone-0: color-mix(in srgb, var(--fp-color) 13%, #000);
+    --tone-1: color-mix(in srgb, var(--fp-color) 16%, #000);
+    --tone-2: color-mix(in srgb, var(--fp-color) 22%, #000);
+    --tone-3: color-mix(in srgb, var(--fp-color) 26%, #000);
+    --tone-4: color-mix(in srgb, var(--fp-color) 30%, #000);
+    --tone-5: color-mix(in srgb, var(--fp-color) 36%, #000);
+    --tone-6: color-mix(in srgb, var(--fp-color) 38%, #000);
+    --tone-7: color-mix(in srgb, var(--fp-color) 47%, #000);
   }
 }

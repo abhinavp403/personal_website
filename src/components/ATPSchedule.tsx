@@ -175,7 +175,7 @@ function TimelineRow({
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, margin: "-30px" }}
       transition={{ duration: 0.35, ease: "easeOut" }}
-      className={`${ROW_COLS} border-b border-[#0f2d4a]/60 last:border-b-0`}
+      className={`${ROW_COLS} border-b border-[color:var(--tone-4)]/60 last:border-b-0`}
     >
       {/* Label */}
       <div className={`pt-4 md:py-4 md:pr-4 ${isPast ? "opacity-75" : ""}`}>
@@ -276,7 +276,7 @@ export default function ATPSchedule() {
           </div>
 
           {/* Filter pills */}
-          <div className="flex gap-1 bg-[#071e38] border border-[#0f2d4a] rounded-full p-1">
+          <div className="flex gap-1 bg-[color:var(--tone-2)] border border-[color:var(--tone-4)] rounded-full p-1">
             {(["all", "atp", "wta"] as TourFilter[]).map((f) => (
               <button
                 key={f}
@@ -296,14 +296,14 @@ export default function ATPSchedule() {
         </div>
 
         {/* Loading skeleton */}
-        {loading && <div className="h-96 bg-[#071e38] rounded-2xl animate-pulse" />}
+        {loading && <div className="h-96 bg-[color:var(--tone-2)] rounded-2xl animate-pulse" />}
 
         {/* Month timeline */}
         {!loading && (
           <div>
 
             {/* Day ruler */}
-            <div className={`${ROW_COLS} items-end border-b border-[#0f2d4a]`}>
+            <div className={`${ROW_COLS} items-end border-b border-[color:var(--tone-4)]`}>
               <div className="hidden md:block pb-3 font-mono text-xs font-bold tracking-[0.25em] text-gray-400 uppercase">
                 {now.toLocaleString("en-US", { month: "long" })}
               </div>
@@ -356,7 +356,7 @@ export default function ATPSchedule() {
                 type="button"
                 onClick={() => setShowPast((v) => !v)}
                 aria-expanded={showPast}
-                className="mt-4 flex items-center gap-2 font-mono text-xs font-bold tracking-[0.2em] uppercase text-gray-300 hover:text-white border border-[#0f2d4a] hover:border-blue-500/40 bg-[#071e38] rounded-full px-4 py-2 transition-colors"
+                className="mt-4 flex items-center gap-2 font-mono text-xs font-bold tracking-[0.2em] uppercase text-gray-300 hover:text-white border border-[color:var(--tone-4)] hover:border-blue-500/40 bg-[color:var(--tone-2)] rounded-full px-4 py-2 transition-colors"
               >
                 <ChevronDown className={`w-4 h-4 transition-transform ${showPast ? "rotate-180" : ""}`} />
                 {showPast ? "Hide finished" : `Show ${finished.length} finished`}

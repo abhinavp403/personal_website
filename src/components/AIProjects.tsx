@@ -207,7 +207,7 @@ function getTagStyle(tag: string) {
     case "Jetpack Compose": return "text-emerald-300 bg-emerald-500/10 border border-emerald-500/20";
     case "CSS":        return "text-blue-300 bg-blue-500/10 border border-blue-500/20";
     case "SQL":        return "text-emerald-300 bg-emerald-500/10 border border-emerald-500/20";
-    default:           return "text-blue-300 bg-[#0f2d4a]";
+    default:           return "text-blue-300 bg-[color:var(--tone-4)]";
   }
 }
 
@@ -317,7 +317,7 @@ function ShowcaseLinks({
       href={p.githubUrl}
       target="_blank"
       rel="noopener noreferrer"
-      className="flex items-center gap-2 text-sm text-gray-400 hover:text-white transition-colors bg-[#0f2d4a] hover:bg-[#163d60] rounded-full px-4 py-2.5"
+      className="flex items-center gap-2 text-sm text-gray-400 hover:text-white transition-colors bg-[color:var(--tone-4)] hover:bg-[color:var(--tone-6)] rounded-full px-4 py-2.5"
     >
       <GitBranch className="w-4 h-4" />
       GitHub
@@ -345,7 +345,7 @@ function ShowcaseLinks({
           download={d.filename}
           target="_blank"
           rel="noopener noreferrer"
-          className="flex items-center gap-2 text-sm text-gray-400 hover:text-white transition-colors bg-[#0f2d4a] hover:bg-[#163d60] rounded-full px-4 py-2.5"
+          className="flex items-center gap-2 text-sm text-gray-400 hover:text-white transition-colors bg-[color:var(--tone-4)] hover:bg-[color:var(--tone-6)] rounded-full px-4 py-2.5"
         >
           {iconFor(d)}
           {d.label}
@@ -365,7 +365,7 @@ function ShowcaseLinks({
               download={d.filename}
               target="_blank"
               rel="noopener noreferrer"
-              className="flex items-center gap-1.5 text-[13px] text-gray-400 hover:text-white transition-colors border border-[#12365a] hover:border-blue-500/40 rounded-full px-3 py-1.5"
+              className="flex items-center gap-1.5 text-[13px] text-gray-400 hover:text-white transition-colors border border-[color:var(--tone-5)] hover:border-blue-500/40 rounded-full px-3 py-1.5"
             >
               {d.label}
             </a>
@@ -467,7 +467,7 @@ function SpotlightShowcase({ project: p }: { project: Project }) {
         {/* Feature list, tags and links — bottom-right on xl, below the phones otherwise */}
         <div className="relative z-10 mx-auto w-full max-w-2xl px-4 flex flex-col gap-5 xl:absolute xl:mx-0 xl:max-w-none xl:px-0 xl:right-[calc(56*var(--u))] xl:bottom-[calc(100*var(--u))] xl:w-[calc(290*var(--u))]">
           {labels.length > 0 && (
-            <div className="flex flex-col border-b border-[#12365a]">
+            <div className="flex flex-col border-b border-[color:var(--tone-5)]">
               {labels.map((label, i) =>
                 pickable ? (
                   <button
@@ -475,14 +475,14 @@ function SpotlightShowcase({ project: p }: { project: Project }) {
                     type="button"
                     onClick={() => setActive(i)}
                     aria-pressed={i === active}
-                    className="group flex items-baseline gap-3.5 py-3 border-t border-[#12365a] text-left cursor-pointer"
+                    className="group flex items-baseline gap-3.5 py-3 border-t border-[color:var(--tone-5)] text-left cursor-pointer"
                   >
                     <span className="font-mono text-[11px] text-blue-400">{String(i + 1).padStart(2, "0")}</span>
                     <span className={`font-semibold text-sm transition-colors duration-200 ${i === active ? "text-white" : "text-gray-500 group-hover:text-gray-300"}`}>{label}</span>
                     {i === active && <span aria-hidden className="ml-auto self-center w-1.5 h-1.5 rounded-full bg-blue-400" />}
                   </button>
                 ) : (
-                  <div key={label} className="flex items-baseline gap-3.5 py-3 border-t border-[#12365a]">
+                  <div key={label} className="flex items-baseline gap-3.5 py-3 border-t border-[color:var(--tone-5)]">
                     <span className="font-mono text-[11px] text-blue-400">{String(i + 1).padStart(2, "0")}</span>
                     <span className="text-white font-semibold text-sm">{label}</span>
                   </div>
@@ -506,9 +506,9 @@ function FeatureList({ project: p, className = "" }: { project: Project; classNa
   const items = p.features ?? p.screenshotLabels ?? [];
   if (items.length === 0) return null;
   return (
-    <div className={`grid grid-cols-2 gap-x-5 border-b border-[#12365a] text-left ${className}`}>
+    <div className={`grid grid-cols-2 gap-x-5 border-b border-[color:var(--tone-5)] text-left ${className}`}>
       {items.map((label, i) => (
-        <div key={label} className="flex items-baseline gap-2.5 py-2.5 border-t border-[#12365a]">
+        <div key={label} className="flex items-baseline gap-2.5 py-2.5 border-t border-[color:var(--tone-5)]">
           <span className="font-mono text-[11px] text-blue-400">{String(i + 1).padStart(2, "0")}</span>
           <span className="text-white font-semibold text-[13px]">{label}</span>
         </div>
@@ -1008,7 +1008,7 @@ export default function AIProjects() {
         <div className="flex items-end justify-between gap-4 mb-6">
           <div className="flex flex-wrap items-end gap-x-5 gap-y-3">
             <SectionHeading eyebrow="Built & shipped" title="Check out my Projects" />
-            <div className="flex gap-1 bg-[#071e38] border border-[#0f2d4a] rounded-full p-1">
+            <div className="flex gap-1 bg-[color:var(--tone-2)] border border-[color:var(--tone-4)] rounded-full p-1">
               {CATEGORIES.map(({ id, label, icon: Icon }) => (
                 <button
                   key={id}
@@ -1074,7 +1074,7 @@ export default function AIProjects() {
               if (info.offset.x < -80)     navigate(1);
               else if (info.offset.x > 80) navigate(-1);
             }}
-            className={`w-full bg-[#071e38] border border-[#0f2d4a] rounded-2xl overflow-hidden${n > 1 ? " cursor-grab active:cursor-grabbing" : ""}`}
+            className={`w-full bg-[color:var(--tone-2)] border border-[color:var(--tone-4)] rounded-2xl overflow-hidden${n > 1 ? " cursor-grab active:cursor-grabbing" : ""}`}
             style={{ boxShadow: "0 0 60px rgba(59,130,246,0.12)" }}
           >
             {/* All project cards rendered in the same grid cell — only opacity animates,
@@ -1089,7 +1089,7 @@ export default function AIProjects() {
                   className={`flex flex-col${i !== current ? " pointer-events-none select-none" : ""}`}
                 >
                   {/* Preview */}
-                  <div className="w-full bg-[#040f1e] overflow-hidden" style={{ aspectRatio: "3024/1964" }}>
+                  <div className="w-full bg-[color:var(--tone-0)] overflow-hidden" style={{ aspectRatio: "3024/1964" }}>
                     {p.videoUrl ? (
                       <video
                         src={p.videoUrl}
@@ -1140,7 +1140,7 @@ export default function AIProjects() {
                           href={p.githubUrl}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="flex items-center gap-2 text-sm text-gray-400 hover:text-white transition-colors bg-[#0f2d4a] hover:bg-[#163d60] rounded-full px-4 py-2"
+                          className="flex items-center gap-2 text-sm text-gray-400 hover:text-white transition-colors bg-[color:var(--tone-4)] hover:bg-[color:var(--tone-6)] rounded-full px-4 py-2"
                         >
                           <GitBranch className="w-4 h-4" />
                           GitHub
@@ -1152,7 +1152,7 @@ export default function AIProjects() {
                             download={filename}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="flex items-center gap-2 text-sm text-gray-400 hover:text-white transition-colors bg-[#0f2d4a] hover:bg-[#163d60] rounded-full px-4 py-2"
+                            className="flex items-center gap-2 text-sm text-gray-400 hover:text-white transition-colors bg-[color:var(--tone-4)] hover:bg-[color:var(--tone-6)] rounded-full px-4 py-2"
                           >
                             {label === "Android" || label === "Google Play" ? (
                               <AndroidIcon className="w-4 h-4" />
@@ -1183,7 +1183,7 @@ export default function AIProjects() {
           {/* Left arrow */}
           <button
             onClick={() => navigate(-1)}
-            className="flex-shrink-0 w-10 h-10 rounded-full bg-[#071e38] border border-[#0f2d4a] flex items-center justify-center text-white hover:border-blue-500/50 hover:text-blue-400 transition-all"
+            className="flex-shrink-0 w-10 h-10 rounded-full bg-[color:var(--tone-2)] border border-[color:var(--tone-4)] flex items-center justify-center text-white hover:border-blue-500/50 hover:text-blue-400 transition-all"
           >
             <ChevronLeft className="w-5 h-5" />
           </button>
@@ -1212,7 +1212,7 @@ export default function AIProjects() {
           {/* Right arrow */}
           <button
             onClick={() => navigate(1)}
-            className="flex-shrink-0 w-10 h-10 rounded-full bg-[#071e38] border border-[#0f2d4a] flex items-center justify-center text-white hover:border-blue-500/50 hover:text-blue-400 transition-all"
+            className="flex-shrink-0 w-10 h-10 rounded-full bg-[color:var(--tone-2)] border border-[color:var(--tone-4)] flex items-center justify-center text-white hover:border-blue-500/50 hover:text-blue-400 transition-all"
           >
             <ChevronRight className="w-5 h-5" />
           </button>

@@ -54,7 +54,7 @@ export default function WordOfDay() {
         </div>
 
         {loading ? (
-          <div className="h-64 bg-[#071e38] rounded-2xl animate-pulse" />
+          <div className="h-64 bg-[color:var(--tone-2)] rounded-2xl animate-pulse" />
         ) : !word ? (
           <p className="text-gray-500 text-sm">Could not load today&apos;s word.</p>
         ) : (

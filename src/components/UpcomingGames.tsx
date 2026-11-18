@@ -242,7 +242,7 @@ function DayStrip({ games, nextKey }: { games: GameEvent[]; nextKey?: string }) 
   });
 
   return (
-    <div className="flex gap-2 overflow-x-auto px-4 sm:px-7 py-5 border-b-2 border-[#163d60]">
+    <div className="flex gap-2 overflow-x-auto px-4 sm:px-7 py-5 border-b-2 border-[color:var(--tone-6)]">
       {days.map((d) => {
         const lit = d.sports.length > 0;
         return (
@@ -250,8 +250,8 @@ function DayStrip({ games, nextKey }: { games: GameEvent[]; nextKey?: string }) 
             key={d.key}
             className="flex-1 min-w-[56px] h-[92px] rounded-xl border flex flex-col items-center justify-center gap-1"
             style={{
-              borderColor: d.isNext ? AMBER : d.isToday ? "#60a5fa" : "#163d60",
-              background:  d.isNext ? "rgba(250,204,21,0.14)" : lit ? "#071e38" : "transparent",
+              borderColor: d.isNext ? AMBER : d.isToday ? "#60a5fa" : "var(--tone-6)",
+              background:  d.isNext ? "rgba(250,204,21,0.14)" : lit ? "var(--tone-2)" : "transparent",
               color:       d.isNext ? AMBER : lit ? "#ffffff" : "#8fa3bf",
             }}
           >
@@ -296,7 +296,7 @@ function FeaturedRow({ game }: { game: GameEvent }) {
       </div>
 
       <div className="relative" aria-hidden="true">
-        <div className="absolute left-1/2 -translate-x-1/2 top-10 bottom-0 w-0.5 bg-[#1f4a75]" />
+        <div className="absolute left-1/2 -translate-x-1/2 top-10 bottom-0 w-0.5 bg-[color:var(--tone-7)]" />
         <div
           className="absolute left-1/2 -translate-x-1/2 top-8 w-5 h-5 rounded-full animate-pulse"
           style={{ background: lamp, boxShadow: `0 0 14px ${lamp}` }}
@@ -376,14 +376,14 @@ function BoardRow({ game, i, showDay }: { game: GameEvent; i: number; showDay: b
       </div>
 
       <div className="relative" aria-hidden="true">
-        <div className="absolute left-1/2 -translate-x-1/2 inset-y-0 w-0.5 bg-[#1f4a75]" />
+        <div className="absolute left-1/2 -translate-x-1/2 inset-y-0 w-0.5 bg-[color:var(--tone-7)]" />
         <div
           className="absolute left-1/2 -translate-x-1/2 top-[27px] w-4 h-4 rounded-full"
           style={{ background: lamp, boxShadow: `0 0 12px ${lamp}` }}
         />
       </div>
 
-      <div className="min-w-0 min-h-[70px] py-3 border-t border-[#0f2d4a] grid grid-cols-[auto_minmax(0,1fr)] md:grid-cols-[112px_190px_minmax(0,1fr)_200px] gap-x-4 gap-y-1 items-center">
+      <div className="min-w-0 min-h-[70px] py-3 border-t border-[color:var(--tone-4)] grid grid-cols-[auto_minmax(0,1fr)] md:grid-cols-[112px_190px_minmax(0,1fr)_200px] gap-x-4 gap-y-1 items-center">
         <span
           className={`${doto.className} text-lg sm:text-[22px] font-black whitespace-nowrap`}
           style={{ color: AMBER, textShadow: "0 0 10px rgba(250,204,21,0.45)" }}
@@ -476,9 +476,9 @@ export default function UpcomingGames() {
         {/* Content */}
         {loading ? (
           <div className="space-y-4">
-            <div className="h-28 bg-[#071e38] rounded-2xl animate-pulse" />
-            <div className="h-52 bg-[#071e38] rounded-2xl animate-pulse" />
-            <div className="h-72 bg-[#071e38] rounded-2xl animate-pulse" />
+            <div className="h-28 bg-[color:var(--tone-2)] rounded-2xl animate-pulse" />
+            <div className="h-52 bg-[color:var(--tone-2)] rounded-2xl animate-pulse" />
+            <div className="h-72 bg-[color:var(--tone-2)] rounded-2xl animate-pulse" />
           </div>
         ) : filtered.length === 0 ? (
           <div className="text-center py-16 text-gray-500">
@@ -487,10 +487,10 @@ export default function UpcomingGames() {
           </div>
         ) : (
           <div
-            className="rounded-2xl border-2 border-[#163d60] overflow-hidden"
+            className="rounded-2xl border-2 border-[color:var(--tone-6)] overflow-hidden"
             style={{
               backgroundColor: "#01070f",
-              backgroundImage: "radial-gradient(#0d2440 1px, transparent 1.6px)",
+              backgroundImage: "radial-gradient(var(--tone-3) 1px, transparent 1.6px)",
               backgroundSize:  "8px 8px",
               boxShadow:       "0 0 60px rgba(59,130,246,0.12)",
             }}

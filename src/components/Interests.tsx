@@ -97,7 +97,7 @@ function AnimatedPosterCard({
       }}
       className="group cursor-pointer"
     >
-      <div className="relative rounded-xl overflow-hidden mb-2 aspect-[2/3] bg-[#0f2d4a]">
+      <div className="relative rounded-xl overflow-hidden mb-2 aspect-[2/3] bg-[color:var(--tone-4)]">
         {/* Poster URLs come from Firestore and can be on any host, which next/image would reject */}
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
@@ -326,7 +326,7 @@ export default function Interests() {
                   <p className="text-gray-500 text-[10px] font-bold uppercase tracking-widest leading-tight whitespace-nowrap">
                     Top<br />Artists
                   </p>
-                  <div className="flex-1 h-px bg-[#0f2d4a]" />
+                  <div className="flex-1 h-px bg-[color:var(--tone-4)]" />
                 </div>
                 <div className="flex gap-3">
                   {artists.map((artist) => (
@@ -361,7 +361,7 @@ export default function Interests() {
                   <p className="text-gray-500 text-[10px] font-bold uppercase tracking-widest leading-tight whitespace-nowrap">
                     Top<br />Songs
                   </p>
-                  <div className="flex-1 h-px bg-[#0f2d4a]" />
+                  <div className="flex-1 h-px bg-[color:var(--tone-4)]" />
                 </div>
                 <div className="flex gap-3">
                   <a
