@@ -13,10 +13,13 @@ import BackdropColorCycle from "@/components/BackdropColorCycle";
 
 function Divider() {
   return (
-    <div className="flex items-center gap-4 px-8 max-w-6xl mx-auto">
-      <div className="flex-1 h-px bg-gradient-to-r from-transparent to-[color:var(--tone-4)]" />
-      <div className="w-1 h-1 rounded-full bg-blue-500/40 flex-shrink-0" />
-      <div className="flex-1 h-px bg-gradient-to-l from-transparent to-[color:var(--tone-4)]" />
+    // Same width as the sections it separates
+    <div className="px-4">
+      <div className="flex items-center gap-4 max-w-7xl mx-auto">
+        <div className="flex-1 h-px bg-gradient-to-r from-transparent to-[color:var(--tone-4)]" />
+        <div className="w-1 h-1 rounded-full bg-blue-500/40 flex-shrink-0" />
+        <div className="flex-1 h-px bg-gradient-to-l from-transparent to-[color:var(--tone-4)]" />
+      </div>
     </div>
   );
 }
@@ -71,11 +74,11 @@ export default function Home() {
 
       {/* Footer */}
       <footer className="border-t border-[color:var(--tone-2)] py-8 px-4 text-center bg-[var(--page-bg)]">
-        <p className="text-gray-600 text-sm">
-          Built with Next.js · shadcn/ui · Tailwind CSS · Firebase
+        <p className="text-gray-400 text-sm">
+          Built with Next.js · Tailwind CSS · Framer Motion · Firebase
         </p>
-        <p className="text-gray-700 text-xs mt-1" suppressHydrationWarning>
-          © {new Date().getFullYear()} Abhinav P
+        <p className="text-gray-400 text-xs mt-1" suppressHydrationWarning>
+          © {new Date().getFullYear()} Abhinav Prakash
         </p>
       </footer>
     </main>
