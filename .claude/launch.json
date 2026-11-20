@@ -1,0 +1,24 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "personal-website",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["run", "dev"],
+      "port": 3000,
+      "autoPort": false
+    },
+    {
+      "name": "fifa-dev",
+      "runtimeExecutable": "sh",
+      "runtimeArgs": ["-c", "cd '/Users/abhinavp403/Documents/Fifa World Cup/fifa-world-cup-2026' && npm run dev -- --port 3001"],
+      "port": 3001
+    },
+    {
+      "name": "tennis-vite",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["--prefix", "/Users/abhinavp403/Documents/Tennis/tennis_calendar", "run", "dev:vite"],
+      "port": 5173
+    }
+  ]
+}
