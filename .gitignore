@@ -39,3 +39,6 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# per-machine Claude Code settings (can hold API keys from saved commands)
+.claude/settings.local.json
