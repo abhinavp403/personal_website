@@ -2,7 +2,7 @@
 
 ![Site Preview](public/readme_screenshot.png)
 
-A personal website built with Next.js, Tailwind CSS, and Firebase. Live at [apwebsite-5c4657230595.herokuapp.com](https://apwebsite-5c4657230595.herokuapp.com).
+A personal website built with Next.js, Tailwind CSS, and Firebase. Live at [abhinavprakash.dev](https://abhinavprakash.dev).
 
 ## Sections
 
