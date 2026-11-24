@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { unstable_cache } from "next/cache";
 
 export const dynamic = "force-dynamic"; // the question flips at a calendar boundary — never serve a stale ISR copy
 
@@ -28,8 +29,10 @@ interface TriviaItem {
   explanation?: string;
 }
 
-// The Trivia API (CC BY-NC 4.0, no key) returns a fresh random batch on every call,
-// so the first pick of the day is kept in memory and served until the date changes.
+// The Trivia API (CC BY-NC 4.0, no key) returns a fresh random batch on every call.
+// The day's pick is stored in Next's data cache under the date, which hosts such as
+// Vercel share across server instances, so every visitor gets the same question.
+// memCache only keeps the last good question in case the API is down.
 const SOURCE = "https://the-trivia-api.com/v2/questions?categories=sport&types=text_choice&limit=20";
 const DAY_ZONE = "America/New_York"; // same flip time as Word of the Day
 let memCache: { day: string; data: SportQuestion } | null = null;
@@ -69,36 +72,49 @@ function shuffle<T>(items: T[]): T[] {
   return out;
 }
 
+async function fetchQuestion(label: string): Promise<SportQuestion> {
+  const res = await fetch(SOURCE, { cache: "no-store" });
+  if (!res.ok) throw new Error(`Trivia API responded ${res.status}`);
+  const items: TriviaItem[] = await res.json();
+
+  // The category is "sport and leisure": keep real sport questions with a clean four-way choice
+  const pick = items.find(
+    (q) =>
+      q.type === "text_choice" &&
+      !q.isNiche &&
+      q.incorrectAnswers?.length === 3 &&
+      (q.tags ?? []).some((t) => t.startsWith("sport:")),
+  );
+  if (!pick) throw new Error("No usable sport question in the batch");
+
+  return {
+    id:          pick.id,
+    date:        label,
+    sport:       sportLabel(pick.tags),
+    difficulty:  pick.difficulty,
+    text:        pick.question.text,
+    choices:     shuffle([pick.correctAnswer, ...pick.incorrectAnswers]),
+    answer:      pick.correctAnswer,
+    hint:        pick.hint ?? "",
+    explanation: pick.explanation ?? "",
+  };
+}
+
+// Keyed by the day (the arguments are part of the cache key). A thrown error is not
+// cached, so a failed fetch is retried on the next request. Two days covers the entry's
+// lifetime; after that a new date means a new key anyway.
+const questionForDay = unstable_cache(
+  async (_day: string, label: string) => fetchQuestion(label),
+  ["sport-question"],
+  { revalidate: 2 * 24 * 60 * 60 },
+);
+
 export async function GET() {
   const { key, label } = today();
   if (memCache?.day === key) return NextResponse.json({ question: memCache.data });
 
   try {
-    const res = await fetch(SOURCE, { cache: "no-store" });
-    if (!res.ok) throw new Error(`Trivia API responded ${res.status}`);
-    const items: TriviaItem[] = await res.json();
-
-    // The category is "sport and leisure": keep real sport questions with a clean four-way choice
-    const pick = items.find(
-      (q) =>
-        q.type === "text_choice" &&
-        !q.isNiche &&
-        q.incorrectAnswers?.length === 3 &&
-        (q.tags ?? []).some((t) => t.startsWith("sport:")),
-    );
-    if (!pick) throw new Error("No usable sport question in the batch");
-
-    const data: SportQuestion = {
-      id:          pick.id,
-      date:        label,
-      sport:       sportLabel(pick.tags),
-      difficulty:  pick.difficulty,
-      text:        pick.question.text,
-      choices:     shuffle([pick.correctAnswer, ...pick.incorrectAnswers]),
-      answer:      pick.correctAnswer,
-      hint:        pick.hint ?? "",
-      explanation: pick.explanation ?? "",
-    };
+    const data = await questionForDay(key, label);
     memCache = { day: key, data };
     return NextResponse.json({ question: data });
   } catch {
