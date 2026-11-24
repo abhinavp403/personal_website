@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import type { CSSProperties } from "react";
-import { Doto } from "next/font/google";
+import { doto } from "@/fonts";
 import { Trophy } from "lucide-react";
 import SectionHeading from "@/components/SectionHeading";
 import { motion } from "framer-motion";
@@ -11,7 +11,6 @@ import type { GameEvent, TennisMatch } from "@/lib/sports";
 import type { CricketMatch } from "@/app/api/cricket/route";
 
 // Dot-matrix display face for the LED board numerals and team codes
-const doto = Doto({ subsets: ["latin"], weight: ["700", "900"] });
 
 // ── Sport config ───────────────────────────────────────────────────────────────
 

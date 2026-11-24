@@ -2,17 +2,10 @@
 
 import * as React from "react";
 import Image from "next/image";
-import { Barlow_Condensed } from "next/font/google";
+import { barlowCard as barlow } from "@/fonts";
 import { motion, useReducedMotion } from "framer-motion";
 import { ShaderAnimation } from "@/components/ui/shader-lines";
 import { GithubIcon, LinkedinIcon } from "@/components/LinkWebsites";
-
-// Condensed display face for the trading-card type
-const barlow = Barlow_Condensed({
-  subsets: ["latin"],
-  weight: ["700", "800"],
-  style: ["normal", "italic"],
-});
 
 const ROLES = ["Software Developer", "DJ", "Sports Enthusiast", "Philosopher"];
 

@@ -1,17 +1,11 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Cormorant_Garamond } from "next/font/google";
+import { cormorant } from "@/fonts";
 import SectionHeading from "@/components/SectionHeading";
 import { motion } from "framer-motion";
 import type { WordOfDay } from "@/app/api/wordofday/route";
 
-// Classic dictionary serif for the entry itself
-const cormorant = Cormorant_Garamond({
-  subsets: ["latin"],
-  weight: ["400", "500", "600"],
-  style: ["normal", "italic"],
-});
 
 // Muted gold used for rules, sense number and part of speech
 const GOLD = "#d9c08a";

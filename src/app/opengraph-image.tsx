@@ -7,26 +7,12 @@ export const alt = "Abhinav Prakash — software developer specializing in Andro
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 
-// Barlow Condensed ExtraBold (the site's display face) as a TTF, which is what the
-// image renderer needs. Fetched at build time like next/font/google does; if the
-// request fails the card still renders in the default font.
-async function loadDisplayFont(): Promise<ArrayBuffer | null> {
-  try {
-    const css = await fetch("https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@800").then((r) => r.text());
-    const url = css.match(/src: url\((.+?)\) format\('(?:truetype|opentype)'\)/)?.[1];
-    if (!url) return null;
-    const res = await fetch(url);
-    return res.ok ? await res.arrayBuffer() : null;
-  } catch {
-    return null;
-  }
-}
-
 export default async function Image() {
   const photo = await readFile(join(process.cwd(), "public/profile.jpg"));
   const photoSrc = `data:image/jpeg;base64,${photo.toString("base64")}`;
-  const display  = await loadDisplayFont();
-  const displayFamily = display ? "Barlow Condensed" : undefined;
+  // The renderer takes TTF/OTF/WOFF, not WOFF2, so this one face is kept as .woff in src/fonts
+  const display = await readFile(join(process.cwd(), "src/fonts/barlow-condensed-latin-800-normal.woff"));
+  const displayFamily = "Barlow Condensed";
 
   return new ImageResponse(
     (
@@ -92,7 +78,7 @@ export default async function Image() {
     ),
     {
       ...size,
-      fonts: display ? [{ name: "Barlow Condensed", data: display, weight: 800, style: "normal" }] : undefined,
+      fonts: [{ name: "Barlow Condensed", data: display, weight: 800, style: "normal" }],
     },
   );
 }

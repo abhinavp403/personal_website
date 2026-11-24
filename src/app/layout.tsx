@@ -1,17 +1,7 @@
 import type { Metadata } from "next";
-import { Inter, JetBrains_Mono } from "next/font/google";
+// Body and label faces (self-hosted, see src/fonts) — globals.css points --font-sans / --font-mono at these
+import { inter, jetbrainsMono } from "@/fonts";
 import "./globals.css";
-
-// Body and label faces — globals.css points --font-sans / --font-mono at these
-const inter = Inter({
-  variable: "--font-inter",
-  subsets: ["latin"],
-});
-
-const jetbrainsMono = JetBrains_Mono({
-  variable: "--font-jetbrains-mono",
-  subsets: ["latin"],
-});
 
 const title       = "Abhinav Prakash — Software Developer";
 const description = "Personal website of Abhinav Prakash, a software developer specializing in Android — projects, sport, music and a word of the day.";

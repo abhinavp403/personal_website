@@ -1,10 +1,5 @@
-import { Barlow_Condensed } from "next/font/google";
-
 // Same condensed display face as the About Me player card
-const barlow = Barlow_Condensed({
-  subsets: ["latin"],
-  weight: ["800"],
-});
+import { barlowHeading as barlow } from "@/fonts";
 
 // Shared section header: yellow mono eyebrow over a condensed uppercase title
 export default function SectionHeading({ eyebrow, title }: { eyebrow: string; title: string }) {
