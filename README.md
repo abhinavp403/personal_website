@@ -2,7 +2,7 @@
 
 ![Site Preview](public/readme_screenshot.png)
 
-A personal website built with Next.js, Tailwind CSS, and Firebase. Live at [abhinavprakash.dev](https://abhinavprakash.dev).
+A personal website built with Next.js, Tailwind CSS, and Firebase. Live at [www.abhinavprakash.dev](https://www.abhinavprakash.dev).
 
 ## Sections
 

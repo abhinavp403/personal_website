@@ -8,7 +8,7 @@ const description = "Personal website of Abhinav Prakash, a software developer s
 
 export const metadata: Metadata = {
   // Base for the share-preview image URL; override with NEXT_PUBLIC_SITE_URL if the domain changes
-  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL ?? "https://abhinavprakash.dev"),
+  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL ?? "https://www.abhinavprakash.dev"),
   title,
   description,
   openGraph: { title, description, type: "website" },
